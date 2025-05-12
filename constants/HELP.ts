@@ -255,7 +255,7 @@ const HELP: {
     `A job defines the abilities available to a character or mob at their level.`,
     `<span style="color:var(--red)">Cleric:</span> learns spells for healing and protection, and some for damaging foes`,
     `<span style="color:var(--red)">Mage:</span> learns spells for damaging foes, and some utility spells`,
-    `<span style="color:var(--red)">Rogue:</span> sneaks, steals, and backstabs foes for big damage`,
+    `<span style="color:var(--red)">Rogue:</span> sneaks, steals, and sneak attacks foes for big damage`,
     `<span style="color:var(--red)">Warrior:</span> hits hard, blocks foes, and soaks up damage`,
   ],
   KEYWORDS: [

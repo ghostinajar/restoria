@@ -1,28 +1,30 @@
 const SKILL = {
     NONE: "none",
     AMBUSH: "ambush",
-    BACKSTAB: "backstab",
     CLEAVE: "cleave",
     DEFEND: "defend",
     DISARM: "disarm",
-    DODGE: "dodge",
-    GUARD: "guard",
     HIDE: "hide",
     KICK: "kick",
     MEDITATE: "meditate",
-    DUALWIELD: "dualwield",
-    PARRY: "parry",
     PICK: "pick",
     SCAN: "scan",
-    SECOND_ATTACK: "second attack",
     SHOVE: "shove",
     SNEAK: "sneak",
+    SNEAK_ATTACK: "sneak attack",
     STEAL: "steal",
-    THIRD_ATTACK: "third attack",
     THROW: "throw",
     TRACK: "track",
     TRAP: "trap",
     TRIP: "trip",
 };
-export const skills = Object.values(SKILL);
+const PASSIVE_SKILL = {
+    DODGE: "dodge",
+    GUARD: "guard", // sometimes takes a hit aimed at a party member with low health
+    DUALWIELD: "dualwield",
+    PARRY: "parry",
+    SECOND_ATTACK: "second attack",
+    THIRD_ATTACK: "third attack",
+};
+export const skills = [...Object.values(SKILL), Object.values(PASSIVE_SKILL)];
 export default SKILL;

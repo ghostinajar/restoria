@@ -57,7 +57,7 @@ async function createUser(userFormData) {
                 intelligence: 12,
                 wisdom: 12,
                 charisma: 12,
-                spirit: 12,
+                spirit: 0,
             },
             goldHeld: 0,
             goldBanked: 0,
