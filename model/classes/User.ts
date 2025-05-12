@@ -3,12 +3,11 @@
 // Also allows state management for an active user instance
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
-import affixSchema, { IAffix } from "./Affix.js";
+import affixSchema from "./Affix.js";
 import itemSchema, { IItem } from "./Item.js";
-import descriptionSchema, { IDescription } from "./Description.js";
+import descriptionSchema from "./Description.js";
 import locationSchema, { ILocation } from "./Location.js";
-import statBlockSchema, { IStatBlock } from "./StatBlock.js";
-import IEquipped from "../../types/Equipped.js";
+import statBlockSchema from "./StatBlock.js";
 import historySchema, { IHistory } from "./History.js";
 import catchErrorHandlerForFunction from "../../util/catchErrorHandlerForFunction.js";
 import WORLD_RECALL from "../../constants/WORLD_RECALL.js";
@@ -78,6 +77,9 @@ export interface IUser extends mongoose.Document, IAgent {
   _currentHp?: number; // this is necessary for the setter, since this is a stored virtual (not derived on every get)
   _currentMp?: number; // this is necessary for the setter, since this is a stored virtual (not derived on every get)
   _currentMv?: number; // this is necessary for the setter, since this is a stored virtual (not derived on every get)
+  _readyForAttack: boolean;
+  _readyForAction: boolean;
+  _readyForBonusAction: boolean;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -172,6 +174,9 @@ export const userSchema = new Schema<IUser>(
       required: true,
       default: () => ({ autoExamine: false, mapRadius: 8, autoMap: true }),
     },
+    _currentHp: Number,
+    _currentMp: Number,
+    _currentMv: Number,
   },
   {
     toJSON: {
@@ -298,6 +303,33 @@ userSchema.virtual("resistFire").get(function () {
 userSchema.virtual("resistElec").get(function () {
   return calculateResistElec(this);
 });
+
+userSchema
+  .virtual("readyForAttack")
+  .get(function () {
+    return this._readyForAttack;
+  })
+  .set(function (value: boolean) {
+    this._readyForAttack = value;
+  });
+
+userSchema
+  .virtual("readyForAction")
+  .get(function () {
+    return this._readyForAction;
+  })
+  .set(function (value: boolean) {
+    this._readyForAction = value;
+  });
+
+userSchema
+  .virtual("readyForBonusAction")
+  .get(function () {
+    return this._readyForBonusAction;
+  })
+  .set(function (value: boolean) {
+    this._readyForBonusAction = value;
+  });
 
 userSchema.methods.comparePassword = async function (
   candidatePassword: string

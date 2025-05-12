@@ -104,6 +104,9 @@ export const userSchema = new Schema({
         required: true,
         default: () => ({ autoExamine: false, mapRadius: 8, autoMap: true }),
     },
+    _currentHp: Number,
+    _currentMp: Number,
+    _currentMv: Number,
 }, {
     toJSON: {
         virtuals: true,
@@ -203,6 +206,30 @@ userSchema.virtual("resistFire").get(function () {
 });
 userSchema.virtual("resistElec").get(function () {
     return calculateResistElec(this);
+});
+userSchema
+    .virtual("readyForAttack")
+    .get(function () {
+    return this._readyForAttack;
+})
+    .set(function (value) {
+    this._readyForAttack = value;
+});
+userSchema
+    .virtual("readyForAction")
+    .get(function () {
+    return this._readyForAction;
+})
+    .set(function (value) {
+    this._readyForAction = value;
+});
+userSchema
+    .virtual("readyForBonusAction")
+    .get(function () {
+    return this._readyForBonusAction;
+})
+    .set(function (value) {
+    this._readyForBonusAction = value;
 });
 userSchema.methods.comparePassword = async function (candidatePassword) {
     try {

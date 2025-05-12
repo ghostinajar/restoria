@@ -110,6 +110,9 @@ class Mob implements IMob {
     this.resistElec = calculateResistElec(this) || 0;
     this.resistFire = calculateResistFire(this) || 0;
     this.spellSave = calculateSpellSave(this) || 0;
+    this.readyForAttack = true;
+    this.readyForAction = true;
+    this.readyForBonusAction = true;
   }
   _id: mongoose.Types.ObjectId;
   author: mongoose.Types.ObjectId;
@@ -156,6 +159,9 @@ class Mob implements IMob {
   resistElec: number;
   resistFire: number;
   spellSave: number;
+  readyForAttack: boolean;
+  readyForAction: boolean;
+  readyForBonusAction: boolean;
 }
 
 export default Mob;

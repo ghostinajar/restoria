@@ -67,6 +67,9 @@ class Mob {
         this.resistElec = calculateResistElec(this) || 0;
         this.resistFire = calculateResistFire(this) || 0;
         this.spellSave = calculateSpellSave(this) || 0;
+        this.readyForAttack = true;
+        this.readyForAction = true;
+        this.readyForBonusAction = true;
     }
     _id;
     author;
@@ -113,5 +116,8 @@ class Mob {
     resistElec;
     resistFire;
     spellSave;
+    readyForAttack;
+    readyForAction;
+    readyForBonusAction;
 }
 export default Mob;

@@ -1,3 +1,5 @@
+// createUser
+// allows user to create new users from the /register page
 import makeMessage from "../util/makeMessage.js";
 import logger from "../logger.js";
 import User from "../model/classes/User.js";
@@ -42,7 +44,6 @@ async function createUser(userFormData) {
             password: hashedPassword,
             salt: salt,
             isAdmin: false,
-            isTeacher: false,
             location: WORLD_RECALL,
             pronouns: userFormData.pronouns,
             history: historyStartingNow(),
@@ -72,8 +73,6 @@ async function createUser(userFormData) {
                 study: ``,
                 research: ``,
             },
-            users: [],
-            students: [],
             //may change when training is implemented
             trained: [],
             inventory: [],
@@ -99,6 +98,12 @@ async function createUser(userFormData) {
                 weapon2: null,
             },
             affixes: [],
+            _currentHp: 8,
+            _currentMp: 8,
+            _currentMv: 8,
+            readyForAttack: true,
+            readyForAction: true,
+            readyForBonusAction: true,
         };
         switch (newUserData.job) {
             case "cleric": {
@@ -125,7 +130,7 @@ async function createUser(userFormData) {
                 break;
         }
         purifyDescriptionOfObject(newUserData);
-        //create the user in mongoose (objectId will be assigned when user.save())
+        // create the user in mongoose (objectId will be assigned when user.save())
         const newUser = new User(newUserData);
         if (!newUser) {
             logger.error(`createUser couldn't save new user ${newUserData.name}!`);

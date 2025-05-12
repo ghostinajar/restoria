@@ -1,8 +1,6 @@
 // createUser
-// allows user to create new users from the /register page, or from in game
-import { Types } from "mongoose";
+// allows user to create new users from the /register page
 import makeMessage from "../util/makeMessage.js";
-import worldEmitter from "../model/classes/WorldEmitter.js";
 import logger from "../logger.js";
 import User, { IUser } from "../model/classes/User.js";
 import isValidName from "../util/isValidName.js";
@@ -12,7 +10,6 @@ import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 import { historyStartingNow } from "../model/classes/History.js";
 import purifyDescriptionOfObject from "../util/purify.js";
-import catchErrorHandlerForFunction from "../util/catchErrorHandlerForFunction.js";
 import WORLD_RECALL from "../constants/WORLD_RECALL.js";
 
 export interface IUserData {
@@ -60,7 +57,6 @@ async function createUser(userFormData: IUserData): Promise<IUser | IMessage> {
       password: hashedPassword,
       salt: salt,
       isAdmin: false,
-      isTeacher: false,
       location: WORLD_RECALL,
       pronouns: userFormData.pronouns,
       history: historyStartingNow(),
@@ -74,7 +70,7 @@ async function createUser(userFormData: IUserData): Promise<IUser | IMessage> {
         intelligence: 12,
         wisdom: 12,
         charisma: 12,
-        spirit: 12,
+        spirit: 0,
       },
       goldHeld: 0,
       goldBanked: 0,
@@ -90,8 +86,6 @@ async function createUser(userFormData: IUserData): Promise<IUser | IMessage> {
         study: ``,
         research: ``,
       },
-      users: [],
-      students: [],
       //may change when training is implemented
       trained: [],
       inventory: [],
@@ -117,6 +111,12 @@ async function createUser(userFormData: IUserData): Promise<IUser | IMessage> {
         weapon2: null,
       },
       affixes: [],
+      _currentHp: 8,
+      _currentMp: 8,
+      _currentMv: 8,
+      readyForAttack: true,
+      readyForAction: true,
+      readyForBonusAction: true,
     };
 
     switch (newUserData.job) {
@@ -145,7 +145,7 @@ async function createUser(userFormData: IUserData): Promise<IUser | IMessage> {
     }
     purifyDescriptionOfObject(newUserData);
 
-    //create the user in mongoose (objectId will be assigned when user.save())
+    // create the user in mongoose (objectId will be assigned when user.save())
     const newUser = new User(newUserData);
     if (!newUser) {
       logger.error(`createUser couldn't save new user ${newUserData.name}!`);

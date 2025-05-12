@@ -45,4 +45,7 @@ export interface IAgent {
   resistElec: number;
   resistFire: number;
   spellSave: number;
+  readyForAttack: boolean;
+  readyForAction: boolean;
+  readyForBonusAction: boolean;
 }
