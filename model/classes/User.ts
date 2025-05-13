@@ -37,6 +37,7 @@ import { IAffixBonuses } from "../../constants/AFFIX_BONUSES.js";
 import calculateAffixBonuses from "../../util/calculateAffixBonuses.js";
 import { IAgent } from "./Agent.js";
 import { IAction } from "./Action.js";
+import IGrudge from "./Grudge.js";
 
 const { Schema, Types, model } = mongoose;
 
@@ -85,6 +86,7 @@ export interface IUser extends mongoose.Document, IAgent {
   _bonusActionQueue: Array<IAction>;
   _combatTargetId?: mongoose.Types.ObjectId;
   _combatTargetName?: string;
+  _grudges: Array<IGrudge>;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -361,6 +363,10 @@ userSchema
   .set(function (value: string) {
     this._combatTargetName = value;
   });
+
+userSchema.virtual("grudges").get(function () {
+  return this._grudges || [];
+});
 
 userSchema.methods.comparePassword = async function (
   candidatePassword: string

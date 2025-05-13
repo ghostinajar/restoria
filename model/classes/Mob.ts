@@ -32,6 +32,7 @@ import {
 import { AFFIX_BONUSES, IAffixBonuses } from "../../constants/AFFIX_BONUSES.js";
 import { IAgent } from "./Agent.js";
 import { IAction } from "./Action.js";
+import IGrudge from "./Grudge.js";
 
 export interface IMob extends IAgent {
   _id: mongoose.Types.ObjectId;
@@ -116,6 +117,7 @@ class Mob implements IMob {
     this.readyForBonusAction = true;
     this.actionQueue = [];
     this.bonusActionQueue = [];
+    this.grudges = [];
   }
   _id: mongoose.Types.ObjectId;
   author: mongoose.Types.ObjectId;
@@ -169,6 +171,7 @@ class Mob implements IMob {
   bonusActionQueue: Array<IAction>;
   combatTargetId?: mongoose.Types.ObjectId;
   combatTargetName?: string;
+  grudges: Array<IGrudge>;
 }
 
 export default Mob;

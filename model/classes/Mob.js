@@ -72,6 +72,7 @@ class Mob {
         this.readyForBonusAction = true;
         this.actionQueue = [];
         this.bonusActionQueue = [];
+        this.grudges = [];
     }
     _id;
     author;
@@ -125,5 +126,6 @@ class Mob {
     bonusActionQueue;
     combatTargetId;
     combatTargetName;
+    grudges;
 }
 export default Mob;

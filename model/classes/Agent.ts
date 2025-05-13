@@ -9,6 +9,7 @@ import { IItem } from "./Item.js";
 import IEquipped from "../../types/Equipped.js";
 import { IAffixBonuses } from "../../constants/AFFIX_BONUSES.js";
 import { IAction } from "./Action.js";
+import IGrudge from "./Grudge.js";
 
 export interface IAgent {
   author: mongoose.Types.ObjectId;
@@ -53,4 +54,5 @@ export interface IAgent {
   bonusActionQueue: Array<IAction>;
   combatTargetId?: mongoose.Types.ObjectId;
   combatTargetName?: string;
+  grudges: Array<IGrudge>;
 }

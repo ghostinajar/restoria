@@ -253,6 +253,9 @@ userSchema
     .set(function (value) {
     this._combatTargetName = value;
 });
+userSchema.virtual("grudges").get(function () {
+    return this._grudges || [];
+});
 userSchema.methods.comparePassword = async function (candidatePassword) {
     try {
         return await bcrypt.compare(candidatePassword, this.password);
