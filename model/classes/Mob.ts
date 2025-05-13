@@ -167,6 +167,8 @@ class Mob implements IMob {
   readyForBonusAction: boolean;
   actionQueue: Array<IAction>;
   bonusActionQueue: Array<IAction>;
+  combatTargetId?: mongoose.Types.ObjectId;
+  combatTargetName?: string;
 }
 
 export default Mob;

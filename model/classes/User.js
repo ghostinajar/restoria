@@ -237,6 +237,22 @@ userSchema.virtual("actionQueue").get(function () {
 userSchema.virtual("bonusActionQueue").get(function () {
     return this._bonusActionQueue || [];
 });
+userSchema
+    .virtual("combatTargetId")
+    .get(function () {
+    return this._combatTargetId || undefined;
+})
+    .set(function (value) {
+    this._combatTargetId = value;
+});
+userSchema
+    .virtual("combatTargetName")
+    .get(function () {
+    return this._combatTargetName || undefined;
+})
+    .set(function (value) {
+    this._combatTargetName = value;
+});
 userSchema.methods.comparePassword = async function (candidatePassword) {
     try {
         return await bcrypt.compare(candidatePassword, this.password);

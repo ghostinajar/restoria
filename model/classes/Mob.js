@@ -123,5 +123,7 @@ class Mob {
     readyForBonusAction;
     actionQueue;
     bonusActionQueue;
+    combatTargetId;
+    combatTargetName;
 }
 export default Mob;

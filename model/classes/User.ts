@@ -83,6 +83,8 @@ export interface IUser extends mongoose.Document, IAgent {
   _readyForBonusAction: boolean;
   _actionQueue: Array<IAction>;
   _bonusActionQueue: Array<IAction>;
+  _combatTargetId?: mongoose.Types.ObjectId;
+  _combatTargetName?: string;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -341,6 +343,24 @@ userSchema.virtual("actionQueue").get(function () {
 userSchema.virtual("bonusActionQueue").get(function () {
   return this._bonusActionQueue || [];
 });
+
+userSchema
+  .virtual("combatTargetId")
+  .get(function () {
+    return this._combatTargetId || undefined;
+  })
+  .set(function (value: mongoose.Types.ObjectId) {
+    this._combatTargetId = value;
+  });
+
+userSchema
+  .virtual("combatTargetName")
+  .get(function () {
+    return this._combatTargetName || undefined;
+  })
+  .set(function (value: string) {
+    this._combatTargetName = value;
+  });
 
 userSchema.methods.comparePassword = async function (
   candidatePassword: string
