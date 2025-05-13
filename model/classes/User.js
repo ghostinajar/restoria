@@ -231,6 +231,12 @@ userSchema
     .set(function (value) {
     this._readyForBonusAction = value;
 });
+userSchema.virtual("actionQueue").get(function () {
+    return this._actionQueue || [];
+});
+userSchema.virtual("bonusActionQueue").get(function () {
+    return this._bonusActionQueue || [];
+});
 userSchema.methods.comparePassword = async function (candidatePassword) {
     try {
         return await bcrypt.compare(candidatePassword, this.password);

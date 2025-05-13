@@ -31,6 +31,7 @@ import {
 } from "../../constants/BASE_STATS.js";
 import { AFFIX_BONUSES, IAffixBonuses } from "../../constants/AFFIX_BONUSES.js";
 import { IAgent } from "./Agent.js";
+import { IAction } from "./Action.js";
 
 export interface IMob extends IAgent {
   _id: mongoose.Types.ObjectId;
@@ -113,6 +114,8 @@ class Mob implements IMob {
     this.readyForAttack = true;
     this.readyForAction = true;
     this.readyForBonusAction = true;
+    this.actionQueue = [];
+    this.bonusActionQueue = [];
   }
   _id: mongoose.Types.ObjectId;
   author: mongoose.Types.ObjectId;
@@ -162,6 +165,8 @@ class Mob implements IMob {
   readyForAttack: boolean;
   readyForAction: boolean;
   readyForBonusAction: boolean;
+  actionQueue: Array<IAction>;
+  bonusActionQueue: Array<IAction>;
 }
 
 export default Mob;

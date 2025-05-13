@@ -70,6 +70,8 @@ class Mob {
         this.readyForAttack = true;
         this.readyForAction = true;
         this.readyForBonusAction = true;
+        this.actionQueue = [];
+        this.bonusActionQueue = [];
     }
     _id;
     author;
@@ -119,5 +121,7 @@ class Mob {
     readyForAttack;
     readyForAction;
     readyForBonusAction;
+    actionQueue;
+    bonusActionQueue;
 }
 export default Mob;

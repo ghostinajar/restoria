@@ -8,6 +8,7 @@ import { IAffix } from "./Affix.js";
 import { IItem } from "./Item.js";
 import IEquipped from "../../types/Equipped.js";
 import { IAffixBonuses } from "../../constants/AFFIX_BONUSES.js";
+import { IAction } from "./Action.js";
 
 export interface IAgent {
   author: mongoose.Types.ObjectId;
@@ -48,4 +49,6 @@ export interface IAgent {
   readyForAttack: boolean;
   readyForAction: boolean;
   readyForBonusAction: boolean;
+  actionQueue: Array<IAction>;
+  bonusActionQueue: Array<IAction>;
 }
