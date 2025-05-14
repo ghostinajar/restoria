@@ -106,7 +106,7 @@ class Action {
     constructor(agent, targetType, targetId, name) {
         this.agent = agent;
         this.targetType = targetType;
-        this.targetId = targetId.toString();
+        this.targetId = targetId;
         this.name = name;
         this.dateEntered = new Date();
     }

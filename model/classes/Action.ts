@@ -116,7 +116,7 @@ type BonusActionName = (typeof bonusActionNames)[number];
 export interface IAction {
   agent: IAgent;
   targetType: AgentType;
-  targetId: string;
+  targetId: mongoose.Types.ObjectId;  // we store the id and not a reference to the target itself because the target may not exist anymore when a queued action executes
   name: AttackActionName | ActionName | BonusActionName;
   dateEntered: Date;
 }
@@ -125,19 +125,19 @@ class Action implements IAction {
   constructor(
     agent: IAgent,
     targetType: AgentType,
-    targetId: string | mongoose.Types.ObjectId,
+    targetId: mongoose.Types.ObjectId,
     name: AttackActionName | ActionName | BonusActionName
   ) {
     this.agent = agent;
     this.targetType = targetType;
-    this.targetId = targetId.toString();
+    this.targetId = targetId;
     this.name = name;
     this.dateEntered = new Date();
   }
 
   agent: IAgent;
   targetType: AgentType;
-  targetId: string;
+  targetId: mongoose.Types.ObjectId;
   name: AttackActionName | ActionName | BonusActionName;
   dateEntered: Date;
 }

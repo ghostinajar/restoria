@@ -39,10 +39,15 @@ import equip from "../commands/equip.js";
 import unequip from "../commands/unequip.js";
 import equipped from "../commands/equipment.js";
 import character from "../commands/character.js";
+import attack from "../commands/attack.js";
 async function processCommand(parsedCommand, user) {
     try {
         switch (parsedCommand.commandWord) {
             // A commands ******************** (and aliases for them)
+            case `attack`: {
+                await attack(parsedCommand, user);
+                break;
+            }
             case `autoexamine`: {
                 await autoExamine(parsedCommand, user);
                 break;

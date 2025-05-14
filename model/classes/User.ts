@@ -314,7 +314,7 @@ userSchema.virtual("resistElec").get(function () {
 userSchema
   .virtual("readyForAttack")
   .get(function () {
-    return this._readyForAttack;
+    return this._readyForAttack === undefined ? true : this._readyForAttack;
   })
   .set(function (value: boolean) {
     this._readyForAttack = value;
@@ -323,7 +323,7 @@ userSchema
 userSchema
   .virtual("readyForAction")
   .get(function () {
-    return this._readyForAction;
+    return this._readyForAction === undefined ? true : this._readyForAction;
   })
   .set(function (value: boolean) {
     this._readyForAction = value;
@@ -332,7 +332,9 @@ userSchema
 userSchema
   .virtual("readyForBonusAction")
   .get(function () {
-    return this._readyForBonusAction;
+    return this._readyForBonusAction === undefined
+      ? true
+      : this._readyForBonusAction;
   })
   .set(function (value: boolean) {
     this._readyForBonusAction = value;

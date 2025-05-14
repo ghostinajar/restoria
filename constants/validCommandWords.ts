@@ -1,6 +1,7 @@
 // validCommandWords
 // * most commonly used commands are bumped up out of alpha-order to take priority when abbreviated (e.g. we want "d" to mean down, not delete)
 export const validCommandWords = [
+  "attack",
   "autoexamine",
 
   "bug",
