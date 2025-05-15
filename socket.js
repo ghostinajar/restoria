@@ -7,7 +7,7 @@ import authenticateSessionUserOnSocket from "./util/authenticateSessionUserOnSoc
 import disconnectMultiplayerOnSocket from "./util/disconnectMultiplayerOnSocket.js";
 import setupUserOnSocket from "./util/setupUserOnSocket.js";
 import userSentCommandHandler from "./util/userSentCommandHandler.js";
-import { formPromptForUserHandler, mapRequestForUserHandler, messageArrayForUserHandler, messageForUserHandler, messageForUsersRoomHandler, messageForUsersZoneHandler, userSubmittedCreateItemBlueprintHandler, userSubmittedEditItemBlueprintHandler, userSubmittedEditMobBlueprintHandler, userSubmittedEditRoomHandler, userSubmittedEditZoneHandler, userSubmittedEraseItemBlueprintHandler, userSubmittedEraseMobBlueprintHandler, userSubmittedEraseRoomHandler, userSubmittedGotoHandler, userSubmittedCreateMobBlueprintHandler, userXChangingRoomsHandler, userXLeavingGameHandler, userSubmittedCreateZoneHandler, userSubmittedEditUserHandler, userSubmittedSuggestHandler, userSubmittedSuggestionsHandler, userSubmittedEraseZoneHandler, safeMessageArrayForUserHandler, safeMessageForUserHandler, userSubmittedBugHandler, userSubmittedEditMapHandler, mapTileStateForUserHandler, } from "./socketHandlers.js";
+import { formPromptForUserHandler, mapRequestForUserHandler, messageArrayForUserHandler, messageForUserHandler, messageForUsersRoomHandler, messageForUsersZoneHandler, userSubmittedCreateItemBlueprintHandler, userSubmittedEditItemBlueprintHandler, userSubmittedEditMobBlueprintHandler, userSubmittedEditRoomHandler, userSubmittedEditZoneHandler, userSubmittedEraseItemBlueprintHandler, userSubmittedEraseMobBlueprintHandler, userSubmittedEraseRoomHandler, userSubmittedGotoHandler, userSubmittedCreateMobBlueprintHandler, userXChangingRoomsHandler, userXLeavingGameHandler, userSubmittedCreateZoneHandler, userSubmittedEditUserHandler, userSubmittedSuggestHandler, userSubmittedSuggestionsHandler, userSubmittedEraseZoneHandler, safeMessageArrayForUserHandler, safeMessageForUserHandler, userSubmittedBugHandler, userSubmittedEditMapHandler, mapTileStateForUserHandler, hudUpdateForUserHandler, } from "./socketHandlers.js";
 import stats from "./commands/stats.js";
 import exits from "./commands/exits.js";
 import { purifyCommandInput } from "./util/purify.js";
@@ -34,6 +34,7 @@ const setupSocket = (io) => {
                 worldEmitter.removeAllListeners(`eraseMapTileFor${user.username}`);
                 worldEmitter.removeAllListeners(`equipmentArrayFor${user.username}`);
                 worldEmitter.removeAllListeners(`formPromptFor${user.username}`);
+                worldEmitter.removeAllListeners(`hudUpdateFor${user.username}`);
                 worldEmitter.removeAllListeners(`mapRequestFor${user.username}`);
                 worldEmitter.removeAllListeners(`mapTileStateFor${user.username}`);
                 worldEmitter.removeAllListeners(`messageArrayFor${user.username}`);
@@ -61,6 +62,9 @@ const setupSocket = (io) => {
             });
             worldEmitter.on(`formPromptFor${user.username}`, async (formData) => {
                 formPromptForUserHandler(formData, socket);
+            });
+            worldEmitter.on(`hudUpdateFor${user.username}`, async (hudUpdatePackage) => {
+                hudUpdateForUserHandler(hudUpdatePackage, socket);
             });
             worldEmitter.on(`mapRequestFor${user.username}`, async (zoneFloorName, mapTileState) => {
                 mapRequestForUserHandler(zoneFloorName, mapTileState, socket);

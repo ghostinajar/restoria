@@ -45,6 +45,19 @@ import { IMapTileState } from "./commands/map.js";
 import eraseRoom from "./commands/eraseRoom.js";
 import editMap from "./commands/editMap.js";
 import { IMapTile } from "./model/classes/Room.js";
+import { IHudUpdatePackage } from "./util/sendHudUpdateToUser.js";
+
+export const eraseMapTileForUserHandler = async (
+  zoneFloorName: string,
+  mapCoords: number[],
+  socket: any
+) => {
+  try {
+    socket.emit(`eraseMapTile`, zoneFloorName, mapCoords);
+  } catch (error: unknown) {
+    catchErrorHandlerForFunction(`eraseMapTileForUserHandler`, error);
+  }
+};
 
 export const formPromptForUserHandler = async (formData: any, socket: any) => {
   const formEventMap: Record<string, string> = {
@@ -79,17 +92,18 @@ export const formPromptForUserHandler = async (formData: any, socket: any) => {
   }
 };
 
-export const eraseMapTileForUserHandler = async (
-  zoneFloorName: string,
-  mapCoords: number[],
+export const hudUpdateForUserHandler = async (
+  hudUpdatePackage: IHudUpdatePackage,
   socket: any
 ) => {
   try {
-    socket.emit(`eraseMapTile`, zoneFloorName, mapCoords);
+    console.log("emitting hudUpdatePackage on socket:");
+    console.log(hudUpdatePackage);
+    socket.emit(`hudUpdate`, hudUpdatePackage);
   } catch (error: unknown) {
-    catchErrorHandlerForFunction(`eraseMapTileForUserHandler`, error);
+    catchErrorHandlerForFunction(`hudUpdateForUserHandler`, error);
   }
-}
+};
 
 export const mapRequestForUserHandler = async (
   zoneFloorName: string,

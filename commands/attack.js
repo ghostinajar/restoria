@@ -5,6 +5,7 @@ import catchErrorHandlerForFunction from "../util/catchErrorHandlerForFunction.j
 import findMobInRoom from "../util/findMobinRoom.js";
 import getRoomOfUser from "../util/getRoomOfUser.js";
 import messageToUsername from "../util/messageToUsername.js";
+import sendHudUpdateToUser from "../util/sendHudUpdateToUser.js";
 async function attack(parsedCommand, user) {
     try {
         if (!parsedCommand.directObject) {
@@ -27,16 +28,10 @@ async function attack(parsedCommand, user) {
         }
         user.combatTargetId = target._id;
         user.combatTargetName = target.name;
-        // TODO message user.combatTargetName to client for HUD
-        console.log(`TODO message user.combatTargetName to client for HUD`);
-        // package attackAction : IAction object
-        const attackAction = new Action(user, "mob", target._id, "attack");
-        // if user.readyForAttack, execute attackAction now, return
-        console.log(user.readyForAttack);
+        sendHudUpdateToUser(user);
         if (user.readyForAttack) {
-            // TODO executeAction(attackAction) when implemented
-            console.log(`TODO executeAction(attackAction) when implemented`);
-            console.log(attackAction);
+            const attackAction = new Action(user._id, "mob", target._id, target.keywords[0], "attack");
+            // TODO await resolveAction(attackAction) when implemented
             user.readyForAttack = false;
             return;
         }

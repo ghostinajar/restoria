@@ -24,6 +24,14 @@ import saveSuggestions from "./commands/saveSuggestions.js";
 import eraseZone from "./commands/eraseZone.js";
 import eraseRoom from "./commands/eraseRoom.js";
 import editMap from "./commands/editMap.js";
+export const eraseMapTileForUserHandler = async (zoneFloorName, mapCoords, socket) => {
+    try {
+        socket.emit(`eraseMapTile`, zoneFloorName, mapCoords);
+    }
+    catch (error) {
+        catchErrorHandlerForFunction(`eraseMapTileForUserHandler`, error);
+    }
+};
 export const formPromptForUserHandler = async (formData, socket) => {
     const formEventMap = {
         bugForm: "openBugForm",
@@ -55,12 +63,14 @@ export const formPromptForUserHandler = async (formData, socket) => {
         }
     }
 };
-export const eraseMapTileForUserHandler = async (zoneFloorName, mapCoords, socket) => {
+export const hudUpdateForUserHandler = async (hudUpdatePackage, socket) => {
     try {
-        socket.emit(`eraseMapTile`, zoneFloorName, mapCoords);
+        console.log("emitting hudUpdatePackage on socket:");
+        console.log(hudUpdatePackage);
+        socket.emit(`hudUpdate`, hudUpdatePackage);
     }
     catch (error) {
-        catchErrorHandlerForFunction(`eraseMapTileForUserHandler`, error);
+        catchErrorHandlerForFunction(`hudUpdateForUserHandler`, error);
     }
 };
 export const mapRequestForUserHandler = async (zoneFloorName, mapTileState, socket) => {

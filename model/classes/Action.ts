@@ -3,7 +3,6 @@
 // to be executed or added to action queues
 
 import mongoose from "mongoose";
-import { IAgent } from "./Agent.js";
 import SKILL from "../../constants/SKILL.js";
 import SPELL from "../../constants/SPELL.js";
 
@@ -114,32 +113,38 @@ const bonusActionNames = [
 type BonusActionName = (typeof bonusActionNames)[number];
 
 export interface IAction {
-  agent: IAgent;
+  agentId: mongoose.Types.ObjectId;
   targetType: AgentType;
-  targetId: mongoose.Types.ObjectId;  // we store the id and not a reference to the target itself because the target may not exist anymore when a queued action executes
-  name: AttackActionName | ActionName | BonusActionName;
+  targetId: mongoose.Types.ObjectId; // we store the id and not a reference to the target itself because the target may not exist anymore when a queued action executes
+  targetName: string;
+  actionName: AttackActionName | ActionName | BonusActionName;
   dateEntered: Date;
+  actionLabel: string;
 }
 
 class Action implements IAction {
   constructor(
-    agent: IAgent,
+    agentId: mongoose.Types.ObjectId,
     targetType: AgentType,
     targetId: mongoose.Types.ObjectId,
-    name: AttackActionName | ActionName | BonusActionName
+    targetName: string,
+    actionName: AttackActionName | ActionName | BonusActionName
   ) {
-    this.agent = agent;
+    this.agentId = agentId;
     this.targetType = targetType;
     this.targetId = targetId;
-    this.name = name;
+    this.targetName = targetName;
+    this.actionName = actionName;
     this.dateEntered = new Date();
+    this.actionLabel = `${actionName} ${targetName}`
   }
-
-  agent: IAgent;
+  agentId: mongoose.Types.ObjectId;
   targetType: AgentType;
   targetId: mongoose.Types.ObjectId;
-  name: AttackActionName | ActionName | BonusActionName;
+  targetName: string;
+  actionName: AttackActionName | ActionName | BonusActionName;
   dateEntered: Date;
+  actionLabel: string;
 }
 
 export default Action;

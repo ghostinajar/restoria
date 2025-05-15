@@ -1,0 +1,18 @@
+<div id="hud">
+  <div id="combatTarget"></div>
+  <div class="actionQueue"></div>
+  <div class="bonusActionQueue"></div>
+</div>
+
+<script>
+  console.log('hud loaded')
+  let hud = document.getElementById("hud");
+  let combatTarget = document.getElementById("combatTarget");
+  let actionQueue = document.getElementById("actionQueue");
+  let bonusActionQueue = document.getElementById("bonusActionQueue");
+
+   socket.on("hudUpdate", async function (hudUpdatePackage) {
+    console.log('received hudUpdate with hudUpdatePackage:')
+    console.log(hudUpdatePackage);
+  });
+</script>

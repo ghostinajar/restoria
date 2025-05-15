@@ -39,6 +39,7 @@ import {
   userSubmittedBugHandler,
   userSubmittedEditMapHandler,
   mapTileStateForUserHandler,
+  hudUpdateForUserHandler,
 } from "./socketHandlers.js";
 import stats from "./commands/stats.js";
 import { IEditRoomFormData } from "./commands/editRoom.js";
@@ -55,6 +56,7 @@ import catchErrorHandlerForFunction from "./util/catchErrorHandlerForFunction.js
 import { IMapTileState } from "./commands/map.js";
 import lookExamine from "./commands/lookExamine.js";
 import { IMapTile } from "./model/classes/Room.js";
+import { IHudUpdatePackage } from "./util/sendHudUpdateToUser.js";
 
 const setupSocket = (io: any) => {
   try {
@@ -78,6 +80,7 @@ const setupSocket = (io: any) => {
         worldEmitter.removeAllListeners(`eraseMapTileFor${user.username}`);
         worldEmitter.removeAllListeners(`equipmentArrayFor${user.username}`);
         worldEmitter.removeAllListeners(`formPromptFor${user.username}`);
+        worldEmitter.removeAllListeners(`hudUpdateFor${user.username}`);
         worldEmitter.removeAllListeners(`mapRequestFor${user.username}`);
         worldEmitter.removeAllListeners(`mapTileStateFor${user.username}`);
         worldEmitter.removeAllListeners(`messageArrayFor${user.username}`);
@@ -117,6 +120,13 @@ const setupSocket = (io: any) => {
         `formPromptFor${user.username}`,
         async (formData: any) => {
           formPromptForUserHandler(formData, socket);
+        }
+      );
+
+      worldEmitter.on(
+        `hudUpdateFor${user.username}`,
+        async (hudUpdatePackage: IHudUpdatePackage) => {
+          hudUpdateForUserHandler(hudUpdatePackage, socket);
         }
       );
 
