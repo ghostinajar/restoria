@@ -7,10 +7,19 @@ import catchErrorHandlerForFunction from "../../util/catchErrorHandlerForFunctio
 class MobManager {
     constructor() {
         this.mobs = new Map(); // Stores all mobs with their _id.toString() as key
+        worldEmitter.on("mobRequestedById", this.mobRequestedByIdHandler);
         worldEmitter.on("roomDestroyingMob", this.roomDestroyingMobHandler);
         worldEmitter.on("roomRequestingNewMob", this.roomRequestingNewMobHandler);
     }
     mobs;
+    mobRequestedByIdHandler = async (id) => {
+        try {
+            worldEmitter.emit(`mobManagerReturningMob${id.toString()}`, this.mobs?.get(id.toString()));
+        }
+        catch (error) {
+            catchErrorHandlerForFunction("mobRequestedByIdHandler", error);
+        }
+    };
     roomRequestingNewMobHandler = async (blueprint) => {
         try {
             if (!this.mobs) {
@@ -84,6 +93,7 @@ class MobManager {
     clearContents() {
         logger.info("MobManager clearing all mobs and event listeners.");
         this.mobs = null;
+        worldEmitter.off("mobRequestedById", this.mobRequestedByIdHandler);
         worldEmitter.off("roomDestroyingMob", this.roomDestroyingMobHandler);
         worldEmitter.off("roomRequestingNewMob", this.roomRequestingNewMobHandler);
     }

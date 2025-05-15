@@ -10,6 +10,7 @@ class UserManager {
     constructor() {
         this.users = new Map(); // Stores all users with their _id.toString() as key
         worldEmitter.on(`emptyZoneOfUsersRequested`, this.emptyZoneOfUsersRequestedHandler);
+        worldEmitter.on(`onlineUserRequestedById`, this.onlineUserRequestedByIdHandler);
         worldEmitter.on(`requestingUser`, this.requestingUserHandler);
         worldEmitter.on(`requestingWhoArray`, this.requestingWhoArrayHandler);
         worldEmitter.on(`socketCheckingMultiplay`, this.socketCheckingMultiplayHandler);
@@ -121,6 +122,14 @@ class UserManager {
             catchErrorHandlerForFunction(`UserManager.getUserByUsername`, error);
         }
     }
+    async onlineUserRequestedByIdHandler(id) {
+        try {
+            worldEmitter.emit(`userManagerReturningOnlineUser${id.toString()}`, this.users.get(id.toString()));
+        }
+        catch (error) {
+            catchErrorHandlerForFunction(`UserManager.onlineUserRequestedByIdHandler`, error);
+        }
+    }
     async removeUserById(id) {
         try {
             this.users.delete(id.toString());
@@ -133,6 +142,7 @@ class UserManager {
     clearContents() {
         this.users.clear;
         worldEmitter.off(`emptyZoneOfUsersRequested`, this.emptyZoneOfUsersRequestedHandler);
+        worldEmitter.off(`onlineUserRequestedById`, this.onlineUserRequestedByIdHandler);
         worldEmitter.off(`requestingUser`, this.requestingUserHandler);
         worldEmitter.off(`requestingWhoArray`, this.requestingWhoArrayHandler);
         worldEmitter.off(`socketCheckingMultiplay`, this.socketCheckingMultiplayHandler);

@@ -16,6 +16,10 @@ class UserManager {
       `emptyZoneOfUsersRequested`,
       this.emptyZoneOfUsersRequestedHandler
     );
+    worldEmitter.on(
+      `onlineUserRequestedById`,
+      this.onlineUserRequestedByIdHandler
+    );
     worldEmitter.on(`requestingUser`, this.requestingUserHandler);
     worldEmitter.on(`requestingWhoArray`, this.requestingWhoArrayHandler);
     worldEmitter.on(
@@ -143,6 +147,20 @@ class UserManager {
     }
   }
 
+  async onlineUserRequestedByIdHandler(id: mongoose.Types.ObjectId) {
+    try {
+      worldEmitter.emit(
+        `userManagerReturningOnlineUser${id.toString()}`,
+        this.users.get(id.toString())
+      );
+    } catch (error: unknown) {
+      catchErrorHandlerForFunction(
+        `UserManager.onlineUserRequestedByIdHandler`,
+        error
+      );
+    }
+  }
+
   async removeUserById(id: mongoose.Types.ObjectId) {
     try {
       this.users.delete(id.toString());
@@ -161,6 +179,10 @@ class UserManager {
     worldEmitter.off(
       `emptyZoneOfUsersRequested`,
       this.emptyZoneOfUsersRequestedHandler
+    );
+    worldEmitter.off(
+      `onlineUserRequestedById`,
+      this.onlineUserRequestedByIdHandler
     );
     worldEmitter.off(`requestingUser`, this.requestingUserHandler);
     worldEmitter.off(`requestingWhoArray`, this.requestingWhoArrayHandler);

@@ -5,15 +5,28 @@ import worldEmitter from "./WorldEmitter.js";
 import Mob, { IMob } from "./Mob.js";
 import { IMobBlueprint } from "./MobBlueprint.js";
 import catchErrorHandlerForFunction from "../../util/catchErrorHandlerForFunction.js";
+import mongoose from "mongoose";
 
 class MobManager {
   constructor() {
     this.mobs = new Map(); // Stores all mobs with their _id.toString() as key
+    worldEmitter.on("mobRequestedById", this.mobRequestedByIdHandler);
     worldEmitter.on("roomDestroyingMob", this.roomDestroyingMobHandler);
     worldEmitter.on("roomRequestingNewMob", this.roomRequestingNewMobHandler);
   }
 
   mobs: Map<string, IMob> | null;
+
+  mobRequestedByIdHandler = async (id: mongoose.Types.ObjectId) => {
+    try {
+        worldEmitter.emit(
+          `mobManagerReturningMob${id.toString()}`,
+          this.mobs?.get(id.toString())
+        );
+    } catch (error: unknown) {
+      catchErrorHandlerForFunction("mobRequestedByIdHandler", error);
+    }
+  };
 
   roomRequestingNewMobHandler = async (blueprint: IMobBlueprint) => {
     try {
@@ -72,9 +85,7 @@ class MobManager {
   async removeMobById(id: string) {
     try {
       if (!this.mobs) {
-        logger.warn(
-          "MobManager attempted to remove mob from null 'mobs' map."
-        );
+        logger.warn("MobManager attempted to remove mob from null 'mobs' map.");
         return null;
       }
       if (this.mobs.has(id)) {
@@ -92,6 +103,7 @@ class MobManager {
   clearContents() {
     logger.info("MobManager clearing all mobs and event listeners.");
     this.mobs = null;
+    worldEmitter.off("mobRequestedById", this.mobRequestedByIdHandler);
     worldEmitter.off("roomDestroyingMob", this.roomDestroyingMobHandler);
     worldEmitter.off("roomRequestingNewMob", this.roomRequestingNewMobHandler);
   }
