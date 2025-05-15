@@ -103,8 +103,10 @@ const bonusActionNames = [
     SPELL.WORD_OF_RECALL,
 ];
 class Action {
-    constructor(agentId, targetType, targetId, targetName, actionName) {
+    constructor(agentId, agentType, agentName, targetId, targetType, targetName, actionName) {
         this.agentId = agentId;
+        this.agentType = agentType;
+        this.agentName = agentName;
         this.targetType = targetType;
         this.targetId = targetId;
         this.targetName = targetName;
@@ -113,8 +115,10 @@ class Action {
         this.actionLabel = `${actionName} ${targetName}`;
     }
     agentId;
-    targetType;
+    agentType;
+    agentName;
     targetId;
+    targetType;
     targetName;
     actionName;
     dateEntered;

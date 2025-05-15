@@ -4,15 +4,19 @@
 import logger from "../logger.js";
 import { IAction } from "../model/classes/Action.js";
 import { IAgent } from "../model/classes/Agent.js";
+import { IUser } from "../model/classes/User.js";
 import catchErrorHandlerForFunction from "./catchErrorHandlerForFunction.js";
+import findAgentByIdInRoom from "./findAgentByIdInRoom.js";
 import getMobById from "./getMobById.js";
 import getOnlineUserById from "./getOnlineUserById.js";
+import getRoomByLocation from "./getRoomByLocation.js";
+import messageToUsername from "./messageToUsername.js";
 
 async function resolveAction(action: IAction) {
   try {
     let agent: IAgent | undefined;
     // fail if agent is user and can't be found
-    if (action.targetType === "user") {
+    if (action.agentType === "user") {
       console.log("looking for online user");
       agent = await getOnlineUserById(action.agentId);
       if (!agent) {
@@ -23,7 +27,7 @@ async function resolveAction(action: IAction) {
       }
     }
     // fail if agent is mob and can't be found
-    if (action.targetType === "mob") {
+    if (action.agentType === "mob") {
       agent = await getMobById(action.agentId);
       if (!agent) {
         logger.info(
@@ -33,12 +37,34 @@ async function resolveAction(action: IAction) {
       }
     }
     if (!agent) {
+      // we should have returned by now if agent is missing, but just in case:
       return;
     }
 
     // fail if target can't be found
-    // switch on action.actionName to run handler
+    const room = await getRoomByLocation(agent.location);
+    if (!room) {
+      throw new Error(`Couldn't find room by location of agent`);
+    }
+    const target = findAgentByIdInRoom(
+      room,
+      action.targetId,
+      action.targetType
+    );
+    if (!target) {
+      if (action.agentType === "user") {
+        let user = agent as IUser;
+        messageToUsername(
+          user.username,
+          `You couldn't find your target!`,
+          `rejection`,
+          true
+        );
+      }
+      return;
+    }
 
+    // switch on action.actionName to run handler
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`resolveAction`, error);
   }

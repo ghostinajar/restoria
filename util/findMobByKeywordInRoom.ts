@@ -1,11 +1,11 @@
-// findMobInRoom
+// findMobByKeywordInRoom
 // utility function to find IMob object by keyword and ordinal in a given room
 
 import { IMob } from "../model/classes/Mob.js";
 import { IRoom } from "../model/classes/Room.js";
 import catchErrorHandlerForFunction from "./catchErrorHandlerForFunction.js";
 
-function findMobInRoom(
+function findMobByKeywordInRoom(
   room: IRoom,
   mobKeyword: string,
   mobOrdinal?: number | undefined
@@ -37,4 +37,4 @@ function findMobInRoom(
   }
 }
 
-export default findMobInRoom;
+export default findMobByKeywordInRoom;

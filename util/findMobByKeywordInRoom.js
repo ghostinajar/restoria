@@ -1,7 +1,7 @@
-// findMobInRoom
+// findMobByKeywordInRoom
 // utility function to find IMob object by keyword and ordinal in a given room
 import catchErrorHandlerForFunction from "./catchErrorHandlerForFunction.js";
-function findMobInRoom(room, mobKeyword, mobOrdinal) {
+function findMobByKeywordInRoom(room, mobKeyword, mobOrdinal) {
     try {
         // find eligible matches
         const filteredInventory = room.mobs.filter((mob) => mob.keywords.some((keyword) => keyword.toLowerCase().startsWith(mobKeyword)));
@@ -23,4 +23,4 @@ function findMobInRoom(room, mobKeyword, mobOrdinal) {
         catchErrorHandlerForFunction(`findMobInRoom`, error);
     }
 }
-export default findMobInRoom;
+export default findMobByKeywordInRoom;

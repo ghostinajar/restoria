@@ -5,8 +5,8 @@
 import mongoose from "mongoose";
 import SKILL from "../../constants/SKILL.js";
 import SPELL from "../../constants/SPELL.js";
+import { AgentType } from "./Agent.js";
 
-type AgentType = "user" | "mob";
 type AttackActionName = "attack" | "secondAttack" | "thirdAttack";
 
 const actionNames = [
@@ -114,8 +114,10 @@ type BonusActionName = (typeof bonusActionNames)[number];
 
 export interface IAction {
   agentId: mongoose.Types.ObjectId;
-  targetType: AgentType;
+  agentType: AgentType;
+  agentName: string;
   targetId: mongoose.Types.ObjectId; // we store the id and not a reference to the target itself because the target may not exist anymore when a queued action executes
+  targetType: AgentType;
   targetName: string;
   actionName: AttackActionName | ActionName | BonusActionName;
   dateEntered: Date;
@@ -125,22 +127,28 @@ export interface IAction {
 class Action implements IAction {
   constructor(
     agentId: mongoose.Types.ObjectId,
-    targetType: AgentType,
+    agentType: AgentType,
+    agentName: string,
     targetId: mongoose.Types.ObjectId,
+    targetType: AgentType,
     targetName: string,
     actionName: AttackActionName | ActionName | BonusActionName
   ) {
     this.agentId = agentId;
+    this.agentType = agentType;
+    this.agentName = agentName;
     this.targetType = targetType;
     this.targetId = targetId;
-    this.targetName = targetName;
+    this.targetName = targetName
     this.actionName = actionName;
     this.dateEntered = new Date();
-    this.actionLabel = `${actionName} ${targetName}`
+    this.actionLabel = `${actionName} ${targetName}`;
   }
   agentId: mongoose.Types.ObjectId;
-  targetType: AgentType;
+  agentType: AgentType;
+  agentName: string;
   targetId: mongoose.Types.ObjectId;
+  targetType: AgentType;
   targetName: string;
   actionName: AttackActionName | ActionName | BonusActionName;
   dateEntered: Date;

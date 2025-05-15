@@ -2,7 +2,7 @@
 // user command to attack a target
 import Action from "../model/classes/Action.js";
 import catchErrorHandlerForFunction from "../util/catchErrorHandlerForFunction.js";
-import findMobInRoom from "../util/findMobinRoom.js";
+import findMobByKeywordInRoom from "../util/findMobByKeywordInRoom.js";
 import getRoomOfUser from "../util/getRoomOfUser.js";
 import messageToUsername from "../util/messageToUsername.js";
 import sendHudUpdateToUser from "../util/sendHudUpdateToUser.js";
@@ -21,7 +21,7 @@ async function attack(parsedCommand, user) {
             return;
         }
         // fail if target not in room.mobs
-        const target = findMobInRoom(room, parsedCommand.directObject, parsedCommand.directObjectOrdinal);
+        const target = findMobByKeywordInRoom(room, parsedCommand.directObject, parsedCommand.directObjectOrdinal);
         if (!target) {
             messageToUsername(user.username, `You couldn't find any ${parsedCommand.directObject} to attack.`, `rejection`);
             return;
@@ -30,7 +30,7 @@ async function attack(parsedCommand, user) {
         user.combatTargetName = target.name;
         sendHudUpdateToUser(user);
         if (user.readyForAttack) {
-            const attackAction = new Action(user._id, "mob", target._id, target.keywords[0], "attack");
+            const attackAction = new Action(user._id, "user", user.name, target._id, "mob", target.keywords[0], "attack");
             // TODO await resolveAction(attackAction) when implemented
             user.readyForAttack = false;
             return;

@@ -4,7 +4,7 @@
 import Action, { IAction } from "../model/classes/Action.js";
 import { IUser } from "../model/classes/User.js";
 import catchErrorHandlerForFunction from "../util/catchErrorHandlerForFunction.js";
-import findMobInRoom from "../util/findMobinRoom.js";
+import findMobByKeywordInRoom from "../util/findMobByKeywordInRoom.js";
 import getRoomOfUser from "../util/getRoomOfUser.js";
 import messageToUsername from "../util/messageToUsername.js";
 import { IParsedCommand } from "../util/parseCommand.js";
@@ -33,7 +33,7 @@ async function attack(parsedCommand: IParsedCommand, user: IUser) {
     }
 
     // fail if target not in room.mobs
-    const target = findMobInRoom(
+    const target = findMobByKeywordInRoom(
       room,
       parsedCommand.directObject,
       parsedCommand.directObjectOrdinal
@@ -55,8 +55,10 @@ async function attack(parsedCommand: IParsedCommand, user: IUser) {
     if (user.readyForAttack) {
       const attackAction: IAction = new Action(
         user._id,
-        "mob",
+        "user",
+        user.name,
         target._id,
+        "mob",
         target.keywords[0],
         "attack"
       );

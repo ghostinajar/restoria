@@ -12,6 +12,8 @@ import { IAction } from "./Action.js";
 import IGrudge from "./Grudge.js";
 import { ILocation } from "./Location.js";
 
+export type AgentType = "user" | "mob";
+
 export interface IAgent {
   author: mongoose.Types.ObjectId;
   name: string;
