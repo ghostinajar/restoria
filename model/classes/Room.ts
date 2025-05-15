@@ -160,7 +160,8 @@ const roomSchema = new Schema<IRoom>(
       type: descriptionSchema,
       default: () => ({
         look: "This room's author can use EDIT ROOM to add a LOOK description.",
-        examine: "This room's author can use EDIT ROOM to add an EXAMINE description.",
+        examine:
+          "This room's author can use EDIT ROOM to add an EXAMINE description.",
         study: "",
         research: "",
       }),
@@ -309,8 +310,12 @@ roomSchema.methods.initiate = async function () {
     this._inventory = [];
 
     // Load mobs from nodes
+    const thisLocation = {
+      inZone: this.fromZoneId,
+      inRoom: this._id,
+    };
     if (this.mobNodes) {
-      await activateMobNodes(this.mobNodes, this.mobs);
+      await activateMobNodes(this.mobNodes, this.mobs, thisLocation);
     }
 
     // Load items from nodes

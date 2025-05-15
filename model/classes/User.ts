@@ -59,7 +59,6 @@ export interface IUser extends mongoose.Document, IAgent {
   password: string;
   salt: string;
   isAdmin: boolean;
-  location: ILocation;
   history: IHistory;
   hoursPlayed: number;
   goldHeld: number;

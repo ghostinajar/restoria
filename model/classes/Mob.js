@@ -2,10 +2,11 @@ import mongoose from "mongoose";
 import { calculateArmorClass, calculateCharisma, calculateConstitution, calculateDamageBonus, calculateDexterity, calculateHealthRegen, calculateHitBonus, calculateIntelligence, calculateManaRegen, calculateMaxHp, calculateMaxMp, calculateMaxMv, calculateMoveRegen, calculateResistCold, calculateResistElec, calculateResistFire, calculateSpeed, calculateSpellSave, calculateStrength, calculateWisdom, } from "../../constants/BASE_STATS.js";
 import { AFFIX_BONUSES } from "../../constants/AFFIX_BONUSES.js";
 class Mob {
-    constructor(blueprint) {
+    constructor(blueprint, location) {
         this._id = new mongoose.Types.ObjectId();
         this.author = blueprint.author;
         this.name = blueprint.name;
+        this.location = location;
         this.pronouns = blueprint.pronouns;
         this.level = blueprint.level;
         this.job = blueprint.job;
@@ -77,6 +78,7 @@ class Mob {
     _id;
     author;
     name;
+    location;
     pronouns;
     level;
     job;

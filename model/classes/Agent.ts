@@ -10,10 +10,12 @@ import IEquipped from "../../types/Equipped.js";
 import { IAffixBonuses } from "../../constants/AFFIX_BONUSES.js";
 import { IAction } from "./Action.js";
 import IGrudge from "./Grudge.js";
+import { ILocation } from "./Location.js";
 
 export interface IAgent {
   author: mongoose.Types.ObjectId;
   name: string;
+  location: ILocation;
   pronouns: number;
   level: number;
   job: string;

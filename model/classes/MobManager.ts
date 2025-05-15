@@ -6,6 +6,7 @@ import Mob, { IMob } from "./Mob.js";
 import { IMobBlueprint } from "./MobBlueprint.js";
 import catchErrorHandlerForFunction from "../../util/catchErrorHandlerForFunction.js";
 import mongoose from "mongoose";
+import { ILocation } from "./Location.js";
 
 class MobManager {
   constructor() {
@@ -28,7 +29,7 @@ class MobManager {
     }
   };
 
-  roomRequestingNewMobHandler = async (blueprint: IMobBlueprint) => {
+  roomRequestingNewMobHandler = async (blueprint: IMobBlueprint, location: ILocation) => {
     try {
       if (!this.mobs) {
         logger.warn(
@@ -43,7 +44,7 @@ class MobManager {
         return null;
       }
       // Create a copy of the blueprint and give its own unique Id
-      const mob = new Mob(blueprint);
+      const mob = new Mob(blueprint, location);
       this.mobs.set(mob._id.toString(), mob);
       worldEmitter.emit(`mobManagerAddedMobFromBlueprint${blueprint._id}`, mob);
     } catch (error: unknown) {

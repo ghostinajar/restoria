@@ -33,6 +33,7 @@ import { AFFIX_BONUSES, IAffixBonuses } from "../../constants/AFFIX_BONUSES.js";
 import { IAgent } from "./Agent.js";
 import { IAction } from "./Action.js";
 import IGrudge from "./Grudge.js";
+import { ILocation } from "./Location.js";
 
 export interface IMob extends IAgent {
   _id: mongoose.Types.ObjectId;
@@ -47,10 +48,11 @@ export interface IMob extends IAgent {
 }
 
 class Mob implements IMob {
-  constructor(blueprint: IMobBlueprint) {
+  constructor(blueprint: IMobBlueprint, location: ILocation) {
     this._id = new mongoose.Types.ObjectId();
     this.author = blueprint.author;
     this.name = blueprint.name;
+    this.location = location;
     this.pronouns = blueprint.pronouns;
     this.level = blueprint.level;
     this.job = blueprint.job;
@@ -122,6 +124,7 @@ class Mob implements IMob {
   _id: mongoose.Types.ObjectId;
   author: mongoose.Types.ObjectId;
   name: string;
+  location: ILocation;
   pronouns: number;
   level: number;
   job: string;

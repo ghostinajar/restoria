@@ -7,10 +7,12 @@ import { IMob } from "../model/classes/Mob.js";
 import { IMobBlueprint } from "../model/classes/MobBlueprint.js";
 import { IZone } from "../model/classes/Zone.js";
 import catchErrorHandlerForFunction from "./catchErrorHandlerForFunction.js";
+import { ILocation } from "../model/classes/Location.js";
 
 async function activateMobNodes(
   mobNodes: Array<IMobNode>,
-  mobArray: Array<IMob>
+  mobArray: Array<IMob>,
+  location: ILocation
 ) {
   try {
     for (const mobNode of mobNodes) {
@@ -27,7 +29,7 @@ async function activateMobNodes(
           return null;
         }
 
-        const blueprint = await zone.mobBlueprints.find(
+        const blueprint = zone.mobBlueprints.find(
           (blueprint: IMobBlueprint) =>
             blueprint._id.toString() === mobNode.loadsBlueprintId.toString()
         );
@@ -43,13 +45,13 @@ async function activateMobNodes(
             `mobManagerAddedMobFromBlueprint${blueprint._id}`,
             resolve
           );
-          worldEmitter.emit(`roomRequestingNewMob`, blueprint);
+          worldEmitter.emit(`roomRequestingNewMob`, blueprint, location);
         });
         //TODO initiate mob inventory
         mob.inventory = [];
         await activateItemNodes(blueprint.itemNodes, mob.inventory);
         //logger.debug(`Items in mob "${mob.name}": ${mob.inventory.map(item => item.name)}`)
-        await mobArray.push(mob);
+        mobArray.push(mob);
       } catch (err: any) {
         logger.error(
           `Error in activateMobNodes with a mobNode: ${err.message}`

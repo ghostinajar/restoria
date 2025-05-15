@@ -20,7 +20,7 @@ class MobManager {
             catchErrorHandlerForFunction("mobRequestedByIdHandler", error);
         }
     };
-    roomRequestingNewMobHandler = async (blueprint) => {
+    roomRequestingNewMobHandler = async (blueprint, location) => {
         try {
             if (!this.mobs) {
                 logger.warn("MobManager 'mobs' map is null when attempting to add a new mob.");
@@ -31,7 +31,7 @@ class MobManager {
                 return null;
             }
             // Create a copy of the blueprint and give its own unique Id
-            const mob = new Mob(blueprint);
+            const mob = new Mob(blueprint, location);
             this.mobs.set(mob._id.toString(), mob);
             worldEmitter.emit(`mobManagerAddedMobFromBlueprint${blueprint._id}`, mob);
         }

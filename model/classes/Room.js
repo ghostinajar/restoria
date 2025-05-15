@@ -216,8 +216,12 @@ roomSchema.methods.initiate = async function () {
         this._mobs = [];
         this._inventory = [];
         // Load mobs from nodes
+        const thisLocation = {
+            inZone: this.fromZoneId,
+            inRoom: this._id,
+        };
         if (this.mobNodes) {
-            await activateMobNodes(this.mobNodes, this.mobs);
+            await activateMobNodes(this.mobNodes, this.mobs, thisLocation);
         }
         // Load items from nodes
         await activateItemNodes(this.itemNodes, this.inventory);
