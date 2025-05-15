@@ -60,7 +60,7 @@ const HELP: {
     `<span style="color:var(--red)">Type:</span> gives an item certain behaviours`,
     `<span style="color:var(--red)">MinLvl:</span> player must be at least this level to use or equip it`,
     `<span style="color:var(--red)">Price:</span> costs to purchase (selling price will be less)`,
-    `<span style="color:var(--red)">Container:</span> this item may spawn or hold other items inside`,
+    `<span style="color:var(--red)">Container:</span> this item may construct or hold other items inside`,
     `<span style="color:var(--red)">Look:</span> how the player sees the item when they look or enter a room`,
     `<span style="color:var(--red)">Examine:</span> a paragraph a player seens when they examine the item`,
     `<span style="color:var(--green)">See also HELP AUTOEXAMINE.</span>`,
@@ -86,7 +86,7 @@ const HELP: {
     `${padStringToLength79(`CREATE ZONE, EDIT ZONE`)}`,
     `A Zone is a broad area in the game; think of it as a setting where many parts of a story can take place. A zone is made up of smaller places called Rooms. For example, "Restoria City" is a zone, and "The Snails" is a room within that zone. Other examples of a zone may be "The Haunted Unicorn Forest", "Bunnyland", or "Drake's Vampiric Castle", whereas examples of rooms inside those zones could be "A Mossy Glade", "The Bunny Cafeteria", or "Drake's Treasure Chamber".`,
     `<span style="color:var(--red)">Name:</span> the zone's title, e.g. "The Mushroom City"`,
-    `<span style="color:var(--red)">Respawn:</span> how many minutes before the whole zone's mobs, doors, & items respawn`,
+    `<span style="color:var(--red)">Reconstruct:</span> how many minutes before the whole zone's mobs, doors, & items reconstruct`,
     `<span style="color:var(--red)">Look:</span> a sentence shown to a player when they survey the wilderness nearby`,
     `e.g. "Clouds of spores and odd, fungal shapes protrude from the horizon."`,
     `<span style="color:var(--red)">Examine:</span> a paragraph a player sees when they examine the zone`,
@@ -119,7 +119,7 @@ const HELP: {
     `<span style="color:var(--red)">Price:</span> the cost to purchase (selling price will be less)`,
     `<span style="color:var(--red)">MinLvl:</span> a player must be at least this level to use or equip it`,
     `<span style="color:var(--red)">Type:</span> gives an item certain behaviours`,
-    `<span style="color:var(--red)">Container:</span> this item may spawn or hold other items inside`,
+    `<span style="color:var(--red)">Container:</span> this item may construct or hold other items inside`,
     `<span style="color:var(--red)">Capacity:</span> determines how many items it can hold.`,
   ],
   EDIT_MAP: [
@@ -176,10 +176,10 @@ const HELP: {
   EXITS: [
     `${padStringToLength79(`EXITS, EDIT ROOM Exits`)}`,
     `The EXITS command shows a user where they can go from their current location.`,
-    `Exits allow users and mobs to move between rooms in a zone. An exit will always spawn closed and locked if a key is assigned to it.`,
+    `Exits allow users and mobs to move between rooms in a zone. An exit will always construct closed and locked if a key is assigned to it.`,
     `<span style="color:var(--red)">Key:</span> someone can unlock the exit if this item is in their inventory`,
     `<span style="color:var(--red)">Hidden:</span> exit can't be seen or used, except by those who successfully SEARCH`,
-    `<span style="color:var(--red)">Closed:</span> closed by default when the zone is spawned`,
+    `<span style="color:var(--red)">Closed:</span> closed by default when the zone is constructed`,
   ],
   GET: [
     `${padStringToLength79(`GET`)}`,
@@ -206,7 +206,7 @@ const HELP: {
   ],
   ITEM_NODE: [
     `${padStringToLength79(`Item Node`)}`,
-    `Item nodes help a zone load its items. Each item node spawns its item into a container, mob inventory, or room when the zone is loaded. Choose an item and click <span style="color:var(--green)">add</span> to create an item node for it. Click <span style="color:var(--red)">remove</span> next to an existing node to remove it. These changes won't be saved until you submit the form.`,
+    `Item nodes help a zone load its items. Each item node constructs its item into a container, mob inventory, or room when the zone is loaded. Choose an item and click <span style="color:var(--green)">add</span> to create an item node for it. Click <span style="color:var(--red)">remove</span> next to an existing node to remove it. These changes won't be saved until you submit the form.`,
   ],
   ITEM_SPELL_PROPERTIES: [
     `${padStringToLength79(`Item Spell Properties`)}`,
@@ -247,7 +247,7 @@ const HELP: {
     `<span style="color:var(--red)">Fixture:</span> can't be taken or moved (e.g. a large wardrobe)`,
     `<span style="color:var(--red)">Quest:</span> needed for a quest`,
     `<span style="color:var(--red)">Temporary:</span> automatically erased from inventory when you log out`,
-    `<span style="color:var(--red)">Container:</span> can spawn and hold other items inside`,
+    `<span style="color:var(--red)">Container:</span> can construct and hold other items inside`,
   ],
   JOB: [
     `This feature is still in development.`,
@@ -282,7 +282,7 @@ const HELP: {
   ],
   MOB_NODE: [
     `${padStringToLength79(`Mob Node`)}`,
-    `A mob node spawns a specific mob into the room when the zone is loaded. On the EDIT ROOM form, Choose a mob and click <span style="color:var(--green)">add</span> to create an mob node for it. Click <span style="color:var(--red)">remove</span> next to an existing node to remove it. These changes won't be saved until you click "Update Room".`,
+    `A mob node constructs a specific mob into the room when the zone is loaded. On the EDIT ROOM form, Choose a mob and click <span style="color:var(--green)">add</span> to create an mob node for it. Click <span style="color:var(--red)">remove</span> next to an existing node to remove it. These changes won't be saved until you click "Update Room".`,
   ],
   MOUNT: [
     `This feature is still in development.`,

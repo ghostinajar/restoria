@@ -78,7 +78,7 @@ async function createZone(zoneFormData, user) {
             mobBlueprints: [],
             itemBlueprints: [],
             suggestions: [],
-            minutesToRespawn: putNumberInRange(5, 120, zoneFormData.minutesToRespawn, user),
+            minutesToReconstruct: putNumberInRange(5, 120, zoneFormData.minutesToReconstruct, user),
         };
         // create and save to db
         const newZone = new Zone(newZoneData);

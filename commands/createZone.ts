@@ -18,7 +18,7 @@ import putNumberInRange from "../util/putNumberInRange.js";
 
 export interface IZoneData {
   name: string;
-  minutesToRespawn: number;
+  minutesToReconstruct: number;
   description: IDescription;
 }
 
@@ -98,10 +98,10 @@ async function createZone(zoneFormData: IZoneData, user: IUser) {
       mobBlueprints: [],
       itemBlueprints: [],
       suggestions: [],
-      minutesToRespawn: putNumberInRange(
+      minutesToReconstruct: putNumberInRange(
         5,
         120,
-        zoneFormData.minutesToRespawn,
+        zoneFormData.minutesToReconstruct,
         user
       ),
     };

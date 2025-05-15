@@ -27,7 +27,7 @@ async function resolveAction(action: IAction) {
       agent = await getMobById(action.agentId);
       if (!agent) {
         logger.info(
-          `action for mob id ${action.agentId} dismissed, mob not found in restoria (probably dead)`
+          `action for mob id ${action.agentId} dismissed, mob not found in restoria (probably dead or deconstructed)`
         );
         return;
       }

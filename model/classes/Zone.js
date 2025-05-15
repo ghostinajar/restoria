@@ -58,7 +58,7 @@ const zoneSchema = new Schema({
             default: () => ({}),
         },
     ],
-    minutesToRespawn: {
+    minutesToReconstruct: {
         type: Number,
         default: 15,
     },

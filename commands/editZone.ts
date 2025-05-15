@@ -59,10 +59,10 @@ async function editZone(zoneData: IZoneData, user: IUser) {
       zone.name = zoneData.name;
     }
 
-    zone.minutesToRespawn = putNumberInRange(
+    zone.minutesToReconstruct = putNumberInRange(
       5,
       180,
-      zoneData.minutesToRespawn,
+      zoneData.minutesToReconstruct,
       user
     );
     zone.description = zoneData.description;

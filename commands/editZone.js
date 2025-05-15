@@ -43,7 +43,7 @@ async function editZone(zoneData, user) {
             logger.info(`User ${user.name} renamed a zone, ${zone.name} unreserved in Names. Reserving ${zoneData.name}...`);
             zone.name = zoneData.name;
         }
-        zone.minutesToRespawn = putNumberInRange(5, 180, zoneData.minutesToRespawn, user);
+        zone.minutesToReconstruct = putNumberInRange(5, 180, zoneData.minutesToReconstruct, user);
         zone.description = zoneData.description;
         await zone.save();
         await zone.initRooms();

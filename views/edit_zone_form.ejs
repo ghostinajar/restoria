@@ -23,10 +23,10 @@
       />
     </li>
     <li>
-      <label for="editZoneMinutesToRespawn">Respawn:</label>
+      <label for="editZoneMinutesToReconstruct">Reconstr:</label>
       <input
-        id="editZoneMinutesToRespawn"
-        name="editZoneMinutesToRespawn"
+        id="editZoneMinutesToReconstruct"
+        name="editZoneMinutesToReconstruct"
         type="number"
         min="5"
         max="180"
@@ -79,8 +79,8 @@
     let zoneId;
     const editZoneForm = document.getElementById("editZoneForm");
     const editZoneName = document.getElementById("editZoneName");
-    const editZoneMinutesToRespawn = document.getElementById(
-      "editZoneMinutesToRespawn"
+    const editZoneMinutesToReconstruct = document.getElementById(
+      "editZoneMinutesToReconstruct"
     );
     const editZoneLook = document.getElementById("editZoneLook");
     const editZoneExamine = document.getElementById("editZoneExamine");
@@ -91,7 +91,7 @@
       e.preventDefault();
       const editZoneFormData = {
         name: DOMPurify.sanitize(editZoneName.value),
-        minutesToRespawn: editZoneMinutesToRespawn.value,
+        minutesToReconstruct: editZoneMinutesToReconstruct.value,
         description: {
           look: DOMPurify.sanitize(editZoneLook.value),
           examine: DOMPurify.sanitize(editZoneExamine.value),
@@ -115,7 +115,7 @@
       // Set the values of the fields based on formData
       zoneId = formData.zoneId;
       editZoneName.value = formData.name || "";
-      editZoneMinutesToRespawn.value = formData.minutesToRespawn || 15;
+      editZoneMinutesToReconstruct.value = formData.minutesToReconstruct || 15;
       editZoneLook.value = formData.description.look || "";
       editZoneExamine.value = formData.description.examine || "";
       editZoneStudy.value = formData.description.study || "";

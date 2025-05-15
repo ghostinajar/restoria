@@ -213,7 +213,7 @@ async function edit(parsedCommand: IParsedCommand, user: IUser) {
           form: `editZoneForm`,
           zoneId: zone._id,
           name: zone.name,
-          minutesToRespawn: zone.minutesToRespawn,
+          minutesToReconstruct: zone.minutesToReconstruct,
           description: zone.description,
         });
         break;
