@@ -5,6 +5,7 @@ import catchErrorHandlerForFunction from "../util/catchErrorHandlerForFunction.j
 import findMobByKeywordInRoom from "../util/findMobByKeywordInRoom.js";
 import getRoomOfUser from "../util/getRoomOfUser.js";
 import messageToUsername from "../util/messageToUsername.js";
+import resolveQueuedAction from "../util/resolveQueuedAction.js";
 import sendHudUpdateToUser from "../util/sendHudUpdateToUser.js";
 async function attack(parsedCommand, user) {
     try {
@@ -31,10 +32,11 @@ async function attack(parsedCommand, user) {
         sendHudUpdateToUser(user);
         if (user.readyForAttack) {
             const attackAction = new Action(user._id, "user", user.name, target._id, "mob", target.keywords[0], "attack");
-            // TODO await resolveAction(attackAction) when implemented
+            await resolveQueuedAction(attackAction);
             user.readyForAttack = false;
             return;
         }
+        throw new Error(`Something went wrong in ATTACK`);
     }
     catch (error) {
         catchErrorHandlerForFunction(`attack`, error, user?.name);

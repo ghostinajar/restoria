@@ -31,7 +31,7 @@ import {
 } from "../../constants/BASE_STATS.js";
 import { AFFIX_BONUSES, IAffixBonuses } from "../../constants/AFFIX_BONUSES.js";
 import { IAgent } from "./Agent.js";
-import { IAction } from "./Action.js";
+import { IQueuedAction } from "./Action.js";
 import IGrudge from "./Grudge.js";
 import { ILocation } from "./Location.js";
 
@@ -170,8 +170,8 @@ class Mob implements IMob {
   readyForAttack: boolean;
   readyForAction: boolean;
   readyForBonusAction: boolean;
-  actionQueue: Array<IAction>;
-  bonusActionQueue: Array<IAction>;
+  actionQueue: Array<IQueuedAction>;
+  bonusActionQueue: Array<IQueuedAction>;
   combatTargetId?: mongoose.Types.ObjectId;
   combatTargetName?: string;
   grudges: Array<IGrudge>;

@@ -6,7 +6,7 @@ import bcrypt from "bcrypt";
 import affixSchema from "./Affix.js";
 import itemSchema, { IItem } from "./Item.js";
 import descriptionSchema from "./Description.js";
-import locationSchema, { ILocation } from "./Location.js";
+import locationSchema from "./Location.js";
 import statBlockSchema from "./StatBlock.js";
 import historySchema, { IHistory } from "./History.js";
 import catchErrorHandlerForFunction from "../../util/catchErrorHandlerForFunction.js";
@@ -36,7 +36,7 @@ import {
 import { IAffixBonuses } from "../../constants/AFFIX_BONUSES.js";
 import calculateAffixBonuses from "../../util/calculateAffixBonuses.js";
 import { IAgent } from "./Agent.js";
-import { IAction } from "./Action.js";
+import { IQueuedAction } from "./Action.js";
 import IGrudge from "./Grudge.js";
 
 const { Schema, Types, model } = mongoose;
@@ -81,8 +81,8 @@ export interface IUser extends mongoose.Document, IAgent {
   _readyForAttack: boolean;
   _readyForAction: boolean;
   _readyForBonusAction: boolean;
-  _actionQueue: Array<IAction>;
-  _bonusActionQueue: Array<IAction>;
+  _actionQueue: Array<IQueuedAction>;
+  _bonusActionQueue: Array<IQueuedAction>;
   _combatTargetId?: mongoose.Types.ObjectId;
   _combatTargetName?: string;
   _grudges: Array<IGrudge>;

@@ -112,7 +112,7 @@ const bonusActionNames = [
 ];
 type BonusActionName = (typeof bonusActionNames)[number];
 
-export interface IAction {
+export interface IQueuedAction {
   agentId: mongoose.Types.ObjectId;
   agentType: AgentType;
   agentName: string;
@@ -124,7 +124,7 @@ export interface IAction {
   actionLabel: string;
 }
 
-class Action implements IAction {
+class QueuedAction implements IQueuedAction {
   constructor(
     agentId: mongoose.Types.ObjectId,
     agentType: AgentType,
@@ -155,4 +155,4 @@ class Action implements IAction {
   actionLabel: string;
 }
 
-export default Action;
+export default QueuedAction;

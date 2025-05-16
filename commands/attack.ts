@@ -1,13 +1,14 @@
 // attack
 // user command to attack a target
 
-import Action, { IAction } from "../model/classes/Action.js";
+import Action, { IQueuedAction } from "../model/classes/Action.js";
 import { IUser } from "../model/classes/User.js";
 import catchErrorHandlerForFunction from "../util/catchErrorHandlerForFunction.js";
 import findMobByKeywordInRoom from "../util/findMobByKeywordInRoom.js";
 import getRoomOfUser from "../util/getRoomOfUser.js";
 import messageToUsername from "../util/messageToUsername.js";
 import { IParsedCommand } from "../util/parseCommand.js";
+import resolveQueuedAction from "../util/resolveQueuedAction.js";
 import sendHudUpdateToUser from "../util/sendHudUpdateToUser.js";
 
 async function attack(parsedCommand: IParsedCommand, user: IUser) {
@@ -53,7 +54,7 @@ async function attack(parsedCommand: IParsedCommand, user: IUser) {
     sendHudUpdateToUser(user);
 
     if (user.readyForAttack) {
-      const attackAction: IAction = new Action(
+      const attackAction: IQueuedAction = new Action(
         user._id,
         "user",
         user.name,
@@ -62,10 +63,12 @@ async function attack(parsedCommand: IParsedCommand, user: IUser) {
         target.keywords[0],
         "attack"
       );
-      // TODO await resolveAction(attackAction) when implemented
+      await resolveQueuedAction(attackAction);
       user.readyForAttack = false;
       return;
     }
+
+    throw new Error(`Something went wrong in ATTACK`);
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`attack`, error, user?.name);
   }

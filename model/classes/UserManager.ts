@@ -72,6 +72,18 @@ class UserManager {
     }
   };
 
+  onlineUserRequestedByIdHandler = (id: mongoose.Types.ObjectId) => {
+    try {
+      const user = this.users.get(id.toString());
+      worldEmitter.emit(`userManagerReturningOnlineUser${id.toString()}`, user);
+    } catch (error: unknown) {
+      catchErrorHandlerForFunction(
+        `UserManager.onlineUserRequestedByIdHandler`,
+        error
+      );
+    }
+  };
+
   requestingWhoArrayHandler = async (username: string) => {
     try {
       let whoArray = [];
@@ -144,20 +156,6 @@ class UserManager {
       return null;
     } catch (error: unknown) {
       catchErrorHandlerForFunction(`UserManager.getUserByUsername`, error);
-    }
-  }
-
-  async onlineUserRequestedByIdHandler(id: mongoose.Types.ObjectId) {
-    try {
-      worldEmitter.emit(
-        `userManagerReturningOnlineUser${id.toString()}`,
-        this.users.get(id.toString())
-      );
-    } catch (error: unknown) {
-      catchErrorHandlerForFunction(
-        `UserManager.onlineUserRequestedByIdHandler`,
-        error
-      );
     }
   }
 

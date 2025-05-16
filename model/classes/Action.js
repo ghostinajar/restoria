@@ -102,7 +102,7 @@ const bonusActionNames = [
     SPELL.WEAKEN,
     SPELL.WORD_OF_RECALL,
 ];
-class Action {
+class QueuedAction {
     constructor(agentId, agentType, agentName, targetId, targetType, targetName, actionName) {
         this.agentId = agentId;
         this.agentType = agentType;
@@ -124,4 +124,4 @@ class Action {
     dateEntered;
     actionLabel;
 }
-export default Action;
+export default QueuedAction;

@@ -8,7 +8,7 @@ import { IAffix } from "./Affix.js";
 import { IItem } from "./Item.js";
 import IEquipped from "../../types/Equipped.js";
 import { IAffixBonuses } from "../../constants/AFFIX_BONUSES.js";
-import { IAction } from "./Action.js";
+import { IQueuedAction } from "./Action.js";
 import IGrudge from "./Grudge.js";
 import { ILocation } from "./Location.js";
 
@@ -54,8 +54,8 @@ export interface IAgent {
   readyForAttack: boolean;
   readyForAction: boolean;
   readyForBonusAction: boolean;
-  actionQueue: Array<IAction>;
-  bonusActionQueue: Array<IAction>;
+  actionQueue: Array<IQueuedAction>;
+  bonusActionQueue: Array<IQueuedAction>;
   combatTargetId?: mongoose.Types.ObjectId;
   combatTargetName?: string;
   grudges: Array<IGrudge>;

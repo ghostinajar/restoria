@@ -55,6 +55,15 @@ class UserManager {
             catchErrorHandlerForFunction("UserManager.requestingUserHandler", error);
         }
     };
+    onlineUserRequestedByIdHandler = (id) => {
+        try {
+            const user = this.users.get(id.toString());
+            worldEmitter.emit(`userManagerReturningOnlineUser${id.toString()}`, user);
+        }
+        catch (error) {
+            catchErrorHandlerForFunction(`UserManager.onlineUserRequestedByIdHandler`, error);
+        }
+    };
     requestingWhoArrayHandler = async (username) => {
         try {
             let whoArray = [];
@@ -120,14 +129,6 @@ class UserManager {
         }
         catch (error) {
             catchErrorHandlerForFunction(`UserManager.getUserByUsername`, error);
-        }
-    }
-    async onlineUserRequestedByIdHandler(id) {
-        try {
-            worldEmitter.emit(`userManagerReturningOnlineUser${id.toString()}`, this.users.get(id.toString()));
-        }
-        catch (error) {
-            catchErrorHandlerForFunction(`UserManager.onlineUserRequestedByIdHandler`, error);
         }
     }
     async removeUserById(id) {
