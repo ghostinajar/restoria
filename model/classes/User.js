@@ -123,13 +123,8 @@ userSchema
     .set(function (value) {
     this._affixBonuses = value;
 });
-userSchema
-    .virtual("currentHp")
-    .get(function () {
+userSchema.virtual("currentHp").get(function () {
     return this._currentHp ?? calculateMaxHp(this);
-})
-    .set(function (value) {
-    this._currentHp = value;
 });
 userSchema.virtual("maxHp").get(function () {
     return calculateMaxHp(this);
@@ -137,13 +132,8 @@ userSchema.virtual("maxHp").get(function () {
 userSchema.virtual("healthRegen").get(function () {
     return calculateHealthRegen(this);
 });
-userSchema
-    .virtual("currentMp")
-    .get(function () {
+userSchema.virtual("currentMp").get(function () {
     return this._currentMp ?? calculateMaxMp(this);
-})
-    .set(function (value) {
-    this._currentMp = value;
 });
 userSchema.virtual("maxMp").get(function () {
     return calculateMaxMp(this);
@@ -151,13 +141,8 @@ userSchema.virtual("maxMp").get(function () {
 userSchema.virtual("manaRegen").get(function () {
     return calculateManaRegen(this);
 });
-userSchema
-    .virtual("currentMv")
-    .get(function () {
+userSchema.virtual("currentMv").get(function () {
     return this._currentMv ?? calculateMaxMv(this);
-})
-    .set(function (value) {
-    this._currentMv = value;
 });
 userSchema.virtual("maxMv").get(function () {
     return calculateMaxMv(this);
@@ -258,6 +243,18 @@ userSchema
 userSchema.virtual("grudges").get(function () {
     return this._grudges || [];
 });
+userSchema.methods.modifyHp = function (amount) {
+    const newHp = Math.min(this._currentHp + amount, this.maxHp);
+    this._currentHp = Math.max(0, newHp);
+};
+userSchema.methods.modifyMp = function (amount) {
+    const newMp = Math.min(this._currentMp + amount, this.maxMp);
+    this._currentMp = Math.max(0, newMp);
+};
+userSchema.methods.modifyMv = function (amount) {
+    const newMv = Math.min(this._currentMv + amount, this.maxMv);
+    this._currentMv = Math.max(0, newMv);
+};
 userSchema.methods.comparePassword = async function (candidatePassword) {
     try {
         return await bcrypt.compare(candidatePassword, this.password);

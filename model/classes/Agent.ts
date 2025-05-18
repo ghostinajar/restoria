@@ -59,4 +59,8 @@ export interface IAgent {
   combatTargetId?: mongoose.Types.ObjectId;
   combatTargetName?: string;
   grudges: Array<IGrudge>;
+
+  modifyHp(amount: number): void;
+  modifyMp(amount: number): void;
+  modifyMv(amount: number): void;
 }

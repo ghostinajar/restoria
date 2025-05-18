@@ -1,5 +1,5 @@
 // resolveQueuedAction
-// takes an QueuedAction, finds the agents involved, and calls resolveImmediateAction
+// finds agents & room involved in a queued action, and calls resolveImmediateAction if still appropriate
 // (QueuedAction hold ids instead of references to live agents, in case the agents are deconstructed or otherwise unavailable at the time the action resolves)
 
 import logger from "../logger.js";

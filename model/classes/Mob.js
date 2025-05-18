@@ -129,5 +129,17 @@ class Mob {
     combatTargetId;
     combatTargetName;
     grudges;
+    modifyHp(amount) {
+        const newHp = Math.min(this.currentHp + amount, this.maxHp);
+        this.currentHp = Math.max(0, newHp);
+    }
+    modifyMp(amount) {
+        const newMp = Math.min(this.currentMp + amount, this.maxMp);
+        this.currentMp = Math.max(0, newMp);
+    }
+    modifyMv(amount) {
+        const newMv = Math.min(this.currentMv + amount, this.maxMv);
+        this.currentMv = Math.max(0, newMv);
+    }
 }
 export default Mob;
