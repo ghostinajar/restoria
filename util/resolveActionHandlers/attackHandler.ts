@@ -3,15 +3,13 @@
 
 import { IAgent } from "../../model/classes/Agent.js";
 import catchErrorHandlerForFunction from "../catchErrorHandlerForFunction.js";
-import rollDice from "../rollDice.js";
 
 async function attackHandler(attacker: IAgent, defender: IAgent) {
   try {
-    // determine hitSucceeds: boolean (roll20+HB vs AC)
+    // determine if hit succeeds (user.rollToHit vs defender.armorClass)
     let hitSucceeds = false
-    // const roll = ( rollDice() => defender.armorClass)
 
-    
+
     // if successful dodge or parry roll, override hitSucceeds to false
     // if !hitSucceeds, message users in room, return
     // if defender has mirror images, expend one, message users in room, return

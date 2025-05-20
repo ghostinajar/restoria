@@ -38,6 +38,7 @@ import calculateAffixBonuses from "../../util/calculateAffixBonuses.js";
 import { IAgent } from "./Agent.js";
 import { IQueuedAction } from "./Action.js";
 import IGrudge from "./Grudge.js";
+import rollDice from "../../util/rollDice.js";
 
 const { Schema, Types, model } = mongoose;
 
@@ -367,6 +368,13 @@ userSchema.methods.modifyMp = function (amount: number) {
 userSchema.methods.modifyMv = function (amount: number) {
   const newMv = Math.min(this._currentMv + amount, this.maxMv);
   this._currentMv = Math.max(0, newMv);
+};
+
+userSchema.methods.rollToHit = function (): number {
+  const d20result = rollDice('1d20');
+  // TODO replace the line below to consider user's HB, etc before return
+  const result = d20result
+  return result || 0;
 };
 
 userSchema.methods.comparePassword = async function (

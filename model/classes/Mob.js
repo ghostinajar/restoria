@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { calculateArmorClass, calculateCharisma, calculateConstitution, calculateDamageBonus, calculateDexterity, calculateHealthRegen, calculateHitBonus, calculateIntelligence, calculateManaRegen, calculateMaxHp, calculateMaxMp, calculateMaxMv, calculateMoveRegen, calculateResistCold, calculateResistElec, calculateResistFire, calculateSpeed, calculateSpellSave, calculateStrength, calculateWisdom, } from "../../constants/BASE_STATS.js";
 import { AFFIX_BONUSES } from "../../constants/AFFIX_BONUSES.js";
+import rollDice from "../../util/rollDice.js";
 class Mob {
     constructor(blueprint, location) {
         this._id = new mongoose.Types.ObjectId();
@@ -140,6 +141,12 @@ class Mob {
     modifyMv(amount) {
         const newMv = Math.min(this.currentMv + amount, this.maxMv);
         this.currentMv = Math.max(0, newMv);
+    }
+    rollToHit() {
+        const d20result = rollDice('1d20');
+        // TODO replace the line below to consider user's HB, etc before return
+        const result = d20result;
+        return result || 0;
     }
 }
 export default Mob;

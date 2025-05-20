@@ -63,4 +63,5 @@ export interface IAgent {
   modifyHp(amount: number): void;
   modifyMp(amount: number): void;
   modifyMv(amount: number): void;
+  rollToHit(): number;
 }

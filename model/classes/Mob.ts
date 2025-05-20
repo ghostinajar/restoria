@@ -34,6 +34,7 @@ import { IAgent } from "./Agent.js";
 import { IQueuedAction } from "./Action.js";
 import IGrudge from "./Grudge.js";
 import { ILocation } from "./Location.js";
+import rollDice from "../../util/rollDice.js";
 
 export interface IMob extends IAgent {
   _id: mongoose.Types.ObjectId;
@@ -187,6 +188,12 @@ class Mob implements IMob {
   modifyMv(amount: number) {
     const newMv = Math.min(this.currentMv + amount, this.maxMv);
     this.currentMv = Math.max(0, newMv);
+  }
+  rollToHit(): number {
+    const d20result = rollDice('1d20');
+  // TODO replace the line below to consider user's HB, etc before return
+  const result = d20result
+  return result || 0;
   }
 }
 

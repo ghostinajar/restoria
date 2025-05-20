@@ -13,6 +13,7 @@ import catchErrorHandlerForFunction from "../../util/catchErrorHandlerForFunctio
 import WORLD_RECALL from "../../constants/WORLD_RECALL.js";
 import { calculateMaxHp, calculateMaxMp, calculateMaxMv, calculateStrength, calculateDexterity, calculateConstitution, calculateIntelligence, calculateWisdom, calculateCharisma, calculateDamageBonus, calculateHitBonus, calculateArmorClass, calculateSpellSave, calculateSpeed, calculateResistCold, calculateResistFire, calculateResistElec, calculateHealthRegen, calculateManaRegen, calculateMoveRegen, } from "../../constants/BASE_STATS.js";
 import calculateAffixBonuses from "../../util/calculateAffixBonuses.js";
+import rollDice from "../../util/rollDice.js";
 const { Schema, Types, model } = mongoose;
 export const userSchema = new Schema({
     _id: Schema.Types.ObjectId,
@@ -254,6 +255,12 @@ userSchema.methods.modifyMp = function (amount) {
 userSchema.methods.modifyMv = function (amount) {
     const newMv = Math.min(this._currentMv + amount, this.maxMv);
     this._currentMv = Math.max(0, newMv);
+};
+userSchema.methods.rollToHit = function () {
+    const d20result = rollDice('1d20');
+    // TODO replace the line below to consider user's HB, etc before return
+    const result = d20result;
+    return result || 0;
 };
 userSchema.methods.comparePassword = async function (candidatePassword) {
     try {
