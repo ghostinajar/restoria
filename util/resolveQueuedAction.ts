@@ -42,12 +42,13 @@ async function resolveQueuedAction(action: IQueuedAction) {
       // we should have returned by now if agent is missing, but just in case:
       return;
     }
+    console.log(`resolveQueuedAction found agent: ${agent.name}`)
 
     const room = await getRoomByLocation(agent.location);
     if (!room) {
       throw new Error(`Couldn't find room by location of agent`);
     }
-    console.log(`room: ${room.name}`);
+    console.log(`resolveQueuedAction found room: ${room.name}`);
 
     // fail if target can't be found
     const target = findAgentByIdInRoom(
@@ -67,7 +68,7 @@ async function resolveQueuedAction(action: IQueuedAction) {
       }
       return;
     }
-
+    console.log(`resolveQueuedAction calling resolveImmediateAction for action: ${action.actionName} by agent ${agent.name} to target ${target.name}`)
     resolveImmediateAction(action.actionName, agent, target, room)
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`resolveAction`, error);

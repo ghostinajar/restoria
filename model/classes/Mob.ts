@@ -35,6 +35,7 @@ import { IQueuedAction } from "./Action.js";
 import IGrudge from "./Grudge.js";
 import { ILocation } from "./Location.js";
 import rollDice from "../../util/rollDice.js";
+import resolveQueuedAction from "../../util/resolveQueuedAction.js";
 
 export interface IMob extends IAgent {
   _id: mongoose.Types.ObjectId;
@@ -177,6 +178,42 @@ class Mob implements IMob {
   combatTargetName?: string;
   grudges: Array<IGrudge>;
 
+  async handleTick() {
+    console.log(`${this.name} handleTick`);
+    // Health regeneration
+    if (this.currentHp < this.maxHp) {
+      this.modifyHp(Math.max(0, this.maxHp / this.healthRegen));
+    }
+
+    // Mana regeneration
+    if (this.currentMp < this.maxMp) {
+      this.modifyMp(Math.max(0, this.maxMp / this.manaRegen));
+    }
+
+    // Movement regeneration
+    if (this.currentMv < this.maxMv) {
+      this.modifyMv(Math.max(0, this.maxMv / this.moveRegen));
+    }
+
+    // Reset combat readiness flags
+    this.readyForAttack = true;
+    this.readyForAction = true;
+    this.readyForBonusAction = true;
+
+    // Process action queues if they exist
+    if (this.actionQueue && this.actionQueue.length > 0) {
+      const nextAction = this.actionQueue[0];
+      this.actionQueue = this.actionQueue.slice(1);
+      await resolveQueuedAction(nextAction);
+    }
+
+    if (this.bonusActionQueue && this.bonusActionQueue.length > 0) {
+      const nextBonusAction = this.bonusActionQueue[0];
+      this.bonusActionQueue = this.bonusActionQueue.slice(1);
+      await resolveQueuedAction(nextBonusAction);
+    }
+  }
+
   modifyHp(amount: number) {
     const newHp = Math.min(this.currentHp + amount, this.maxHp);
     this.currentHp = Math.max(0, newHp);
@@ -190,10 +227,8 @@ class Mob implements IMob {
     this.currentMv = Math.max(0, newMv);
   }
   rollToHit(): number {
-    const d20result = rollDice('1d20');
-  // TODO replace the line below to consider user's HB, etc before return
-  const result = d20result
-  return result || 0;
+    const d20result = rollDice("1d20");
+    return d20result ? d20result + this.hitBonus : 0;
   }
 }
 

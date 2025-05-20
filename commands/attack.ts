@@ -40,6 +40,8 @@ async function attack(parsedCommand: IParsedCommand, user: IUser) {
       parsedCommand.directObjectOrdinal
     );
 
+    // TODO when implementing PVP, try to find target among room.users
+
     if (!target) {
       messageToUsername(
         user.username,
@@ -51,6 +53,7 @@ async function attack(parsedCommand: IParsedCommand, user: IUser) {
 
     user.combatTargetId = target._id;
     user.combatTargetName = target.name;
+    messageToUsername(user.username, `You are now targeting ${target.name}.`);
     sendHudUpdateToUser(user);
 
     if (user.readyForAttack) {
@@ -63,12 +66,12 @@ async function attack(parsedCommand: IParsedCommand, user: IUser) {
         target.keywords[0],
         "attack"
       );
+      console.log(`ATTACK command calling resolveQueuedAction on action:`);
+      console.log(attackAction);
       await resolveQueuedAction(attackAction);
       user.readyForAttack = false;
       return;
     }
-
-    throw new Error(`Something went wrong in ATTACK`);
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`attack`, error, user?.name);
   }

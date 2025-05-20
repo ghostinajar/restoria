@@ -1,7 +1,6 @@
 // messageToUsername
 // utility to emit message to a user by username
 
-import logger from "../logger.js";
 import worldEmitter from "../model/classes/WorldEmitter.js";
 import catchErrorHandlerForFunction from "./catchErrorHandlerForFunction.js";
 import makeMessage from "./makeMessage.js";

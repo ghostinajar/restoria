@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { calculateArmorClass, calculateCharisma, calculateConstitution, calculateDamageBonus, calculateDexterity, calculateHealthRegen, calculateHitBonus, calculateIntelligence, calculateManaRegen, calculateMaxHp, calculateMaxMp, calculateMaxMv, calculateMoveRegen, calculateResistCold, calculateResistElec, calculateResistFire, calculateSpeed, calculateSpellSave, calculateStrength, calculateWisdom, } from "../../constants/BASE_STATS.js";
 import { AFFIX_BONUSES } from "../../constants/AFFIX_BONUSES.js";
 import rollDice from "../../util/rollDice.js";
+import resolveQueuedAction from "../../util/resolveQueuedAction.js";
 class Mob {
     constructor(blueprint, location) {
         this._id = new mongoose.Types.ObjectId();
@@ -130,6 +131,36 @@ class Mob {
     combatTargetId;
     combatTargetName;
     grudges;
+    async handleTick() {
+        console.log(`${this.name} handleTick`);
+        // Health regeneration
+        if (this.currentHp < this.maxHp) {
+            this.modifyHp(Math.max(0, this.maxHp / this.healthRegen));
+        }
+        // Mana regeneration
+        if (this.currentMp < this.maxMp) {
+            this.modifyMp(Math.max(0, this.maxMp / this.manaRegen));
+        }
+        // Movement regeneration
+        if (this.currentMv < this.maxMv) {
+            this.modifyMv(Math.max(0, this.maxMv / this.moveRegen));
+        }
+        // Reset combat readiness flags
+        this.readyForAttack = true;
+        this.readyForAction = true;
+        this.readyForBonusAction = true;
+        // Process action queues if they exist
+        if (this.actionQueue && this.actionQueue.length > 0) {
+            const nextAction = this.actionQueue[0];
+            this.actionQueue = this.actionQueue.slice(1);
+            await resolveQueuedAction(nextAction);
+        }
+        if (this.bonusActionQueue && this.bonusActionQueue.length > 0) {
+            const nextBonusAction = this.bonusActionQueue[0];
+            this.bonusActionQueue = this.bonusActionQueue.slice(1);
+            await resolveQueuedAction(nextBonusAction);
+        }
+    }
     modifyHp(amount) {
         const newHp = Math.min(this.currentHp + amount, this.maxHp);
         this.currentHp = Math.max(0, newHp);
@@ -143,10 +174,8 @@ class Mob {
         this.currentMv = Math.max(0, newMv);
     }
     rollToHit() {
-        const d20result = rollDice('1d20');
-        // TODO replace the line below to consider user's HB, etc before return
-        const result = d20result;
-        return result || 0;
+        const d20result = rollDice("1d20");
+        return d20result ? d20result + this.hitBonus : 0;
     }
 }
 export default Mob;

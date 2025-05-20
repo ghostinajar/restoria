@@ -27,6 +27,7 @@ class UserManager {
       this.socketCheckingMultiplayHandler
     );
     worldEmitter.on(`socketConnectingUser`, this.socketConnectingUserHandler);
+    worldEmitter.on(`tick`, this.tickHandler);
     worldEmitter.on(`zoneManagerRemovedUser`, this.logoutUserHandler);
   }
 
@@ -127,6 +128,12 @@ class UserManager {
     }
   };
 
+  tickHandler = () => {
+    for (const user of this.users.values()) {
+      user.handleTick();
+    }
+  };
+
   async addUserById(id: mongoose.Types.ObjectId) {
     try {
       if (this.users.has(id.toString())) {
@@ -189,6 +196,7 @@ class UserManager {
       this.socketCheckingMultiplayHandler
     );
     worldEmitter.off(`socketConnectingUser`, this.socketConnectingUserHandler);
+    worldEmitter.off(`tick`, this.tickHandler);
     worldEmitter.off(`zoneManagerRemovedPlayer`, this.logoutUserHandler);
   }
 }

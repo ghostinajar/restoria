@@ -14,6 +14,7 @@ import WORLD_RECALL from "../../constants/WORLD_RECALL.js";
 import { calculateMaxHp, calculateMaxMp, calculateMaxMv, calculateStrength, calculateDexterity, calculateConstitution, calculateIntelligence, calculateWisdom, calculateCharisma, calculateDamageBonus, calculateHitBonus, calculateArmorClass, calculateSpellSave, calculateSpeed, calculateResistCold, calculateResistFire, calculateResistElec, calculateHealthRegen, calculateManaRegen, calculateMoveRegen, } from "../../constants/BASE_STATS.js";
 import calculateAffixBonuses from "../../util/calculateAffixBonuses.js";
 import rollDice from "../../util/rollDice.js";
+import resolveQueuedAction from "../../util/resolveQueuedAction.js";
 const { Schema, Types, model } = mongoose;
 export const userSchema = new Schema({
     _id: Schema.Types.ObjectId,
@@ -257,10 +258,9 @@ userSchema.methods.modifyMv = function (amount) {
     this._currentMv = Math.max(0, newMv);
 };
 userSchema.methods.rollToHit = function () {
-    const d20result = rollDice('1d20');
-    // TODO replace the line below to consider user's HB, etc before return
-    const result = d20result;
-    return result || 0;
+    const d20result = rollDice("1d20");
+    console.log(`user.rollToHit returning ${d20result + this.hitBonus}`);
+    return d20result + this.hitBonus;
 };
 userSchema.methods.comparePassword = async function (candidatePassword) {
     try {
@@ -269,6 +269,36 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
     catch (error) {
         catchErrorHandlerForFunction(`User.comparePassword for user id ${this._id}`, error);
     }
+};
+userSchema.methods.handleTick = async function () {
+    // Health regeneration
+    if (this.currentHp < this.maxHp) {
+        this.modifyHp(Math.max(0, this.maxHp / this.healthRegen));
+    }
+    // Mana regeneration
+    if (this.currentMp < this.maxMp) {
+        this.modifyMp(Math.max(0, this.maxMp / this.manaRegen));
+    }
+    // Movement regeneration
+    if (this.currentMv < this.maxMv) {
+        this.modifyMv(Math.max(0, this.maxMv / this.moveRegen));
+    }
+    // Reset combat readiness flags
+    this.readyForAttack = true;
+    this.readyForAction = true;
+    this.readyForBonusAction = true;
+    // Process action queues if they exist
+    if (this.actionQueue && this.actionQueue.length > 0) {
+        const nextAction = this.actionQueue[0];
+        this._actionQueue = this.actionQueue.slice(1);
+        await resolveQueuedAction(nextAction);
+    }
+    if (this.bonusActionQueue && this.bonusActionQueue.length > 0) {
+        const nextBonusAction = this.bonusActionQueue[0];
+        this._bonusActionQueue = this._bonusActionQueue.slice(1);
+        await resolveQueuedAction(nextBonusAction);
+    }
+    await this.save();
 };
 const User = model("User", userSchema);
 export default User;

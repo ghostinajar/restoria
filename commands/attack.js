@@ -23,20 +23,23 @@ async function attack(parsedCommand, user) {
         }
         // fail if target not in room.mobs
         const target = findMobByKeywordInRoom(room, parsedCommand.directObject, parsedCommand.directObjectOrdinal);
+        // TODO when implementing PVP, try to find target among room.users
         if (!target) {
             messageToUsername(user.username, `You couldn't find any ${parsedCommand.directObject} to attack.`, `rejection`);
             return;
         }
         user.combatTargetId = target._id;
         user.combatTargetName = target.name;
+        messageToUsername(user.username, `You are now targeting ${target.name}.`);
         sendHudUpdateToUser(user);
         if (user.readyForAttack) {
             const attackAction = new Action(user._id, "user", user.name, target._id, "mob", target.keywords[0], "attack");
+            console.log(`ATTACK command calling resolveQueuedAction on action:`);
+            console.log(attackAction);
             await resolveQueuedAction(attackAction);
             user.readyForAttack = false;
             return;
         }
-        throw new Error(`Something went wrong in ATTACK`);
     }
     catch (error) {
         catchErrorHandlerForFunction(`attack`, error, user?.name);

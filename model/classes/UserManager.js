@@ -15,6 +15,7 @@ class UserManager {
         worldEmitter.on(`requestingWhoArray`, this.requestingWhoArrayHandler);
         worldEmitter.on(`socketCheckingMultiplay`, this.socketCheckingMultiplayHandler);
         worldEmitter.on(`socketConnectingUser`, this.socketConnectingUserHandler);
+        worldEmitter.on(`tick`, this.tickHandler);
         worldEmitter.on(`zoneManagerRemovedUser`, this.logoutUserHandler);
     }
     users;
@@ -100,6 +101,11 @@ class UserManager {
             catchErrorHandlerForFunction("UserManager.socketConnectingUserHandler", error);
         }
     };
+    tickHandler = () => {
+        for (const user of this.users.values()) {
+            user.handleTick();
+        }
+    };
     async addUserById(id) {
         try {
             if (this.users.has(id.toString())) {
@@ -148,6 +154,7 @@ class UserManager {
         worldEmitter.off(`requestingWhoArray`, this.requestingWhoArrayHandler);
         worldEmitter.off(`socketCheckingMultiplay`, this.socketCheckingMultiplayHandler);
         worldEmitter.off(`socketConnectingUser`, this.socketConnectingUserHandler);
+        worldEmitter.off(`tick`, this.tickHandler);
         worldEmitter.off(`zoneManagerRemovedPlayer`, this.logoutUserHandler);
     }
 }
