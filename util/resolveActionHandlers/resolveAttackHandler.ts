@@ -104,6 +104,8 @@ async function resolveAttackHandler(
     }
 
     // TODO after implementing spells: if defender has mirror images, expend one, message users in room, return
+    // after this we know the attack has hit
+
 
     // calculate grossDamage (roll attacker weapon dice + DB)
     // calculate netDamage (subtract defender resistances, spirit armor, protect)

@@ -64,5 +64,6 @@ export interface IAgent {
   modifyMp(amount: number): void;
   modifyMv(amount: number): void;
   rollToHit(): number;
+  rollWeaponDamage(): number;
   handleTick(): void;
 }

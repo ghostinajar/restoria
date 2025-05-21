@@ -262,6 +262,13 @@ userSchema.methods.rollToHit = function () {
     console.log(`user.rollToHit returning ${d20result + this.hitBonus}`);
     return d20result + this.hitBonus;
 };
+userSchema.methods.rollWeaponDamage = function () {
+    // const diceString = TODO derive from equipped weapon
+    // const diceResult = rollDice(diceString);
+    // console.log(`user.rollWeaponDamage returning ${diceResult + this.damageBonus}`);
+    // return d20result + this.damageBonus;
+    return 0;
+};
 userSchema.methods.comparePassword = async function (candidatePassword) {
     try {
         return await bcrypt.compare(candidatePassword, this.password);

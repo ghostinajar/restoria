@@ -230,6 +230,14 @@ class Mob implements IMob {
     const d20result = rollDice("1d20");
     return d20result ? d20result + this.hitBonus : 0;
   }
+
+  rollWeaponDamage(): number {
+    // const diceString = TODO derive from equipped weapon
+    // const diceResult = rollDice(diceString);
+    // console.log(`user.rollWeaponDamage returning ${diceResult + this.damageBonus}`);
+    // return d20result + this.damageBonus;
+    return 0;
+  }
 }
 
 export default Mob;

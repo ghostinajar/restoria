@@ -378,6 +378,14 @@ userSchema.methods.rollToHit = function (): number {
   return d20result + this.hitBonus;
 };
 
+userSchema.methods.rollWeaponDamage = function (): number {
+  // const diceString = TODO derive from equipped weapon
+  // const diceResult = rollDice(diceString);
+  // console.log(`user.rollWeaponDamage returning ${diceResult + this.damageBonus}`);
+  // return d20result + this.damageBonus;
+  return 0;
+};
+
 userSchema.methods.comparePassword = async function (
   candidatePassword: string
 ) {
