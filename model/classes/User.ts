@@ -40,7 +40,6 @@ import { IQueuedAction } from "./Action.js";
 import IGrudge from "./Grudge.js";
 import rollDice from "../../util/rollDice.js";
 import resolveQueuedAction from "../../util/resolveQueuedAction.js";
-import worldEmitter from "./WorldEmitter.js";
 
 const { Schema, Types, model } = mongoose;
 

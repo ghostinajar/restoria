@@ -87,6 +87,37 @@ async function resolveAttackHandler(attacker, defender, providedRoom) {
         }
         console.log(`resolveAttackHandler got grossDamage ${grossDamage}`);
         // calculate netDamage (subtract defender resistances, spirit armor, protect)
+        let netDamage = grossDamage;
+        let resistanceMod = undefined;
+        const damageType = attacker.equipped.weapon1?.weaponStats.damageType;
+        if (damageType) {
+            console.log(`${attacker.name}'s weapon does ${damageType} type damage`);
+            switch (damageType) {
+                case "fire":
+                    resistanceMod = defender.resistFire;
+                    console.log(`using fire resist of ${resistanceMod}`);
+                    break;
+                case "cold":
+                    resistanceMod = defender.resistCold;
+                    console.log(`using cold resist of ${resistanceMod}`);
+                    break;
+                case "electricity":
+                    resistanceMod = defender.resistElec;
+                    console.log(`using elect resist of ${resistanceMod}`);
+                    break;
+                default:
+                    console.log(`not using resistance...`);
+                    break;
+            }
+        }
+        if (resistanceMod) {
+            const reductionFromResistance = netDamage * Math.min(0.5, resistanceMod * 0.05);
+            console.log(`resistance reduced netDamage by -${reductionFromResistance}`);
+            netDamage -= reductionFromResistance;
+            console.log(`netDamage after resistance: ${netDamage}`);
+        }
+        // TODO make sure mob and user's intrinsic affixes are calculated
+        // TODO when spells are implemented, subtrack spirit armor & protect from netDamage
         // reduce defender's currentHealth
         // if thorns, reduce attacker's currentHealth by netDamage / 2
     }
