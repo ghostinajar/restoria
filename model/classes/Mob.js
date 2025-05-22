@@ -178,11 +178,29 @@ class Mob {
         return d20result ? d20result + this.hitBonus : 0;
     }
     rollWeaponDamage() {
-        // const diceString = TODO derive from equipped weapon
-        // const diceResult = rollDice(diceString);
-        // console.log(`user.rollWeaponDamage returning ${diceResult + this.damageBonus}`);
-        // return d20result + this.damageBonus;
-        return 0;
+        // handle unarmed
+        if (!this.equipped.weapon1 || !this.equipped.weapon1.weaponStats) {
+            console.log(`${this.name} is rolling unarmed damage`);
+            let unarmedRoll = rollDice("1d4");
+            if (!unarmedRoll) {
+                unarmedRoll = 1;
+            }
+            const damageResult = Math.max(0, unarmedRoll + this.damageBonus);
+            console.log(`${this.name} rolled ${damageResult}`);
+            return damageResult;
+        }
+        // handle weapon
+        const diceString = this.equipped.weapon1.weaponStats.damageDieQuantity &&
+            this.equipped.weapon1.weaponStats.damageDieSides
+            ? `${this.equipped.weapon1.weaponStats.damageDieQuantity}d${this.equipped.weapon1.weaponStats.damageDieSides}`
+            : `1d4`;
+        const diceResult = rollDice(diceString);
+        if (!diceResult)
+            return this.damageBonus;
+        console.log(`${this.name} is rolling damage with a weapon`);
+        const damageResult = Math.max(0, diceResult + this.damageBonus);
+        console.log(`${this.name} rolled ${damageResult}`);
+        return damageResult;
     }
 }
 export default Mob;

@@ -43,12 +43,10 @@ async function resolveAttackHandler(
     console.log(messagePack);
 
     // roll hit vs ac
-    const attackRoll = attacker.rollToHit()
+    const attackRoll = attacker.rollToHit();
     let hitSucceeds = attackRoll >= defender.armorClass;
     console.log(
-      `resolveAttackHandler: attackRoll ${attackRoll} vs defender.armorClass ${
-        defender.armorClass
-      }`
+      `resolveAttackHandler: attackRoll ${attackRoll} vs defender.armorClass ${defender.armorClass}`
     );
     if (hitSucceeds) {
       console.log(`hitSucceeds = ${hitSucceeds} so far!`);
@@ -105,9 +103,15 @@ async function resolveAttackHandler(
 
     // TODO after implementing spells: if defender has mirror images, expend one, message users in room, return
     // after this we know the attack has hit
-
-
-    // calculate grossDamage (roll attacker weapon dice + DB)
+    // calculate grossDamage
+    const grossDamage = attacker.rollWeaponDamage();
+    if (!grossDamage) {
+      throw new Error(
+        `couldn't calculate gross damage with attacker.rollWeaponDamage`
+      );
+    }
+    console.log(`resolveAttackHandler got grossDamage ${grossDamage}`)
+    
     // calculate netDamage (subtract defender resistances, spirit armor, protect)
     // reduce defender's currentHealth
     // if thorns, reduce attacker's currentHealth by netDamage / 2
