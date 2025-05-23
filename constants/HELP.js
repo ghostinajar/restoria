@@ -358,7 +358,7 @@ const HELP = {
         `<span style="color:var(--red)">DAMAGEBONUS:</span> increases damage dealt on a melee hit`,
         `<span style="color:var(--red)">ARMOR CLASS:</span> decreases chance enemies will hit you in melee`,
         `<span style="color:var(--red)">REGEN:</span> speeds up gradual recovery of HP, MP, or MV`,
-        `<span style="color:var(--red)">RESIST:</span> reduces damage from cold, electricity, or fire`,
+        `<span style="color:var(--red)">RESIST:</span> reduces damage from cold, electric, or fire`,
         `<span style="color:var(--red)">SPELLSAVE:</span> helps resist negative spells (success or duration)`,
     ],
     SUGGEST: [

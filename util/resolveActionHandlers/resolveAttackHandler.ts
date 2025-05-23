@@ -127,9 +127,9 @@ async function resolveAttackHandler(
           resistanceMod = defender.resistCold;
           console.log(`using cold resist of ${resistanceMod}`);
           break;
-        case "electricity":
+        case "electric":
           resistanceMod = defender.resistElec;
-          console.log(`using elect resist of ${resistanceMod}`);
+          console.log(`using elec resist of ${resistanceMod}`);
           break;
         default:
           console.log(`not using resistance...`);
@@ -138,7 +138,7 @@ async function resolveAttackHandler(
     }
     if (resistanceMod) {
       const reductionFromResistance =
-        netDamage * Math.min(0.5, resistanceMod * 0.05);
+        Math.round(netDamage * Math.min(0.5, resistanceMod * 0.05));
       console.log(
         `resistance reduced netDamage by -${reductionFromResistance}`
       );
