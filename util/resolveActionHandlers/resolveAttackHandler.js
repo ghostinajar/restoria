@@ -116,9 +116,9 @@ async function resolveAttackHandler(attacker, defender, providedRoom) {
             netDamage -= reductionFromResistance;
             console.log(`netDamage after resistance: ${netDamage}`);
         }
-        // TODO make sure mob and user's intrinsic affixes are calculated
         // TODO when spells are implemented, subtrack spirit armor & protect from netDamage
         // reduce defender's currentHealth
+        defender.modifyHp(-netDamage);
         // if thorns, reduce attacker's currentHealth by netDamage / 2
     }
     catch (error) {

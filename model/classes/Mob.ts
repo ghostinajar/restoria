@@ -181,10 +181,13 @@ class Mob implements IMob {
   grudges: Array<IGrudge>;
 
   async handleTick() {
-    console.log(`${this.name} handleTick`);
     // Health regeneration
     if (this.currentHp < this.maxHp) {
-      this.modifyHp(Math.max(0, this.maxHp / this.healthRegen));
+      console.log(
+        `${this.name} regen to currentHp ${this.currentHp} by ${Math.ceil(Math.max(0, this.maxHp * this.healthRegen * 0.01))}`
+      );
+      this.modifyHp(Math.ceil(Math.max(0, this.maxHp * this.healthRegen * 0.01)));
+      console.log(`Now it's ${this.currentHp}`);
     }
 
     // Mana regeneration

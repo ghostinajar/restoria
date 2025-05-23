@@ -137,8 +137,9 @@ async function resolveAttackHandler(
       }
     }
     if (resistanceMod) {
-      const reductionFromResistance =
-        Math.round(netDamage * Math.min(0.5, resistanceMod * 0.05));
+      const reductionFromResistance = Math.round(
+        netDamage * Math.min(0.5, resistanceMod * 0.05)
+      );
       console.log(
         `resistance reduced netDamage by -${reductionFromResistance}`
       );
@@ -146,10 +147,11 @@ async function resolveAttackHandler(
       console.log(`netDamage after resistance: ${netDamage}`);
     }
 
-    // TODO make sure mob and user's intrinsic affixes are calculated
     // TODO when spells are implemented, subtrack spirit armor & protect from netDamage
 
     // reduce defender's currentHealth
+    defender.modifyHp(-netDamage);
+
     // if thorns, reduce attacker's currentHealth by netDamage / 2
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`attackHandler`, error);

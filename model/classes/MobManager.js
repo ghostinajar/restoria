@@ -10,8 +10,17 @@ class MobManager {
         worldEmitter.on("mobRequestedById", this.mobRequestedByIdHandler);
         worldEmitter.on("roomDestroyingMob", this.roomDestroyingMobHandler);
         worldEmitter.on("roomRequestingNewMob", this.roomRequestingNewMobHandler);
+        worldEmitter.on("tick", this.tickHandler);
     }
     mobs;
+    tickHandler = () => {
+        if (!this.mobs) {
+            return;
+        }
+        for (const mob of this.mobs.values()) {
+            mob.handleTick();
+        }
+    };
     mobRequestedByIdHandler = async (id) => {
         try {
             worldEmitter.emit(`mobManagerReturningMob${id.toString()}`, this.mobs?.get(id.toString()));
@@ -96,6 +105,7 @@ class MobManager {
         worldEmitter.off("mobRequestedById", this.mobRequestedByIdHandler);
         worldEmitter.off("roomDestroyingMob", this.roomDestroyingMobHandler);
         worldEmitter.off("roomRequestingNewMob", this.roomRequestingNewMobHandler);
+        worldEmitter.off("tick", this.tickHandler);
     }
 }
 export default MobManager;
