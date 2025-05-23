@@ -15,6 +15,7 @@ import { ILocation } from "./Location.js";
 export type AgentType = "user" | "mob";
 
 export interface IAgent {
+  _id: mongoose.Types.ObjectId;
   author: mongoose.Types.ObjectId;
   name: string;
   location: ILocation;

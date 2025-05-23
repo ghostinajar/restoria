@@ -2,6 +2,8 @@
 // user command to attack a target
 
 import Action, { IQueuedAction } from "../model/classes/Action.js";
+import { AgentType, IAgent } from "../model/classes/Agent.js";
+import { IMob } from "../model/classes/Mob.js";
 import { IUser } from "../model/classes/User.js";
 import catchErrorHandlerForFunction from "../util/catchErrorHandlerForFunction.js";
 import findMobByKeywordInRoom from "../util/findMobByKeywordInRoom.js";
@@ -34,13 +36,18 @@ async function attack(parsedCommand: IParsedCommand, user: IUser) {
     }
 
     // fail if target not in room.mobs
-    const target = findMobByKeywordInRoom(
+    let target: IAgent | undefined = findMobByKeywordInRoom(
       room,
       parsedCommand.directObject,
       parsedCommand.directObjectOrdinal
     );
 
     // TODO when implementing PVP, try to find target among room.users
+    if (!target) {
+      target = room.users.find((user) =>
+        user.username.startsWith(parsedCommand.directObject as string)
+      );
+    }
 
     if (!target) {
       messageToUsername(
@@ -57,13 +64,23 @@ async function attack(parsedCommand: IParsedCommand, user: IUser) {
     sendHudUpdateToUser(user);
 
     if (user.readyForAttack) {
+      const targetAsUser = target as IUser;
+      const targetAsMob = target as IMob;
+      let targetNameForAction = target.name;
+      if (targetAsMob.keywords) {
+        targetNameForAction = targetAsMob.keywords[0];
+      }
+      let targetTypeForAction = "mob"
+      if (targetAsUser.username) {
+        targetTypeForAction = "user"
+      }
       const attackAction: IQueuedAction = new Action(
         user._id,
         "user",
         user.name,
         target._id,
-        "mob",
-        target.keywords[0],
+        targetTypeForAction as AgentType,
+        targetNameForAction,
         "attack"
       );
       console.log(`ATTACK command calling resolveQueuedAction on action:`);

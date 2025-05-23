@@ -5,6 +5,7 @@ import { IUser } from "../../model/classes/User.js";
 import { IMessagePack } from "../../types/Message.js";
 import catchErrorHandlerForFunction from "../catchErrorHandlerForFunction.js";
 import getRoomOfUser from "../getRoomOfUser.js";
+import messageToUsername from "../messageToUsername.js";
 import sendMessagePack from "../sendMessagePack.js";
 import startWithCapitalLetter from "../startWithCapitalLetter.js";
 
@@ -27,7 +28,7 @@ async function resolveAttackHandler(
       messagePack.targetUsername = defenderUser.username;
     }
     let room = providedRoom ? providedRoom : await getRoomOfUser(attackerUser);
-    if (room?.users && room.users.length > 0) {
+    if (room?.users && room.users.length > 1) {
       messagePack.observerUsernames = [];
       room.users.forEach((user) => {
         if (
@@ -42,6 +43,21 @@ async function resolveAttackHandler(
     console.log(`messagePack after gathering users in room:`);
     console.log(messagePack);
 
+    // return failed PVP attempt
+    // TODO revisit this when implementing PVP
+    if (attackerUser.username && defenderUser.username) {
+      messageToUsername(
+        attackerUser.username,
+        `Players can't attack players (PVP) in Restoria... yet.`
+      );
+      messageToUsername(
+        defenderUser.username,
+        `${attackerUser.name} tried to attack you, but Restoria doesn't allow PVP (yet).`
+      );
+      return;
+    }
+    // after this we know attacker or defender is a mob
+
     // roll hit vs ac
     const attackRoll = attacker.rollToHit();
     let hitSucceeds = attackRoll >= defender.armorClass;
@@ -52,21 +68,6 @@ async function resolveAttackHandler(
       console.log(`hitSucceeds = ${hitSucceeds} so far!`);
       // TODO after implementing skills: if successful dodge or parry roll, override hitSucceeds to false
     }
-
-    // return failed PVP attempt
-    // TODO revisit this when implementing PVP
-    // if (attackerUser.username && defenderUser.username) {
-    //   messageToUsername(
-    //     attackerUser.username,
-    //     `Players can't attack players (PVP) in Restoria... yet.`
-    //   );
-    //   messageToUsername(
-    //     defenderUser.username,
-    //     `${attackerUser.name} tried to attack you, but Restoria doesn't allow PVP (yet).`
-    //   );
-    //   return;
-    // }
-    // after this we know attacker or defender is a mob
 
     // if !hitSucceeds, message users in room, return
     if (!hitSucceeds) {
@@ -151,8 +152,39 @@ async function resolveAttackHandler(
 
     // reduce defender's currentHealth
     defender.modifyHp(-netDamage);
+    // message the room about damage
+    if (attackerUser.username) {
+      // attacker is a user
+      messagePack.messageForAgent = {
+        type: `attackMiss`,
+        content: `Your attack hits ${defender.name} for ${netDamage} damage!`,
+      };
+    }
+    if (defenderUser.username) {
+      // defender is a user
+      messagePack.messageForTarget = {
+        type: `attackMiss`,
+        content: `${startWithCapitalLetter(
+          attacker.name
+        )}'s attack hits you for ${netDamage} damage!`,
+      };
+    }
+    if (messagePack.observerUsernames) {
+      // observers include users
+      messagePack.messageForObservers = {
+        type: `attackMiss`,
+        content: `${startWithCapitalLetter(attacker.name)}'s attack hits ${
+          defender.name
+        } for ${netDamage} damage!`,
+      };
+    }
+    console.log(
+      `resolveAttackHandler calling sendMessagePack with messagePack:`
+    );
+    console.log(messagePack);
+    sendMessagePack(messagePack);
 
-    // if thorns, reduce attacker's currentHealth by netDamage / 2
+    // TODO when spells implemented: if thorns, reduce attacker's currentHealth by netDamage / 2
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`attackHandler`, error);
   }

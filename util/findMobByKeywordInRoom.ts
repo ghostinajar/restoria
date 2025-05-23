@@ -33,7 +33,7 @@ function findMobByKeywordInRoom(
 
     return foundMob;
   } catch (error: unknown) {
-    catchErrorHandlerForFunction(`findMobInRoom`, error);
+    catchErrorHandlerForFunction(`findMobByKeywordInRoom`, error);
   }
 }
 

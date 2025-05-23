@@ -20,7 +20,7 @@ function findMobByKeywordInRoom(room, mobKeyword, mobOrdinal) {
         return foundMob;
     }
     catch (error) {
-        catchErrorHandlerForFunction(`findMobInRoom`, error);
+        catchErrorHandlerForFunction(`findMobByKeywordInRoom`, error);
     }
 }
 export default findMobByKeywordInRoom;
