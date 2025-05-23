@@ -3,6 +3,7 @@ import { calculateArmorClass, calculateCharisma, calculateConstitution, calculat
 import { AFFIX_BONUSES } from "../../constants/AFFIX_BONUSES.js";
 import rollDice from "../../util/rollDice.js";
 import resolveQueuedAction from "../../util/resolveQueuedAction.js";
+import calculateAffixBonuses from "../../util/calculateAffixBonuses.js";
 class Mob {
     constructor(blueprint, location) {
         this._id = new mongoose.Types.ObjectId();
@@ -47,6 +48,7 @@ class Mob {
         this.inventory = [];
         this.capacity = blueprint.capacity;
         this.affixBonuses = { ...AFFIX_BONUSES };
+        calculateAffixBonuses(this);
         this.currentHp = calculateMaxHp(this) || 20;
         this.maxHp = calculateMaxHp(this) || 20;
         this.healthRegen = calculateHealthRegen(this) || 0;

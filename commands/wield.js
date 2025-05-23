@@ -14,7 +14,7 @@ async function wield(item, user) {
         }
         // equip item and save
         moveItemToEquippedOnUser(user, item, "weapon1");
-        user.affixBonuses = calculateAffixBonuses(user);
+        calculateAffixBonuses(user);
         await save(user, true);
     }
     catch (error) {

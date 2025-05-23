@@ -199,7 +199,11 @@ export const userSchema = new Schema<IUser>(
 userSchema
   .virtual("affixBonuses")
   .get(function () {
-    return this._affixBonuses || calculateAffixBonuses(this);
+    if (this._affixBonuses) {
+      return this._affixBonuses;
+    }
+    calculateAffixBonuses(this);
+    return this._affixBonuses;
   })
   .set(function (value: IAffixBonuses) {
     this._affixBonuses = value;

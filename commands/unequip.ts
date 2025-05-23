@@ -25,7 +25,7 @@ async function unequip(
       //   `unequip called (server direct) with item ${item.name} and location ${location}`
       // );
       removeItemFromSlot(user, item, location);
-      user.affixBonuses = calculateAffixBonuses(user);
+      calculateAffixBonuses(user);
       return;
     }
 
@@ -85,7 +85,7 @@ async function unequip(
         return;
       }
       removeItemFromSlot(user, itemInSlot, processedLocation);
-      user.affixBonuses = calculateAffixBonuses(user);
+      calculateAffixBonuses(user);
       return;
     }
 
@@ -99,7 +99,7 @@ async function unequip(
           itemInSlot.keywords.some((k) => k.startsWith(requestedItemKeyword))
         ) {
           removeItemFromSlot(user, itemInSlot, l);
-          user.affixBonuses = calculateAffixBonuses(user);
+          calculateAffixBonuses(user);
           return;
         }
       }

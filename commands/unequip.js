@@ -12,7 +12,7 @@ async function unequip(parsedCommand, user, item, location) {
             //   `unequip called (server direct) with item ${item.name} and location ${location}`
             // );
             removeItemFromSlot(user, item, location);
-            user.affixBonuses = calculateAffixBonuses(user);
+            calculateAffixBonuses(user);
             return;
         }
         // handle a call with parsedCommand from the user
@@ -51,7 +51,7 @@ async function unequip(parsedCommand, user, item, location) {
                 return;
             }
             removeItemFromSlot(user, itemInSlot, processedLocation);
-            user.affixBonuses = calculateAffixBonuses(user);
+            calculateAffixBonuses(user);
             return;
         }
         // console.log(`no location specified.`);
@@ -62,7 +62,7 @@ async function unequip(parsedCommand, user, item, location) {
             if (itemInSlot) {
                 if (itemInSlot.keywords.some((k) => k.startsWith(requestedItemKeyword))) {
                     removeItemFromSlot(user, itemInSlot, l);
-                    user.affixBonuses = calculateAffixBonuses(user);
+                    calculateAffixBonuses(user);
                     return;
                 }
             }

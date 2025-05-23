@@ -100,7 +100,7 @@ async function wear(item: IItem, user: IUser, location?: string) {
       locationsUserHasEmpty.includes(requestedLocation)
     ) {
       moveItemToEquippedOnUser(user, item, requestedLocation);
-      user.affixBonuses = calculateAffixBonuses(user);
+      calculateAffixBonuses(user);
       return;
     }
 
@@ -117,7 +117,7 @@ async function wear(item: IItem, user: IUser, location?: string) {
       //   `user wanted ${item.name} on empty ${requestedLocation}, equipping...`
       // );
       moveItemToEquippedOnUser(user, item, requestedLocation);
-      user.affixBonuses = calculateAffixBonuses(user);
+      calculateAffixBonuses(user);
       return;
     }
 
@@ -139,7 +139,7 @@ async function wear(item: IItem, user: IUser, location?: string) {
     // );
     unequip({ commandWord: "unequip" }, user, itemInSlot, locationToTry);
     moveItemToEquippedOnUser(user, item, locationToTry);
-    user.affixBonuses = calculateAffixBonuses(user);
+    calculateAffixBonuses(user);
     await save(user, true);
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`wear`, error, user?.name);

@@ -22,10 +22,20 @@ function calculateAffixBonuses(agent: IUser | IMob) {
         }
       }
     }
-    return bonuses;
+    // Include affix bonuses on agent itself
+    console.log(`calculating affix bonuses for ${agent.name}`);
+    console.log(`agent.affixes:`);
+    console.log(agent.affixes);
+    agent.affixes.forEach((affix) => {
+      const affixType = affix.affixType as keyof IAffixBonuses;
+      if (affixType in bonuses) {
+        bonuses[affixType] += affix.value;
+      }
+    });
+    agent.affixBonuses = bonuses;
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`calculateAffixBonuses`, error);
-    return {...AFFIX_BONUSES};
+    return { ...AFFIX_BONUSES };
   }
 }
 

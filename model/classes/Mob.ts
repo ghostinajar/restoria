@@ -36,6 +36,7 @@ import IGrudge from "./Grudge.js";
 import { ILocation } from "./Location.js";
 import rollDice from "../../util/rollDice.js";
 import resolveQueuedAction from "../../util/resolveQueuedAction.js";
+import calculateAffixBonuses from "../../util/calculateAffixBonuses.js";
 
 export interface IMob extends IAgent {
   _id: mongoose.Types.ObjectId;
@@ -93,6 +94,7 @@ class Mob implements IMob {
     this.inventory = [];
     this.capacity = blueprint.capacity;
     this.affixBonuses = { ...AFFIX_BONUSES };
+    calculateAffixBonuses(this);
     this.currentHp = calculateMaxHp(this) || 20;
     this.maxHp = calculateMaxHp(this) || 20;
     this.healthRegen = calculateHealthRegen(this) || 0;

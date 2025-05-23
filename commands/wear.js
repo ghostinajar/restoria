@@ -48,7 +48,7 @@ async function wear(item, user, location) {
         if (requestedLocation &&
             locationsUserHasEmpty.includes(requestedLocation)) {
             moveItemToEquippedOnUser(user, item, requestedLocation);
-            user.affixBonuses = calculateAffixBonuses(user);
+            calculateAffixBonuses(user);
             return;
         }
         // make a list of slots that are both empty and compatible
@@ -62,7 +62,7 @@ async function wear(item, user, location) {
             //   `user wanted ${item.name} on empty ${requestedLocation}, equipping...`
             // );
             moveItemToEquippedOnUser(user, item, requestedLocation);
-            user.affixBonuses = calculateAffixBonuses(user);
+            calculateAffixBonuses(user);
             return;
         }
         // at this point we've handled empty slots (either specified or not)
@@ -81,7 +81,7 @@ async function wear(item, user, location) {
         // );
         unequip({ commandWord: "unequip" }, user, itemInSlot, locationToTry);
         moveItemToEquippedOnUser(user, item, locationToTry);
-        user.affixBonuses = calculateAffixBonuses(user);
+        calculateAffixBonuses(user);
         await save(user, true);
     }
     catch (error) {

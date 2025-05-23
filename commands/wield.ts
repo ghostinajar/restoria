@@ -19,7 +19,7 @@ async function wield(item: IItem, user: IUser) {
 
     // equip item and save
     moveItemToEquippedOnUser(user, item, "weapon1");
-    user.affixBonuses = calculateAffixBonuses(user);
+    calculateAffixBonuses(user);
     await save(user, true);
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`wield`, error, user?.name);
