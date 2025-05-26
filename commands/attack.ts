@@ -83,8 +83,8 @@ async function attack(parsedCommand: IParsedCommand, user: IUser) {
         targetNameForAction,
         "attack"
       );
-      console.log(`ATTACK command calling resolveQueuedAction on action:`);
-      console.log(attackAction);
+      //console.log(`ATTACK command calling resolveQueuedAction on action:`);
+      //console.log(attackAction);
       await resolveQueuedAction(attackAction);
       user.readyForAttack = false;
       return;

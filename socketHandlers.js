@@ -65,8 +65,8 @@ export const formPromptForUserHandler = async (formData, socket) => {
 };
 export const hudUpdateForUserHandler = async (hudUpdatePackage, socket) => {
     try {
-        console.log("emitting hudUpdatePackage on socket:");
-        console.log(hudUpdatePackage);
+        //console.log("emitting hudUpdatePackage on socket:");
+        //console.log(hudUpdatePackage);
         socket.emit(`hudUpdate`, hudUpdatePackage);
     }
     catch (error) {

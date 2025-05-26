@@ -7,7 +7,7 @@ async function resolveImmediateAction(actionName, agent, target, room) {
         // switch on action.actionName to run handler
         switch (actionName) {
             case "attack":
-                console.log(`resolveImmediateAction calling resolveAttackHandler`);
+                //console.log(`resolveImmediateAction calling resolveAttackHandler`);
                 resolveAttackHandler(agent, target, room);
                 break;
         }

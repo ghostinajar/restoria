@@ -19,9 +19,9 @@ function calculateAffixBonuses(agent) {
             }
         }
         // Include affix bonuses on agent itself
-        console.log(`calculating affix bonuses for ${agent.name}`);
-        console.log(`agent.affixes:`);
-        console.log(agent.affixes);
+        //console.log(`calculating affix bonuses for ${agent.name}`);
+        //console.log(`agent.affixes:`);
+        //console.log(agent.affixes);
         agent.affixes.forEach((affix) => {
             const affixType = affix.affixType;
             if (affixType in bonuses) {

@@ -183,11 +183,11 @@ class Mob implements IMob {
   async handleTick() {
     // Health regeneration
     if (this.currentHp < this.maxHp) {
-      console.log(
-        `${this.name} regen to currentHp ${this.currentHp} by ${Math.ceil(Math.max(0, this.maxHp * this.healthRegen * 0.01))}`
-      );
+      // console.log(
+      //   `${this.name} regen to currentHp ${this.currentHp} by ${Math.ceil(Math.max(0, this.maxHp * this.healthRegen * 0.01))}`
+      // );
       this.modifyHp(Math.ceil(Math.max(0, this.maxHp * this.healthRegen * 0.01)));
-      console.log(`Now it's ${this.currentHp}`);
+      // console.log(`Now it's ${this.currentHp}`);
     }
 
     // Mana regeneration
@@ -239,13 +239,13 @@ class Mob implements IMob {
   rollWeaponDamage(): number {
     // handle unarmed
     if (!this.equipped.weapon1 || !this.equipped.weapon1.weaponStats) {
-      console.log(`${this.name} is rolling unarmed damage`);
+      //console.log(`${this.name} is rolling unarmed damage`);
       let unarmedRoll = rollDice("1d4");
       if (!unarmedRoll) {
         unarmedRoll = 1;
       }
       const damageResult = Math.max(0, unarmedRoll + this.damageBonus);
-      console.log(`${this.name} rolled ${damageResult}`);
+      //console.log(`${this.name} rolled ${damageResult}`);
       return damageResult;
     }
 
@@ -258,9 +258,9 @@ class Mob implements IMob {
 
     const diceResult = rollDice(diceString);
     if (!diceResult) return this.damageBonus;
-    console.log(`${this.name} is rolling damage with a weapon`);
+    //console.log(`${this.name} is rolling damage with a weapon`);
     const damageResult = Math.max(0, diceResult + this.damageBonus);
-    console.log(`${this.name} rolled ${damageResult}`);
+    //console.log(`${this.name} rolled ${damageResult}`);
     return damageResult;
   }
 }

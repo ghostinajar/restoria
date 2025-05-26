@@ -40,8 +40,8 @@ async function resolveAttackHandler(
         }
       });
     }
-    console.log(`messagePack after gathering users in room:`);
-    console.log(messagePack);
+    //console.log(`messagePack after gathering users in room:`);
+    //console.log(messagePack);
 
     // return failed PVP attempt
     // TODO revisit this when implementing PVP
@@ -61,11 +61,11 @@ async function resolveAttackHandler(
     // roll hit vs ac
     const attackRoll = attacker.rollToHit();
     let hitSucceeds = attackRoll >= defender.armorClass;
-    console.log(
-      `resolveAttackHandler: attackRoll ${attackRoll} vs defender.armorClass ${defender.armorClass}`
-    );
+    // console.log(
+    //   `resolveAttackHandler: attackRoll ${attackRoll} vs defender.armorClass ${defender.armorClass}`
+    // );
     if (hitSucceeds) {
-      console.log(`hitSucceeds = ${hitSucceeds} so far!`);
+      //console.log(`hitSucceeds = ${hitSucceeds} so far!`);
       // TODO after implementing skills: if successful dodge or parry roll, override hitSucceeds to false
     }
 
@@ -94,10 +94,10 @@ async function resolveAttackHandler(
           content: `${attacker.name} attacks ${defender.name} and misses.`,
         };
       }
-      console.log(
-        `resolveAttackHandler calling sendMessagePack with messagePack:`
-      );
-      console.log(messagePack);
+      // console.log(
+      //   `resolveAttackHandler calling sendMessagePack with messagePack:`
+      // );
+      // console.log(messagePack);
       sendMessagePack(messagePack);
       return;
     }
@@ -111,29 +111,29 @@ async function resolveAttackHandler(
         `couldn't calculate gross damage with attacker.rollWeaponDamage`
       );
     }
-    console.log(`resolveAttackHandler got grossDamage ${grossDamage}`);
+    //console.log(`resolveAttackHandler got grossDamage ${grossDamage}`);
 
     // calculate netDamage (subtract defender resistances, spirit armor, protect)
     let netDamage = grossDamage;
     let resistanceMod = undefined;
     const damageType = attacker.equipped.weapon1?.weaponStats.damageType;
     if (damageType) {
-      console.log(`${attacker.name}'s weapon does ${damageType} type damage`);
+      //console.log(`${attacker.name}'s weapon does ${damageType} type damage`);
       switch (damageType) {
         case "fire":
           resistanceMod = defender.resistFire;
-          console.log(`using fire resist of ${resistanceMod}`);
+          //console.log(`using fire resist of ${resistanceMod}`);
           break;
         case "cold":
           resistanceMod = defender.resistCold;
-          console.log(`using cold resist of ${resistanceMod}`);
+          //console.log(`using cold resist of ${resistanceMod}`);
           break;
         case "electric":
           resistanceMod = defender.resistElec;
-          console.log(`using elec resist of ${resistanceMod}`);
+          //console.log(`using elec resist of ${resistanceMod}`);
           break;
         default:
-          console.log(`not using resistance...`);
+          //console.log(`not using resistance...`);
           break;
       }
     }
@@ -141,11 +141,11 @@ async function resolveAttackHandler(
       const reductionFromResistance = Math.round(
         netDamage * Math.min(0.5, resistanceMod * 0.05)
       );
-      console.log(
-        `resistance reduced netDamage by -${reductionFromResistance}`
-      );
+      // console.log(
+      //   `resistance reduced netDamage by -${reductionFromResistance}`
+      // );
       netDamage -= reductionFromResistance;
-      console.log(`netDamage after resistance: ${netDamage}`);
+      //console.log(`netDamage after resistance: ${netDamage}`);
     }
 
     // TODO when spells are implemented, subtrack spirit armor & protect from netDamage
@@ -178,10 +178,10 @@ async function resolveAttackHandler(
         } for ${netDamage} damage!`,
       };
     }
-    console.log(
-      `resolveAttackHandler calling sendMessagePack with messagePack:`
-    );
-    console.log(messagePack);
+    // console.log(
+    //   `resolveAttackHandler calling sendMessagePack with messagePack:`
+    // );
+    //console.log(messagePack);
     sendMessagePack(messagePack);
 
     // TODO when spells implemented: if thorns, reduce attacker's currentHealth by netDamage / 2

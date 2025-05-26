@@ -47,8 +47,8 @@ async function attack(parsedCommand, user) {
                 targetTypeForAction = "user";
             }
             const attackAction = new Action(user._id, "user", user.name, target._id, targetTypeForAction, targetNameForAction, "attack");
-            console.log(`ATTACK command calling resolveQueuedAction on action:`);
-            console.log(attackAction);
+            //console.log(`ATTACK command calling resolveQueuedAction on action:`);
+            //console.log(attackAction);
             await resolveQueuedAction(attackAction);
             user.readyForAttack = false;
             return;

@@ -377,20 +377,20 @@ userSchema.methods.modifyMv = function (amount: number) {
 
 userSchema.methods.rollToHit = function (): number {
   const d20result = rollDice("1d20");
-  console.log(`user.rollToHit returning ${d20result + this.hitBonus}`);
+  //console.log(`user.rollToHit returning ${d20result + this.hitBonus}`);
   return d20result + this.hitBonus;
 };
 
 userSchema.methods.rollWeaponDamage = function (): number {
   // handle unarmed
   if (!this.equipped.weapon1 || !this.equipped.weapon1.weaponStats) {
-    console.log(`${this.name} is rolling unarmed damage`);
+    //console.log(`${this.name} is rolling unarmed damage`);
     let unarmedRoll = rollDice("1d4");
     if (!unarmedRoll) {
       unarmedRoll = 1;
     }
     const damageResult = Math.max(0, unarmedRoll + this.damageBonus);
-    console.log(`${this.name} rolled ${damageResult}`);
+    //console.log(`${this.name} rolled ${damageResult}`);
     return damageResult;
   }
 
@@ -403,9 +403,9 @@ userSchema.methods.rollWeaponDamage = function (): number {
 
   const diceResult = rollDice(diceString);
   if (!diceResult) return this.damageBonus;
-  console.log(`${this.name} is rolling damage with a weapon`);
+  //console.log(`${this.name} is rolling damage with a weapon`);
   const damageResult = Math.max(0, diceResult + this.damageBonus);
-  console.log(`${this.name} rolled ${damageResult}`);
+  //console.log(`${this.name} rolled ${damageResult}`);
   return damageResult;
 };
 
