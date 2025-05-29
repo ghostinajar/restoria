@@ -18,6 +18,7 @@ export interface IAgent {
   _id: mongoose.Types.ObjectId;
   author: mongoose.Types.ObjectId;
   name: string;
+  agentType: AgentType;
   location: ILocation;
   pronouns: number;
   level: number;

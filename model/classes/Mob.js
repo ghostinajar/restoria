@@ -9,6 +9,7 @@ class Mob {
         this._id = new mongoose.Types.ObjectId();
         this.author = blueprint.author;
         this.name = blueprint.name;
+        this.agentType = "mob";
         this.location = location;
         this.pronouns = blueprint.pronouns;
         this.level = blueprint.level;
@@ -81,6 +82,7 @@ class Mob {
     _id;
     author;
     name;
+    agentType;
     location;
     pronouns;
     level;

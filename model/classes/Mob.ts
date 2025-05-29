@@ -30,7 +30,7 @@ import {
   calculateWisdom,
 } from "../../constants/BASE_STATS.js";
 import { AFFIX_BONUSES, IAffixBonuses } from "../../constants/AFFIX_BONUSES.js";
-import { IAgent } from "./Agent.js";
+import { AgentType, IAgent } from "./Agent.js";
 import { IQueuedAction } from "./Action.js";
 import IGrudge from "./Grudge.js";
 import { ILocation } from "./Location.js";
@@ -55,6 +55,7 @@ class Mob implements IMob {
     this._id = new mongoose.Types.ObjectId();
     this.author = blueprint.author;
     this.name = blueprint.name;
+    this.agentType = "mob";
     this.location = location;
     this.pronouns = blueprint.pronouns;
     this.level = blueprint.level;
@@ -127,6 +128,7 @@ class Mob implements IMob {
   _id: mongoose.Types.ObjectId;
   author: mongoose.Types.ObjectId;
   name: string;
+  agentType: AgentType;
   location: ILocation;
   pronouns: number;
   level: number;

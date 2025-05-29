@@ -27,6 +27,7 @@ export const userSchema = new Schema({
         type: Schema.Types.ObjectId,
         default: null,
     },
+    agentType: { type: String, required: true, default: "user" },
     location: {
         type: locationSchema,
         required: true,

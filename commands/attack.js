@@ -1,18 +1,18 @@
 // attack
 // user command to attack a target
-import Action from "../model/classes/Action.js";
 import catchErrorHandlerForFunction from "../util/catchErrorHandlerForFunction.js";
 import findMobByKeywordInRoom from "../util/findMobByKeywordInRoom.js";
 import getRoomOfUser from "../util/getRoomOfUser.js";
 import messageToUsername from "../util/messageToUsername.js";
-import resolveQueuedAction from "../util/resolveQueuedAction.js";
-import sendHudUpdateToUser from "../util/sendHudUpdateToUser.js";
+import resolveImmediateAction from "../util/resolveImmediateAction.js";
 async function attack(parsedCommand, user) {
     try {
+        // fail if user didn't specify a target
         if (!parsedCommand.directObject) {
             messageToUsername(user.username, `Attack what?`, `rejection`, true);
             return;
         }
+        // fail if the room doesn't allow combat
         const room = await getRoomOfUser(user);
         if (!room) {
             throw new Error(`Couldn't find room for ${user.name}`);
@@ -21,38 +21,35 @@ async function attack(parsedCommand, user) {
             messageToUsername(user.username, `Combat isn't allowed in this room.`, `rejection`, true);
             return;
         }
-        // fail if target not in room.mobs
+        // is target a mob?
         let target = findMobByKeywordInRoom(room, parsedCommand.directObject, parsedCommand.directObjectOrdinal);
-        // TODO when implementing PVP, try to find target among room.users
+        // if not mob, is target a user?
         if (!target) {
             target = room.users.find((user) => user.username.startsWith(parsedCommand.directObject));
         }
+        // fail if no valid target
         if (!target) {
             messageToUsername(user.username, `You couldn't find any ${parsedCommand.directObject} to attack.`, `rejection`);
             return;
         }
-        user.combatTargetId = target._id;
-        user.combatTargetName = target.name;
-        messageToUsername(user.username, `You are now targeting ${target.name}.`);
-        sendHudUpdateToUser(user);
+        // if ready, resolve now
         if (user.readyForAttack) {
-            const targetAsUser = target;
-            const targetAsMob = target;
-            let targetNameForAction = target.name;
-            if (targetAsMob.keywords) {
-                targetNameForAction = targetAsMob.keywords[0];
-            }
-            let targetTypeForAction = "mob";
-            if (targetAsUser.username) {
-                targetTypeForAction = "user";
-            }
-            const attackAction = new Action("attack", "attack", user._id, "user", user.name, target._id, targetTypeForAction, targetNameForAction);
-            //console.log(`ATTACK command calling resolveQueuedAction on action:`);
-            //console.log(attackAction);
-            await resolveQueuedAction(attackAction);
+            await resolveImmediateAction("attack", user, target);
             user.readyForAttack = false;
             return;
         }
+        // attacker not ready
+        // TODO queue the action 
+        // const targetAsUser = target as IUser;
+        //   const targetAsMob = target as IMob;
+        //   let targetNameForAction = target.name;
+        //   if (targetAsMob.keywords) {
+        //     targetNameForAction = targetAsMob.keywords[0];
+        //   }
+        //   let targetTypeForAction = "mob";
+        //   if (targetAsUser.username) {
+        //     targetTypeForAction = "user";
+        //   }
     }
     catch (error) {
         catchErrorHandlerForFunction(`attack`, error, user?.name);
