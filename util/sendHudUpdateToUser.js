@@ -11,11 +11,6 @@ function sendHudUpdateToUser(user) {
                 user.actionQueue[1]?.actionLabel,
                 user.actionQueue[2]?.actionLabel,
             ],
-            bonusActionQueueLabels: [
-                user.bonusActionQueue[0]?.actionLabel,
-                user.bonusActionQueue[1]?.actionLabel,
-                user.bonusActionQueue[2]?.actionLabel,
-            ],
         };
         worldEmitter.emit(`hudUpdateFor${user.username}`, hudUpdatePackage);
         return;

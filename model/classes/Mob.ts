@@ -122,7 +122,6 @@ class Mob implements IMob {
     this.readyForAction = true;
     this.readyForBonusAction = true;
     this.actionQueue = [];
-    this.bonusActionQueue = [];
     this.grudges = [];
   }
   _id: mongoose.Types.ObjectId;
@@ -175,7 +174,6 @@ class Mob implements IMob {
   readyForAction: boolean;
   readyForBonusAction: boolean;
   actionQueue: Array<IQueuedAction>;
-  bonusActionQueue: Array<IQueuedAction>;
   combatTargetId?: mongoose.Types.ObjectId;
   combatTargetName?: string;
   grudges: Array<IGrudge>;
@@ -205,17 +203,12 @@ class Mob implements IMob {
     this.readyForAction = true;
     this.readyForBonusAction = true;
 
-    // Process action queues if they exist
+    // Process action queue
     if (this.actionQueue && this.actionQueue.length > 0) {
+      // TODO pluck out and process an action and a bonus action to process
       const nextAction = this.actionQueue[0];
       this.actionQueue = this.actionQueue.slice(1);
       await resolveQueuedAction(nextAction);
-    }
-
-    if (this.bonusActionQueue && this.bonusActionQueue.length > 0) {
-      const nextBonusAction = this.bonusActionQueue[0];
-      this.bonusActionQueue = this.bonusActionQueue.slice(1);
-      await resolveQueuedAction(nextBonusAction);
     }
   }
 

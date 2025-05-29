@@ -7,6 +7,8 @@ import SKILL from "../../constants/SKILL.js";
 import SPELL from "../../constants/SPELL.js";
 import { AgentType } from "./Agent.js";
 
+type ActionType = "action" | "attack" | "bonus";
+
 type AttackActionName = "attack" | "secondAttack" | "thirdAttack";
 
 const actionNames = [
@@ -111,44 +113,48 @@ const bonusActionNames = [
 type BonusActionName = (typeof bonusActionNames)[number];
 
 export interface IQueuedAction {
+  actionName: AttackActionName | ActionName | BonusActionName;
+  actionType: ActionType;
   agentId: mongoose.Types.ObjectId;
   agentType: AgentType;
   agentName: string;
   targetId: mongoose.Types.ObjectId; // we store the id and not a reference to the target itself because the target may not exist anymore when a queued action executes
   targetType: AgentType;
   targetName: string;
-  actionName: AttackActionName | ActionName | BonusActionName;
   dateEntered: Date;
   actionLabel: string;
 }
 
 class QueuedAction implements IQueuedAction {
   constructor(
+    actionName: AttackActionName | ActionName | BonusActionName,
+    actionType: ActionType,
     agentId: mongoose.Types.ObjectId,
     agentType: AgentType,
     agentName: string,
     targetId: mongoose.Types.ObjectId,
     targetType: AgentType,
-    targetName: string,
-    actionName: AttackActionName | ActionName | BonusActionName
+    targetName: string
   ) {
+    this.actionName = actionName;
+    this.actionType = actionType;
     this.agentId = agentId;
     this.agentType = agentType;
     this.agentName = agentName;
     this.targetType = targetType;
     this.targetId = targetId;
-    this.targetName = targetName
-    this.actionName = actionName;
+    this.targetName = targetName;
     this.dateEntered = new Date();
     this.actionLabel = `${actionName} ${targetName}`;
   }
+  actionName: AttackActionName | ActionName | BonusActionName;
+  actionType: ActionType;
   agentId: mongoose.Types.ObjectId;
   agentType: AgentType;
   agentName: string;
   targetId: mongoose.Types.ObjectId;
   targetType: AgentType;
   targetName: string;
-  actionName: AttackActionName | ActionName | BonusActionName;
   dateEntered: Date;
   actionLabel: string;
 }

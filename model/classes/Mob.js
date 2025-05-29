@@ -76,7 +76,6 @@ class Mob {
         this.readyForAction = true;
         this.readyForBonusAction = true;
         this.actionQueue = [];
-        this.bonusActionQueue = [];
         this.grudges = [];
     }
     _id;
@@ -129,7 +128,6 @@ class Mob {
     readyForAction;
     readyForBonusAction;
     actionQueue;
-    bonusActionQueue;
     combatTargetId;
     combatTargetName;
     grudges;
@@ -154,16 +152,12 @@ class Mob {
         this.readyForAttack = true;
         this.readyForAction = true;
         this.readyForBonusAction = true;
-        // Process action queues if they exist
+        // Process action queue
         if (this.actionQueue && this.actionQueue.length > 0) {
+            // TODO pluck out and process an action and a bonus action to process
             const nextAction = this.actionQueue[0];
             this.actionQueue = this.actionQueue.slice(1);
             await resolveQueuedAction(nextAction);
-        }
-        if (this.bonusActionQueue && this.bonusActionQueue.length > 0) {
-            const nextBonusAction = this.bonusActionQueue[0];
-            this.bonusActionQueue = this.bonusActionQueue.slice(1);
-            await resolveQueuedAction(nextBonusAction);
         }
     }
     modifyHp(amount) {

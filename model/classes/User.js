@@ -227,9 +227,6 @@ userSchema
 userSchema.virtual("actionQueue").get(function () {
     return this._actionQueue || [];
 });
-userSchema.virtual("bonusActionQueue").get(function () {
-    return this._bonusActionQueue || [];
-});
 userSchema
     .virtual("combatTargetId")
     .get(function () {
@@ -318,14 +315,10 @@ userSchema.methods.handleTick = async function () {
     this.readyForBonusAction = true;
     // Process action queues if they exist
     if (this.actionQueue && this.actionQueue.length > 0) {
+        // TODO pluck out and process an action and a bonus action to process
         const nextAction = this.actionQueue[0];
         this._actionQueue = this.actionQueue.slice(1);
         await resolveQueuedAction(nextAction);
-    }
-    if (this.bonusActionQueue && this.bonusActionQueue.length > 0) {
-        const nextBonusAction = this.bonusActionQueue[0];
-        this._bonusActionQueue = this._bonusActionQueue.slice(1);
-        await resolveQueuedAction(nextBonusAction);
     }
     await this.save();
 };

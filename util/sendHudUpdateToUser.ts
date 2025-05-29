@@ -12,11 +12,6 @@ export interface IHudUpdatePackage {
     string | undefined,
     string | undefined
   ];
-  bonusActionQueueLabels: [
-    string | undefined,
-    string | undefined,
-    string | undefined
-  ];
 }
 
 function sendHudUpdateToUser(user: IUser) {
@@ -27,11 +22,6 @@ function sendHudUpdateToUser(user: IUser) {
         user.actionQueue[0]?.actionLabel,
         user.actionQueue[1]?.actionLabel,
         user.actionQueue[2]?.actionLabel,
-      ],
-      bonusActionQueueLabels: [
-        user.bonusActionQueue[0]?.actionLabel,
-        user.bonusActionQueue[1]?.actionLabel,
-        user.bonusActionQueue[2]?.actionLabel,
       ],
     };
     worldEmitter.emit(`hudUpdateFor${user.username}`, hudUpdatePackage);

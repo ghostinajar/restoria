@@ -10,6 +10,7 @@ import findMobByKeywordInRoom from "../util/findMobByKeywordInRoom.js";
 import getRoomOfUser from "../util/getRoomOfUser.js";
 import messageToUsername from "../util/messageToUsername.js";
 import { IParsedCommand } from "../util/parseCommand.js";
+import resolveImmediateAction from "../util/resolveImmediateAction.js";
 import resolveQueuedAction from "../util/resolveQueuedAction.js";
 import sendHudUpdateToUser from "../util/sendHudUpdateToUser.js";
 
@@ -70,22 +71,11 @@ async function attack(parsedCommand: IParsedCommand, user: IUser) {
       if (targetAsMob.keywords) {
         targetNameForAction = targetAsMob.keywords[0];
       }
-      let targetTypeForAction = "mob"
+      let targetTypeForAction = "mob";
       if (targetAsUser.username) {
-        targetTypeForAction = "user"
+        targetTypeForAction = "user";
       }
-      const attackAction: IQueuedAction = new Action(
-        user._id,
-        "user",
-        user.name,
-        target._id,
-        targetTypeForAction as AgentType,
-        targetNameForAction,
-        "attack"
-      );
-      //console.log(`ATTACK command calling resolveQueuedAction on action:`);
-      //console.log(attackAction);
-      await resolveQueuedAction(attackAction);
+      await resolveImmediateAction("attack", user, target);
       user.readyForAttack = false;
       return;
     }

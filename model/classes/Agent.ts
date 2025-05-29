@@ -56,7 +56,6 @@ export interface IAgent {
   readyForAction: boolean;
   readyForBonusAction: boolean;
   actionQueue: Array<IQueuedAction>;
-  bonusActionQueue: Array<IQueuedAction>;
   combatTargetId?: mongoose.Types.ObjectId;
   combatTargetName?: string;
   grudges: Array<IGrudge>;

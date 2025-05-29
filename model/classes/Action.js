@@ -101,24 +101,26 @@ const bonusActionNames = [
     SPELL.WORD_OF_RECALL,
 ];
 class QueuedAction {
-    constructor(agentId, agentType, agentName, targetId, targetType, targetName, actionName) {
+    constructor(actionName, actionType, agentId, agentType, agentName, targetId, targetType, targetName) {
+        this.actionName = actionName;
+        this.actionType = actionType;
         this.agentId = agentId;
         this.agentType = agentType;
         this.agentName = agentName;
         this.targetType = targetType;
         this.targetId = targetId;
         this.targetName = targetName;
-        this.actionName = actionName;
         this.dateEntered = new Date();
         this.actionLabel = `${actionName} ${targetName}`;
     }
+    actionName;
+    actionType;
     agentId;
     agentType;
     agentName;
     targetId;
     targetType;
     targetName;
-    actionName;
     dateEntered;
     actionLabel;
 }
