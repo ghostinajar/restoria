@@ -334,7 +334,10 @@ userSchema
   });
 
 userSchema.virtual("actionQueue").get(function () {
-  return this._actionQueue || [];
+  if (!this._actionQueue) {
+    this._actionQueue = [];
+  }
+  return this._actionQueue
 });
 
 userSchema
@@ -471,7 +474,9 @@ userSchema.methods.updateHUD = function () {
 };
 
 userSchema.methods.queueAction = function (queuedAction: IQueuedAction) {
-  this.actionQueue.push(queuedAction);
+  this._actionQueue.push(queuedAction);
+  console.log('just added')
+  console.log(this.actionQueue)
   this.updateHUD();
 };
 

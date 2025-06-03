@@ -39,14 +39,14 @@ async function attack(parsedCommand, user) {
             user.readyForAttack = false;
             return;
         }
-        // attacker not ready
+        // attacker isn't ready
         // pack the queuedAction
         let queuedAction = new QueuedAction("attack", "attack", user._id, user.agentType, user.name, target._id, target.agentType, target.name);
         if (target.agentType === "mob") {
             const targetAsMob = target;
             queuedAction.targetName = targetAsMob.keywords[0];
         }
-        // TODO queue the action
+        user.queueAction(queuedAction);
     }
     catch (error) {
         catchErrorHandlerForFunction(`attack`, error, user?.name);

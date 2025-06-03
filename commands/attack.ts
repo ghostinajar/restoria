@@ -66,7 +66,7 @@ async function attack(parsedCommand: IParsedCommand, user: IUser) {
       return;
     }
 
-    // attacker not ready
+    // attacker isn't ready
     // pack the queuedAction
     let queuedAction = new QueuedAction(
       "attack",
@@ -82,9 +82,7 @@ async function attack(parsedCommand: IParsedCommand, user: IUser) {
       const targetAsMob = target as IMob;
       queuedAction.targetName = targetAsMob.keywords[0];
     }
-
-    // TODO queue the action
-
+    user.queueAction(queuedAction);
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`attack`, error, user?.name);
   }

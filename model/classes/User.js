@@ -227,7 +227,10 @@ userSchema
     this._readyForBonusAction = value;
 });
 userSchema.virtual("actionQueue").get(function () {
-    return this._actionQueue || [];
+    if (!this._actionQueue) {
+        this._actionQueue = [];
+    }
+    return this._actionQueue;
 });
 userSchema
     .virtual("combatTargetId")
@@ -342,7 +345,9 @@ userSchema.methods.updateHUD = function () {
     }
 };
 userSchema.methods.queueAction = function (queuedAction) {
-    this.actionQueue.push(queuedAction);
+    this._actionQueue.push(queuedAction);
+    console.log('just added');
+    console.log(this.actionQueue);
     this.updateHUD();
 };
 const User = model("User", userSchema);
