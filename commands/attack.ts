@@ -1,7 +1,9 @@
 // attack
 // user command to attack a target
 
+import QueuedAction, { IQueuedAction } from "../model/classes/Action.js";
 import { IAgent } from "../model/classes/Agent.js";
+import { IMob } from "../model/classes/Mob.js";
 import { IUser } from "../model/classes/User.js";
 import catchErrorHandlerForFunction from "../util/catchErrorHandlerForFunction.js";
 import findMobByKeywordInRoom from "../util/findMobByKeywordInRoom.js";
@@ -62,20 +64,26 @@ async function attack(parsedCommand: IParsedCommand, user: IUser) {
       await resolveImmediateAction("attack", user, target);
       user.readyForAttack = false;
       return;
-    }    
+    }
 
     // attacker not ready
-    // TODO queue the action 
-    // const targetAsUser = target as IUser;
-    //   const targetAsMob = target as IMob;
-    //   let targetNameForAction = target.name;
-    //   if (targetAsMob.keywords) {
-    //     targetNameForAction = targetAsMob.keywords[0];
-    //   }
-    //   let targetTypeForAction = "mob";
-    //   if (targetAsUser.username) {
-    //     targetTypeForAction = "user";
-    //   }
+    // pack the queuedAction
+    let queuedAction = new QueuedAction(
+      "attack",
+      "attack",
+      user._id,
+      user.agentType,
+      user.name,
+      target._id,
+      target.agentType,
+      target.name
+    );
+    if (target.agentType === "mob") {
+      const targetAsMob = target as IMob;
+      queuedAction.targetName = targetAsMob.keywords[0];
+    }
+
+    // TODO queue the action
 
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`attack`, error, user?.name);

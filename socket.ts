@@ -56,7 +56,7 @@ import catchErrorHandlerForFunction from "./util/catchErrorHandlerForFunction.js
 import { IMapTileState } from "./commands/map.js";
 import lookExamine from "./commands/lookExamine.js";
 import { IMapTile } from "./model/classes/Room.js";
-import { IHudUpdatePackage } from "./util/sendHudUpdateToUser.js";
+import IHudUpdatePackage from "./types/HudUpdatePackage.js";
 
 const setupSocket = (io: any) => {
   try {

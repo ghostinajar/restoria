@@ -9,7 +9,6 @@ import { IUser } from "../model/classes/User.js";
 import catchErrorHandlerForFunction from "./catchErrorHandlerForFunction.js";
 import messageToUsername from "./messageToUsername.js";
 import resolveAttackHandler from "./resolveActionHandlers/resolveAttackHandler.js";
-import sendHudUpdateToUser from "./sendHudUpdateToUser.js";
 
 async function resolveImmediateAction(
   actionName: string,
@@ -37,7 +36,7 @@ function setCombatTargetForAgent(agent: IAgent, target: IAgent) {
   if (agent.agentType === "user") {
     let user = agent as IUser;
     messageToUsername(user.username, `You are now targeting ${target.name}.`);
-    sendHudUpdateToUser(user);
+    user.updateHUD();
   }
 }
 

@@ -5,7 +5,6 @@
 import catchErrorHandlerForFunction from "./catchErrorHandlerForFunction.js";
 import messageToUsername from "./messageToUsername.js";
 import resolveAttackHandler from "./resolveActionHandlers/resolveAttackHandler.js";
-import sendHudUpdateToUser from "./sendHudUpdateToUser.js";
 async function resolveImmediateAction(actionName, agent, target, room) {
     try {
         // switch on action.actionName to run handler
@@ -27,7 +26,7 @@ function setCombatTargetForAgent(agent, target) {
     if (agent.agentType === "user") {
         let user = agent;
         messageToUsername(user.username, `You are now targeting ${target.name}.`);
-        sendHudUpdateToUser(user);
+        user.updateHUD();
     }
 }
 export default resolveImmediateAction;

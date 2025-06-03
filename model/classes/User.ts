@@ -40,6 +40,8 @@ import { IQueuedAction } from "./Action.js";
 import IGrudge from "./Grudge.js";
 import rollDice from "../../util/rollDice.js";
 import resolveQueuedAction from "../../util/resolveQueuedAction.js";
+import worldEmitter from "./WorldEmitter.js";
+import IHudUpdatePackage from "../../types/HudUpdatePackage.js";
 
 const { Schema, Types, model } = mongoose;
 
@@ -88,6 +90,7 @@ export interface IUser extends mongoose.Document, IAgent {
   _combatTargetName?: string;
   _grudges: Array<IGrudge>;
   comparePassword(candidatePassword: string): Promise<boolean>;
+  updateHUD(): void;
 }
 
 export const userSchema = new Schema<IUser>(
@@ -448,6 +451,28 @@ userSchema.methods.handleTick = async function () {
   }
 
   await this.save();
+};
+
+userSchema.methods.updateHUD = function () {
+  try {
+    const hudUpdatePackage: IHudUpdatePackage = {
+      combatTargetName: this.combatTargetName,
+      actionQueueLabels: [
+        this.actionQueue[0]?.actionLabel,
+        this.actionQueue[1]?.actionLabel,
+        this.actionQueue[2]?.actionLabel,
+      ],
+    };
+    worldEmitter.emit(`hudUpdateFor${this.username}`, hudUpdatePackage);
+    return;
+  } catch (error: unknown) {
+    catchErrorHandlerForFunction(`sendHudUpdateToUser`, error);
+  }
+};
+
+userSchema.methods.queueAction = function (queuedAction: IQueuedAction) {
+  this.actionQueue.push(queuedAction);
+  this.updateHUD();
 };
 
 const User = model<IUser>("User", userSchema);

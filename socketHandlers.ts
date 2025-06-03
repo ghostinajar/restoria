@@ -45,7 +45,7 @@ import { IMapTileState } from "./commands/map.js";
 import eraseRoom from "./commands/eraseRoom.js";
 import editMap from "./commands/editMap.js";
 import { IMapTile } from "./model/classes/Room.js";
-import { IHudUpdatePackage } from "./util/sendHudUpdateToUser.js";
+import IHudUpdatePackage from "./types/HudUpdatePackage.js";
 
 export const eraseMapTileForUserHandler = async (
   zoneFloorName: string,

@@ -67,4 +67,5 @@ export interface IAgent {
   rollToHit(): number;
   rollWeaponDamage(): number;
   handleTick(): void;
+  queueAction(queuedAction: IQueuedAction): void;
 }

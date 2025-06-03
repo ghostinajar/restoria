@@ -1,5 +1,6 @@
 // attack
 // user command to attack a target
+import QueuedAction from "../model/classes/Action.js";
 import catchErrorHandlerForFunction from "../util/catchErrorHandlerForFunction.js";
 import findMobByKeywordInRoom from "../util/findMobByKeywordInRoom.js";
 import getRoomOfUser from "../util/getRoomOfUser.js";
@@ -39,17 +40,13 @@ async function attack(parsedCommand, user) {
             return;
         }
         // attacker not ready
-        // TODO queue the action 
-        // const targetAsUser = target as IUser;
-        //   const targetAsMob = target as IMob;
-        //   let targetNameForAction = target.name;
-        //   if (targetAsMob.keywords) {
-        //     targetNameForAction = targetAsMob.keywords[0];
-        //   }
-        //   let targetTypeForAction = "mob";
-        //   if (targetAsUser.username) {
-        //     targetTypeForAction = "user";
-        //   }
+        // pack the queuedAction
+        let queuedAction = new QueuedAction("attack", "attack", user._id, user.agentType, user.name, target._id, target.agentType, target.name);
+        if (target.agentType === "mob") {
+            const targetAsMob = target;
+            queuedAction.targetName = targetAsMob.keywords[0];
+        }
+        // TODO queue the action
     }
     catch (error) {
         catchErrorHandlerForFunction(`attack`, error, user?.name);

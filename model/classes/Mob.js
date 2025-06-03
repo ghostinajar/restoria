@@ -203,5 +203,8 @@ class Mob {
         //console.log(`${this.name} rolled ${damageResult}`);
         return damageResult;
     }
+    queueAction(queuedAction) {
+        this.actionQueue.push(queuedAction);
+    }
 }
 export default Mob;

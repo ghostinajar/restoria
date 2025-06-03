@@ -15,6 +15,7 @@ import { calculateMaxHp, calculateMaxMp, calculateMaxMv, calculateStrength, calc
 import calculateAffixBonuses from "../../util/calculateAffixBonuses.js";
 import rollDice from "../../util/rollDice.js";
 import resolveQueuedAction from "../../util/resolveQueuedAction.js";
+import worldEmitter from "./WorldEmitter.js";
 const { Schema, Types, model } = mongoose;
 export const userSchema = new Schema({
     _id: Schema.Types.ObjectId,
@@ -322,6 +323,27 @@ userSchema.methods.handleTick = async function () {
         await resolveQueuedAction(nextAction);
     }
     await this.save();
+};
+userSchema.methods.updateHUD = function () {
+    try {
+        const hudUpdatePackage = {
+            combatTargetName: this.combatTargetName,
+            actionQueueLabels: [
+                this.actionQueue[0]?.actionLabel,
+                this.actionQueue[1]?.actionLabel,
+                this.actionQueue[2]?.actionLabel,
+            ],
+        };
+        worldEmitter.emit(`hudUpdateFor${this.username}`, hudUpdatePackage);
+        return;
+    }
+    catch (error) {
+        catchErrorHandlerForFunction(`sendHudUpdateToUser`, error);
+    }
+};
+userSchema.methods.queueAction = function (queuedAction) {
+    this.actionQueue.push(queuedAction);
+    this.updateHUD();
 };
 const User = model("User", userSchema);
 export default User;
