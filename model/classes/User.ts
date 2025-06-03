@@ -475,10 +475,13 @@ userSchema.methods.updateHUD = function () {
 
 userSchema.methods.queueAction = function (queuedAction: IQueuedAction) {
   this._actionQueue.push(queuedAction);
-  console.log('just added')
-  console.log(this.actionQueue)
   this.updateHUD();
 };
+
+userSchema.methods.stop = function () {
+  this._actionQueue = [];
+  this.updateHUD();
+}
 
 const User = model<IUser>("User", userSchema);
 export default User;

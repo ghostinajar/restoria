@@ -264,6 +264,10 @@ class Mob implements IMob {
   queueAction(queuedAction: IQueuedAction): void {
     this.actionQueue.push(queuedAction);
   }
+
+  stop(): void {
+    this.actionQueue = [];
+  }
 }
 
 export default Mob;

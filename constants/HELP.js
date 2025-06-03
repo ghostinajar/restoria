@@ -361,6 +361,10 @@ const HELP = {
         `<span style="color:var(--red)">RESIST:</span> reduces damage from cold, electric, or fire`,
         `<span style="color:var(--red)">SPELLSAVE:</span> helps resist negative spells (success or duration)`,
     ],
+    STOP: [
+        `${padStringToLength79(`STOP`)}`,
+        `Stop any planned actions (spells, skills, and attacks you entered manually). Your action queue becomes empty, though your automatic melee attacks may continue if you're engaged in combat.`,
+    ],
     SUGGEST: [
         `${padStringToLength79(`SUGGEST`)}`,
         `Leave a suggestion for an author who has chosen you as their EDITOR. A quality suggestion is specific, encouraging, and as brief as possible.`,

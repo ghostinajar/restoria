@@ -58,6 +58,7 @@ export const validCommandWords = [
   "save",
   "shout",
   "stats",
+  "stop",
   "study",
   "suggest", // *
   "suggestions", // *

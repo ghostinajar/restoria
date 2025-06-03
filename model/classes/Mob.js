@@ -206,5 +206,8 @@ class Mob {
     queueAction(queuedAction) {
         this.actionQueue.push(queuedAction);
     }
+    stop() {
+        this.actionQueue = [];
+    }
 }
 export default Mob;
