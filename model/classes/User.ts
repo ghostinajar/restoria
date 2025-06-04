@@ -476,7 +476,7 @@ userSchema.methods.updateHUD = function () {
     );
     const hudUpdatePackage: IHudUpdatePackage = {
       currentHp: this.currentHp,
-      maxHp: this.MaxHp,
+      maxHp: this.maxHp,
       currentMp: this.currentMp,
       maxMp: this.maxMp,
       currentMv: this.currentMv,

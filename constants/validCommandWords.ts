@@ -33,6 +33,7 @@ export const validCommandWords = [
   "goto",
 
   "help",
+  "hud",
 
   "inventory",
 

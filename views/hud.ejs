@@ -1,16 +1,41 @@
 <div id="hud">
-  <div id="combatTarget"></div>
-  <div class="actionQueue"></div>
+  <div id="hudHp"></div>
+  <div id="hudMp"></div>
+  <div id="hudMv"></div>
+  <div id="hudAtackCooldown"></div>
+  <div id="hudBonusCooldown"></div>
+  <div id="hudFullCooldown"></div>
+  <div id="hudCombatTarget"></div>
 </div>
 
 <script>
   //console.log('hud loaded')
   let hud = document.getElementById("hud");
-  let combatTarget = document.getElementById("combatTarget");
-  let actionQueue = document.getElementById("actionQueue");
+  let hudHp = document.getElementById("hudHp");
+  let hudMp = document.getElementById("hudMp");
+  let hudMv = document.getElementById("hudMv");
+  let hudAtackCooldown = document.getElementById("hudAtackCooldown");
+  let hudBonusCooldown = document.getElementById("hudBonusCooldown");
+  let hudFullCooldown = document.getElementById("hudFullCooldown");
+  let hudCombatTarget = document.getElementById("hudCombatTarget");
 
-   socket.on("hudUpdate", async function (hudUpdatePackage) {
-    console.log('received hudUpdate with hudUpdatePackage:')
+  socket.on("hudUpdate", async function (hudUpdatePackage) {
+    console.log("received hudUpdate with hudUpdatePackage:");
     console.log(hudUpdatePackage);
+    hudHp.innerHTML = `${hudUpdatePackage.currentHp} / ${hudUpdatePackage.maxHp}`;
+    hudMp.innerHTML = `${hudUpdatePackage.currentMp} / ${hudUpdatePackage.maxMp}`;
+    hudMv.innerHTML = `${hudUpdatePackage.currentMv} / ${hudUpdatePackage.maxMv}`;
+    hudAtackCooldown.innerHTML = `${hudUpdatePackage.attackCooldown}`;
+    hudBonusCooldown.innerHTML = `${hudUpdatePackage.bonusCooldown}`;
+    hudFullCooldown.innerHTML = `${hudUpdatePackage.fullCooldown}`;
+    hudCombatTarget.innerHTML = `${hudUpdatePackage.combatTarget}`;
   });
+
+  function showHUD() {
+    hud.style.display = "block";
+  }
+
+  function hideHUD() {
+    hud.style.display = "none";
+  }
 </script>

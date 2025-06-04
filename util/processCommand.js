@@ -192,7 +192,8 @@ async function processCommand(parsedCommand, user) {
                 shout(parsedCommand, user);
                 break;
             }
-            case `stats`: {
+            case `stats`:
+            case `hud`: {
                 stats(user);
                 break;
             }
