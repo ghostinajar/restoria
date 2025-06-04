@@ -101,9 +101,6 @@ async function createUser(userFormData) {
             _currentHp: 8,
             _currentMp: 8,
             _currentMv: 8,
-            readyForAttack: true,
-            readyForAction: true,
-            readyForBonusAction: true,
         };
         switch (newUserData.job) {
             case "cleric": {

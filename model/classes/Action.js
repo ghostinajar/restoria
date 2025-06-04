@@ -3,7 +3,7 @@
 // to be executed or added to action queues
 import SKILL from "../../constants/SKILL.js";
 import SPELL from "../../constants/SPELL.js";
-const actionNames = [
+const fullActionNames = [
     SKILL.AMBUSH,
     SKILL.CLEAVE,
     SKILL.DEFEND,
@@ -100,7 +100,25 @@ const bonusActionNames = [
     SPELL.WEAKEN,
     SPELL.WORD_OF_RECALL,
 ];
-class QueuedAction {
+class Action {
+    constructor(actionName, actionType, agent, agentType, target, targetType) {
+        this.actionName = actionName;
+        this.actionType = actionType;
+        this.agent = agent;
+        this.agentType = agentType;
+        this.target = target;
+        this.targetType = targetType;
+        this.dateEntered = new Date();
+    }
+    actionName;
+    actionType;
+    agent;
+    agentType;
+    target;
+    targetType;
+    dateEntered;
+}
+export class QueuedAction {
     constructor(actionName, actionType, agentId, agentType, agentName, targetId, targetType, targetName) {
         this.actionName = actionName;
         this.actionType = actionType;
@@ -124,4 +142,4 @@ class QueuedAction {
     dateEntered;
     actionLabel;
 }
-export default QueuedAction;
+export default Action;

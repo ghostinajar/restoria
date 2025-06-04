@@ -42,7 +42,6 @@ import unequip from "../commands/unequip.js";
 import equipped from "../commands/equipment.js";
 import character from "../commands/character.js";
 import attack from "../commands/attack.js";
-import stop from "../commands/stop.js";
 
 async function processCommand(parsedCommand: IParsedCommand, user: IUser) {
   try {
@@ -201,10 +200,6 @@ async function processCommand(parsedCommand: IParsedCommand, user: IUser) {
       }
       case `stats`: {
         stats(user);
-        break;
-      }
-      case `stop`: {
-        stop(parsedCommand, user);
         break;
       }
       case `study`:

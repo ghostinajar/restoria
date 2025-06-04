@@ -14,8 +14,8 @@ import WORLD_RECALL from "../../constants/WORLD_RECALL.js";
 import { calculateMaxHp, calculateMaxMp, calculateMaxMv, calculateStrength, calculateDexterity, calculateConstitution, calculateIntelligence, calculateWisdom, calculateCharisma, calculateDamageBonus, calculateHitBonus, calculateArmorClass, calculateSpellSave, calculateSpeed, calculateResistCold, calculateResistFire, calculateResistElec, calculateHealthRegen, calculateManaRegen, calculateMoveRegen, } from "../../constants/BASE_STATS.js";
 import calculateAffixBonuses from "../../util/calculateAffixBonuses.js";
 import rollDice from "../../util/rollDice.js";
-import resolveQueuedAction from "../../util/resolveQueuedAction.js";
 import worldEmitter from "./WorldEmitter.js";
+import { TICK_COOLDOWN } from "../../constants/COOLDOWNS.js";
 const { Schema, Types, model } = mongoose;
 export const userSchema = new Schema({
     _id: Schema.Types.ObjectId,
@@ -201,36 +201,46 @@ userSchema.virtual("resistElec").get(function () {
     return calculateResistElec(this);
 });
 userSchema
-    .virtual("readyForAttack")
+    .virtual("lastAttackActionDate")
     .get(function () {
-    return this._readyForAttack === undefined ? true : this._readyForAttack;
-})
-    .set(function (value) {
-    this._readyForAttack = value;
-});
-userSchema
-    .virtual("readyForAction")
-    .get(function () {
-    return this._readyForAction === undefined ? true : this._readyForAction;
-})
-    .set(function (value) {
-    this._readyForAction = value;
-});
-userSchema
-    .virtual("readyForBonusAction")
-    .get(function () {
-    return this._readyForBonusAction === undefined
-        ? true
-        : this._readyForBonusAction;
-})
-    .set(function (value) {
-    this._readyForBonusAction = value;
-});
-userSchema.virtual("actionQueue").get(function () {
-    if (!this._actionQueue) {
-        this._actionQueue = [];
+    if (!this._lastAttackActionDate) {
+        this._lastAttackActionDate = new Date();
     }
-    return this._actionQueue;
+    return this._lastAttackActionDate;
+})
+    .set(function (value) {
+    this._lastAttackActionDate = value;
+});
+userSchema
+    .virtual("lastBonusActionDate")
+    .get(function () {
+    if (!this._lastBonusActionDate) {
+        this._lastBonusActionDate = new Date();
+    }
+    return this._lastBonusActionDate;
+})
+    .set(function (value) {
+    this._lastBonusActionDate = value;
+});
+userSchema
+    .virtual("lastFullActionDate")
+    .get(function () {
+    if (!this._lastFullActionDate) {
+        this._lastFullActionDate = new Date();
+    }
+    return this._lastFullActionDate;
+})
+    .set(function (value) {
+    this._lastFullActionDate = value;
+});
+userSchema.virtual("readyForAttackAction").get(function () {
+    return (new Date().getTime() - this.lastAttackActionDate.getTime() >= TICK_COOLDOWN);
+});
+userSchema.virtual("readyForFullAction").get(function () {
+    return (new Date().getTime() - this.lastFullActionDate.getTime() >= TICK_COOLDOWN);
+});
+userSchema.virtual("readyForBonusAction").get(function () {
+    return (new Date().getTime() - this.lastBonusActionDate.getTime() >= TICK_COOLDOWN);
 });
 userSchema
     .virtual("combatTargetId")
@@ -314,28 +324,26 @@ userSchema.methods.handleTick = async function () {
     if (this.currentMv < this.maxMv) {
         this.modifyMv(Math.max(0, this.maxMv / this.moveRegen));
     }
-    // Reset combat readiness flags
-    this.readyForAttack = true;
-    this.readyForAction = true;
-    this.readyForBonusAction = true;
-    // Process action queues if they exist
-    if (this.actionQueue && this.actionQueue.length > 0) {
-        // TODO pluck out and process an action and a bonus action to process
-        const nextAction = this.actionQueue[0];
-        this._actionQueue = this.actionQueue.slice(1);
-        await resolveQueuedAction(nextAction);
-    }
+    this.updateHUD();
     await this.save();
 };
 userSchema.methods.updateHUD = function () {
     try {
+        const now = new Date().getTime();
+        const attackCooldown = Math.max(0, TICK_COOLDOWN - (now - this.lastAttackActionDate.getTime()));
+        const bonusCooldown = Math.max(0, TICK_COOLDOWN - (now - this.lastBonusActionDate.getTime()));
+        const fullCooldown = Math.max(0, TICK_COOLDOWN - (now - this.lastFullActionDate.getTime()));
         const hudUpdatePackage = {
+            currentHp: this.currentHp,
+            maxHp: this.MaxHp,
+            currentMp: this.currentMp,
+            maxMp: this.maxMp,
+            currentMv: this.currentMv,
+            maxMv: this.maxMv,
+            attackCooldown: attackCooldown,
+            bonusCooldown: bonusCooldown,
+            fullCooldown: fullCooldown,
             combatTargetName: this.combatTargetName,
-            actionQueueLabels: [
-                this.actionQueue[0]?.actionLabel,
-                this.actionQueue[1]?.actionLabel,
-                this.actionQueue[2]?.actionLabel,
-            ],
         };
         worldEmitter.emit(`hudUpdateFor${this.username}`, hudUpdatePackage);
         return;
@@ -343,14 +351,6 @@ userSchema.methods.updateHUD = function () {
     catch (error) {
         catchErrorHandlerForFunction(`sendHudUpdateToUser`, error);
     }
-};
-userSchema.methods.queueAction = function (queuedAction) {
-    this._actionQueue.push(queuedAction);
-    this.updateHUD();
-};
-userSchema.methods.stop = function () {
-    this._actionQueue = [];
-    this.updateHUD();
 };
 const User = model("User", userSchema);
 export default User;

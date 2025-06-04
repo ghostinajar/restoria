@@ -5,13 +5,11 @@
 import mongoose from "mongoose";
 import SKILL from "../../constants/SKILL.js";
 import SPELL from "../../constants/SPELL.js";
-import { AgentType } from "./Agent.js";
+import { AgentType, IAgent } from "./Agent.js";
 
-type ActionType = "action" | "attack" | "bonus";
+type ActionType = "attack" | "bonus" | "full";
 
-type AttackActionName = "attack" | "secondAttack" | "thirdAttack";
-
-const actionNames = [
+const fullActionNames = [
   SKILL.AMBUSH,
   SKILL.CLEAVE,
   SKILL.DEFEND,
@@ -70,7 +68,7 @@ const actionNames = [
   SPELL.TREMOR,
   SPELL.VISIT,
 ] as const;
-type ActionName = (typeof actionNames)[number];
+type FullActionName = (typeof fullActionNames)[number];
 
 const bonusActionNames = [
   SKILL.PICK,
@@ -112,8 +110,44 @@ const bonusActionNames = [
 ];
 type BonusActionName = (typeof bonusActionNames)[number];
 
+export interface IAction {
+  actionName: "attack" | FullActionName | BonusActionName;
+  actionType: ActionType;
+  agent: IAgent;
+  agentType: AgentType;
+  target: IAgent;
+  targetType: AgentType;
+  dateEntered: Date;
+}
+
+class Action implements IAction {
+  constructor(
+    actionName: "attack" | FullActionName | BonusActionName,
+    actionType: ActionType,
+    agent: IAgent,
+    agentType: AgentType,
+    target: IAgent,
+    targetType: AgentType,
+  ) {
+    this.actionName = actionName;
+    this.actionType = actionType;
+    this.agent = agent;
+    this.agentType = agentType;
+    this.target = target;
+    this.targetType = targetType;
+    this.dateEntered = new Date();
+  }
+  actionName: "attack" | FullActionName | BonusActionName;
+  actionType: ActionType;
+  agent: IAgent;
+  agentType: AgentType;
+  target: IAgent;
+  targetType: AgentType;
+  dateEntered: Date;
+}
+
 export interface IQueuedAction {
-  actionName: AttackActionName | ActionName | BonusActionName;
+  actionName: "attack" | FullActionName | BonusActionName;
   actionType: ActionType;
   agentId: mongoose.Types.ObjectId;
   agentType: AgentType;
@@ -125,9 +159,9 @@ export interface IQueuedAction {
   actionLabel: string;
 }
 
-class QueuedAction implements IQueuedAction {
+export class QueuedAction implements IQueuedAction {
   constructor(
-    actionName: AttackActionName | ActionName | BonusActionName,
+    actionName: "attack" | FullActionName | BonusActionName,
     actionType: ActionType,
     agentId: mongoose.Types.ObjectId,
     agentType: AgentType,
@@ -147,7 +181,7 @@ class QueuedAction implements IQueuedAction {
     this.dateEntered = new Date();
     this.actionLabel = `${actionName} ${targetName}`;
   }
-  actionName: AttackActionName | ActionName | BonusActionName;
+  actionName: "attack" | FullActionName | BonusActionName;
   actionType: ActionType;
   agentId: mongoose.Types.ObjectId;
   agentType: AgentType;
@@ -159,4 +193,4 @@ class QueuedAction implements IQueuedAction {
   actionLabel: string;
 }
 
-export default QueuedAction;
+export default Action;

@@ -8,7 +8,6 @@ import { IAffix } from "./Affix.js";
 import { IItem } from "./Item.js";
 import IEquipped from "../../types/Equipped.js";
 import { IAffixBonuses } from "../../constants/AFFIX_BONUSES.js";
-import { IQueuedAction } from "./Action.js";
 import IGrudge from "./Grudge.js";
 import { ILocation } from "./Location.js";
 
@@ -53,10 +52,12 @@ export interface IAgent {
   resistElec: number;
   resistFire: number;
   spellSave: number;
-  readyForAttack: boolean;
-  readyForAction: boolean;
+  lastAttackActionDate: Date;
+  lastBonusActionDate: Date;
+  lastFullActionDate: Date;
+  readyForAttackAction: boolean;
+  readyForFullAction: boolean;
   readyForBonusAction: boolean;
-  actionQueue: Array<IQueuedAction>;
   combatTargetId?: mongoose.Types.ObjectId;
   combatTargetName?: string;
   grudges: Array<IGrudge>;
@@ -67,6 +68,4 @@ export interface IAgent {
   rollToHit(): number;
   rollWeaponDamage(): number;
   handleTick(): void;
-  queueAction(queuedAction: IQueuedAction): void;
-  stop(): void;
 }

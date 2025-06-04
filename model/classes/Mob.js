@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 import { calculateArmorClass, calculateCharisma, calculateConstitution, calculateDamageBonus, calculateDexterity, calculateHealthRegen, calculateHitBonus, calculateIntelligence, calculateManaRegen, calculateMaxHp, calculateMaxMp, calculateMaxMv, calculateMoveRegen, calculateResistCold, calculateResistElec, calculateResistFire, calculateSpeed, calculateSpellSave, calculateStrength, calculateWisdom, } from "../../constants/BASE_STATS.js";
 import { AFFIX_BONUSES } from "../../constants/AFFIX_BONUSES.js";
 import rollDice from "../../util/rollDice.js";
-import resolveQueuedAction from "../../util/resolveQueuedAction.js";
 import calculateAffixBonuses from "../../util/calculateAffixBonuses.js";
+import { TICK_COOLDOWN } from "../../constants/COOLDOWNS.js";
 class Mob {
     constructor(blueprint, location) {
         this._id = new mongoose.Types.ObjectId();
@@ -73,10 +73,9 @@ class Mob {
         this.resistElec = calculateResistElec(this) || 0;
         this.resistFire = calculateResistFire(this) || 0;
         this.spellSave = calculateSpellSave(this) || 0;
-        this.readyForAttack = true;
-        this.readyForAction = true;
-        this.readyForBonusAction = true;
-        this.actionQueue = [];
+        this.lastAttackActionDate = new Date();
+        this.lastBonusActionDate = new Date();
+        this.lastFullActionDate = new Date();
         this.grudges = [];
     }
     _id;
@@ -126,21 +125,25 @@ class Mob {
     resistElec;
     resistFire;
     spellSave;
-    readyForAttack;
-    readyForAction;
-    readyForBonusAction;
-    actionQueue;
+    lastAttackActionDate;
+    lastBonusActionDate;
+    lastFullActionDate;
     combatTargetId;
     combatTargetName;
     grudges;
+    get readyForAttackAction() {
+        return (new Date().getTime() - this.lastAttackActionDate.getTime()) >= TICK_COOLDOWN;
+    }
+    get readyForFullAction() {
+        return (new Date().getTime() - this.lastFullActionDate.getTime()) >= TICK_COOLDOWN;
+    }
+    get readyForBonusAction() {
+        return (new Date().getTime() - this.lastBonusActionDate.getTime()) >= TICK_COOLDOWN;
+    }
     async handleTick() {
         // Health regeneration
         if (this.currentHp < this.maxHp) {
-            // console.log(
-            //   `${this.name} regen to currentHp ${this.currentHp} by ${Math.ceil(Math.max(0, this.maxHp * this.healthRegen * 0.01))}`
-            // );
             this.modifyHp(Math.ceil(Math.max(0, this.maxHp * this.healthRegen * 0.01)));
-            // console.log(`Now it's ${this.currentHp}`);
         }
         // Mana regeneration
         if (this.currentMp < this.maxMp) {
@@ -149,17 +152,6 @@ class Mob {
         // Movement regeneration
         if (this.currentMv < this.maxMv) {
             this.modifyMv(Math.max(0, this.maxMv / this.moveRegen));
-        }
-        // Reset combat readiness flags
-        this.readyForAttack = true;
-        this.readyForAction = true;
-        this.readyForBonusAction = true;
-        // Process action queue
-        if (this.actionQueue && this.actionQueue.length > 0) {
-            // TODO pluck out and process an action and a bonus action to process
-            const nextAction = this.actionQueue[0];
-            this.actionQueue = this.actionQueue.slice(1);
-            await resolveQueuedAction(nextAction);
         }
     }
     modifyHp(amount) {
@@ -181,13 +173,11 @@ class Mob {
     rollWeaponDamage() {
         // handle unarmed
         if (!this.equipped.weapon1 || !this.equipped.weapon1.weaponStats) {
-            //console.log(`${this.name} is rolling unarmed damage`);
             let unarmedRoll = rollDice("1d4");
             if (!unarmedRoll) {
                 unarmedRoll = 1;
             }
             const damageResult = Math.max(0, unarmedRoll + this.damageBonus);
-            //console.log(`${this.name} rolled ${damageResult}`);
             return damageResult;
         }
         // handle weapon
@@ -198,16 +188,8 @@ class Mob {
         const diceResult = rollDice(diceString);
         if (!diceResult)
             return this.damageBonus;
-        //console.log(`${this.name} is rolling damage with a weapon`);
         const damageResult = Math.max(0, diceResult + this.damageBonus);
-        //console.log(`${this.name} rolled ${damageResult}`);
         return damageResult;
-    }
-    queueAction(queuedAction) {
-        this.actionQueue.push(queuedAction);
-    }
-    stop() {
-        this.actionQueue = [];
     }
 }
 export default Mob;

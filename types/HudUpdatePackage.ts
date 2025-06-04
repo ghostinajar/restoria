@@ -2,12 +2,16 @@
 // user data sent to client for display in HUD
 
 interface IHudUpdatePackage {
+  currentHp: number;
+  maxHp: number;
+  currentMp: number;
+  maxMp: number;
+  currentMv: number;
+  maxMv: number;
+  attackCooldown: number;
+  bonusCooldown: number;
+  fullCooldown: number;
   combatTargetName: string | undefined;
-  actionQueueLabels: [
-    string | undefined,
-    string | undefined,
-    string | undefined
-  ];
 }
 
-export default IHudUpdatePackage
+export default IHudUpdatePackage;

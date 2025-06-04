@@ -114,9 +114,6 @@ async function createUser(userFormData: IUserData): Promise<IUser | IMessage> {
       _currentHp: 8,
       _currentMp: 8,
       _currentMv: 8,
-      readyForAttack: true,
-      readyForAction: true,
-      readyForBonusAction: true,
     };
 
     switch (newUserData.job) {

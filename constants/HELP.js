@@ -41,6 +41,10 @@ const HELP = {
         `${padStringToLength79(`CONTAINER, CAPACITY`)}`,
         `A container is an item that can hold other (non-container) items inside. A container's capacity is the maximum items it can store (10, by default).`,
     ],
+    COOLDOWN: [
+        `${padStringToLength79(`COOLDOWN`)}`,
+        `A user or mob needs some time to cool down between attacks, and between full actions and bonus actions. The standard cooldown time is 6 seconds between any two actions of the same type (attack, bonus, or full).`,
+    ],
     CREATE: [
         `${padStringToLength79(`CREATE`)}`,
         `You are an author in Restoria, and authors can CREATE ZONE, CREATE ITEM, CREATE MOB, CREATE ROOM, and CREATE EXIT to add things to zones they own. For rooms and exits, you need to provide a direction (e.g. CREATE ROOM N). The other options each open a form to enter your writing, and the HELP for each form will display automatically when it opens.`,
@@ -360,10 +364,6 @@ const HELP = {
         `<span style="color:var(--red)">REGEN:</span> speeds up gradual recovery of HP, MP, or MV`,
         `<span style="color:var(--red)">RESIST:</span> reduces damage from cold, electric, or fire`,
         `<span style="color:var(--red)">SPELLSAVE:</span> helps resist negative spells (success or duration)`,
-    ],
-    STOP: [
-        `${padStringToLength79(`STOP`)}`,
-        `Stop any planned actions (spells, skills, and attacks you entered manually). Your action queue becomes empty, though your automatic melee attacks may continue if you're engaged in combat.`,
     ],
     SUGGEST: [
         `${padStringToLength79(`SUGGEST`)}`,

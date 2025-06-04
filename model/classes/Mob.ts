@@ -31,12 +31,11 @@ import {
 } from "../../constants/BASE_STATS.js";
 import { AFFIX_BONUSES, IAffixBonuses } from "../../constants/AFFIX_BONUSES.js";
 import { AgentType, IAgent } from "./Agent.js";
-import { IQueuedAction } from "./Action.js";
 import IGrudge from "./Grudge.js";
 import { ILocation } from "./Location.js";
 import rollDice from "../../util/rollDice.js";
-import resolveQueuedAction from "../../util/resolveQueuedAction.js";
 import calculateAffixBonuses from "../../util/calculateAffixBonuses.js";
+import { TICK_COOLDOWN } from "../../constants/COOLDOWNS.js";
 
 export interface IMob extends IAgent {
   _id: mongoose.Types.ObjectId;
@@ -119,10 +118,9 @@ class Mob implements IMob {
     this.resistElec = calculateResistElec(this) || 0;
     this.resistFire = calculateResistFire(this) || 0;
     this.spellSave = calculateSpellSave(this) || 0;
-    this.readyForAttack = true;
-    this.readyForAction = true;
-    this.readyForBonusAction = true;
-    this.actionQueue = [];
+    this.lastAttackActionDate = new Date();
+    this.lastBonusActionDate = new Date();
+    this.lastFullActionDate = new Date();
     this.grudges = [];
   }
   _id: mongoose.Types.ObjectId;
@@ -172,24 +170,31 @@ class Mob implements IMob {
   resistElec: number;
   resistFire: number;
   spellSave: number;
-  readyForAttack: boolean;
-  readyForAction: boolean;
-  readyForBonusAction: boolean;
-  actionQueue: Array<IQueuedAction>;
+  lastAttackActionDate: Date;
+  lastBonusActionDate: Date;
+  lastFullActionDate: Date;
   combatTargetId?: mongoose.Types.ObjectId;
   combatTargetName?: string;
   grudges: Array<IGrudge>;
 
+  get readyForAttackAction(): boolean {
+    return (new Date().getTime() - this.lastAttackActionDate.getTime()) >= TICK_COOLDOWN;
+  }
+
+  get readyForFullAction(): boolean {
+    return (new Date().getTime() - this.lastFullActionDate.getTime()) >= TICK_COOLDOWN;
+  }
+
+  get readyForBonusAction(): boolean {
+    return (new Date().getTime() - this.lastBonusActionDate.getTime()) >= TICK_COOLDOWN;
+  }
+
   async handleTick() {
     // Health regeneration
     if (this.currentHp < this.maxHp) {
-      // console.log(
-      //   `${this.name} regen to currentHp ${this.currentHp} by ${Math.ceil(Math.max(0, this.maxHp * this.healthRegen * 0.01))}`
-      // );
       this.modifyHp(
         Math.ceil(Math.max(0, this.maxHp * this.healthRegen * 0.01))
       );
-      // console.log(`Now it's ${this.currentHp}`);
     }
 
     // Mana regeneration
@@ -200,19 +205,6 @@ class Mob implements IMob {
     // Movement regeneration
     if (this.currentMv < this.maxMv) {
       this.modifyMv(Math.max(0, this.maxMv / this.moveRegen));
-    }
-
-    // Reset combat readiness flags
-    this.readyForAttack = true;
-    this.readyForAction = true;
-    this.readyForBonusAction = true;
-
-    // Process action queue
-    if (this.actionQueue && this.actionQueue.length > 0) {
-      // TODO pluck out and process an action and a bonus action to process
-      const nextAction = this.actionQueue[0];
-      this.actionQueue = this.actionQueue.slice(1);
-      await resolveQueuedAction(nextAction);
     }
   }
 
@@ -236,13 +228,11 @@ class Mob implements IMob {
   rollWeaponDamage(): number {
     // handle unarmed
     if (!this.equipped.weapon1 || !this.equipped.weapon1.weaponStats) {
-      //console.log(`${this.name} is rolling unarmed damage`);
       let unarmedRoll = rollDice("1d4");
       if (!unarmedRoll) {
         unarmedRoll = 1;
       }
       const damageResult = Math.max(0, unarmedRoll + this.damageBonus);
-      //console.log(`${this.name} rolled ${damageResult}`);
       return damageResult;
     }
 
@@ -255,18 +245,8 @@ class Mob implements IMob {
 
     const diceResult = rollDice(diceString);
     if (!diceResult) return this.damageBonus;
-    //console.log(`${this.name} is rolling damage with a weapon`);
     const damageResult = Math.max(0, diceResult + this.damageBonus);
-    //console.log(`${this.name} rolled ${damageResult}`);
     return damageResult;
-  }
-
-  queueAction(queuedAction: IQueuedAction): void {
-    this.actionQueue.push(queuedAction);
-  }
-
-  stop(): void {
-    this.actionQueue = [];
   }
 }
 

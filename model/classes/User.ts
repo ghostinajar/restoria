@@ -1,7 +1,7 @@
 // User
 // Class and schema for User objects and documents
 // Also allows state management for an active user instance
-import mongoose from "mongoose";
+import mongoose, { now } from "mongoose";
 import bcrypt from "bcrypt";
 import affixSchema from "./Affix.js";
 import itemSchema, { IItem } from "./Item.js";
@@ -36,12 +36,11 @@ import {
 import { IAffixBonuses } from "../../constants/AFFIX_BONUSES.js";
 import calculateAffixBonuses from "../../util/calculateAffixBonuses.js";
 import { IAgent } from "./Agent.js";
-import { IQueuedAction } from "./Action.js";
 import IGrudge from "./Grudge.js";
 import rollDice from "../../util/rollDice.js";
-import resolveQueuedAction from "../../util/resolveQueuedAction.js";
 import worldEmitter from "./WorldEmitter.js";
 import IHudUpdatePackage from "../../types/HudUpdatePackage.js";
+import { TICK_COOLDOWN } from "../../constants/COOLDOWNS.js";
 
 const { Schema, Types, model } = mongoose;
 
@@ -82,13 +81,12 @@ export interface IUser extends mongoose.Document, IAgent {
   _currentHp?: number; // this is necessary for the setter, since this is a stored virtual (not derived on every get)
   _currentMp?: number; // this is necessary for the setter, since this is a stored virtual (not derived on every get)
   _currentMv?: number; // this is necessary for the setter, since this is a stored virtual (not derived on every get)
-  _readyForAttack: boolean;
-  _readyForAction: boolean;
-  _readyForBonusAction: boolean;
-  _actionQueue: Array<IQueuedAction>;
   _combatTargetId?: mongoose.Types.ObjectId;
   _combatTargetName?: string;
   _grudges: Array<IGrudge>;
+  _lastAttackActionDate: Date;
+  _lastBonusActionDate: Date;
+  _lastFullActionDate: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
   updateHUD(): void;
 }
@@ -305,39 +303,57 @@ userSchema.virtual("resistElec").get(function () {
 });
 
 userSchema
-  .virtual("readyForAttack")
+  .virtual("lastAttackActionDate")
   .get(function () {
-    return this._readyForAttack === undefined ? true : this._readyForAttack;
+    if (!this._lastAttackActionDate) {
+      this._lastAttackActionDate = new Date();
+    }
+    return this._lastAttackActionDate;
   })
-  .set(function (value: boolean) {
-    this._readyForAttack = value;
+  .set(function (value: Date) {
+    this._lastAttackActionDate = value;
   });
 
 userSchema
-  .virtual("readyForAction")
+  .virtual("lastBonusActionDate")
   .get(function () {
-    return this._readyForAction === undefined ? true : this._readyForAction;
+    if (!this._lastBonusActionDate) {
+      this._lastBonusActionDate = new Date();
+    }
+    return this._lastBonusActionDate;
   })
-  .set(function (value: boolean) {
-    this._readyForAction = value;
+  .set(function (value: Date) {
+    this._lastBonusActionDate = value;
   });
 
 userSchema
-  .virtual("readyForBonusAction")
+  .virtual("lastFullActionDate")
   .get(function () {
-    return this._readyForBonusAction === undefined
-      ? true
-      : this._readyForBonusAction;
+    if (!this._lastFullActionDate) {
+      this._lastFullActionDate = new Date();
+    }
+    return this._lastFullActionDate;
   })
-  .set(function (value: boolean) {
-    this._readyForBonusAction = value;
+  .set(function (value: Date) {
+    this._lastFullActionDate = value;
   });
 
-userSchema.virtual("actionQueue").get(function () {
-  if (!this._actionQueue) {
-    this._actionQueue = [];
-  }
-  return this._actionQueue
+userSchema.virtual("readyForAttackAction").get(function () {
+  return (
+    new Date().getTime() - this.lastAttackActionDate.getTime() >= TICK_COOLDOWN
+  );
+});
+
+userSchema.virtual("readyForFullAction").get(function () {
+  return (
+    new Date().getTime() - this.lastFullActionDate.getTime() >= TICK_COOLDOWN
+  );
+});
+
+userSchema.virtual("readyForBonusAction").get(function () {
+  return (
+    new Date().getTime() - this.lastBonusActionDate.getTime() >= TICK_COOLDOWN
+  );
 });
 
 userSchema
@@ -439,32 +455,36 @@ userSchema.methods.handleTick = async function () {
   if (this.currentMv < this.maxMv) {
     this.modifyMv(Math.max(0, this.maxMv / this.moveRegen));
   }
-
-  // Reset combat readiness flags
-  this.readyForAttack = true;
-  this.readyForAction = true;
-  this.readyForBonusAction = true;
-
-  // Process action queues if they exist
-  if (this.actionQueue && this.actionQueue.length > 0) {
-    // TODO pluck out and process an action and a bonus action to process
-    const nextAction = this.actionQueue[0];
-    this._actionQueue = this.actionQueue.slice(1);
-    await resolveQueuedAction(nextAction);
-  }
-
+  this.updateHUD();
   await this.save();
 };
 
 userSchema.methods.updateHUD = function () {
   try {
+    const now = new Date().getTime();
+    const attackCooldown = Math.max(
+      0,
+      TICK_COOLDOWN - (now - this.lastAttackActionDate.getTime())
+    );
+    const bonusCooldown = Math.max(
+      0,
+      TICK_COOLDOWN - (now - this.lastBonusActionDate.getTime())
+    );
+    const fullCooldown = Math.max(
+      0,
+      TICK_COOLDOWN - (now - this.lastFullActionDate.getTime())
+    );
     const hudUpdatePackage: IHudUpdatePackage = {
+      currentHp: this.currentHp,
+      maxHp: this.MaxHp,
+      currentMp: this.currentMp,
+      maxMp: this.maxMp,
+      currentMv: this.currentMv,
+      maxMv: this.maxMv,
+      attackCooldown: attackCooldown,
+      bonusCooldown: bonusCooldown,
+      fullCooldown: fullCooldown,
       combatTargetName: this.combatTargetName,
-      actionQueueLabels: [
-        this.actionQueue[0]?.actionLabel,
-        this.actionQueue[1]?.actionLabel,
-        this.actionQueue[2]?.actionLabel,
-      ],
     };
     worldEmitter.emit(`hudUpdateFor${this.username}`, hudUpdatePackage);
     return;
@@ -472,16 +492,6 @@ userSchema.methods.updateHUD = function () {
     catchErrorHandlerForFunction(`sendHudUpdateToUser`, error);
   }
 };
-
-userSchema.methods.queueAction = function (queuedAction: IQueuedAction) {
-  this._actionQueue.push(queuedAction);
-  this.updateHUD();
-};
-
-userSchema.methods.stop = function () {
-  this._actionQueue = [];
-  this.updateHUD();
-}
 
 const User = model<IUser>("User", userSchema);
 export default User;

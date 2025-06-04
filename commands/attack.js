@@ -1,6 +1,5 @@
 // attack
 // agent command to attack a target
-import QueuedAction from "../model/classes/Action.js";
 import catchErrorHandlerForFunction from "../util/catchErrorHandlerForFunction.js";
 import findMobByKeywordInRoom from "../util/findMobByKeywordInRoom.js";
 import getRoomByLocation from "../util/getRoomByLocation.js";
@@ -26,9 +25,17 @@ async function attack(parsedCommand, agent) {
             messageToUsername(user.username, `Combat isn't allowed in this room.`, `rejection`, true);
             return;
         }
-        // is target a mob?
+        // fail if agent isn't ready
+        if (!agent.readyForAttackAction) {
+            if (agent.agentType === "user") {
+                const user = agent;
+                messageToUsername(user.username, `You're not ready to attack yet. Read HELP COOLDOWN.`, `rejection`, true);
+            }
+            return;
+        }
+        // find target among mobs
         let target = findMobByKeywordInRoom(room, parsedCommand.directObject, parsedCommand.directObjectOrdinal);
-        // if not mob, is target a user?
+        // if not mob, find target among users
         if (!target) {
             target = room.users.find((user) => user.username.startsWith(parsedCommand.directObject));
         }
@@ -40,20 +47,12 @@ async function attack(parsedCommand, agent) {
             }
             return;
         }
-        // if ready, resolve now
-        if (agent.readyForAttack) {
+        // if ready, resolve
+        if (agent.readyForAttackAction) {
             await resolveImmediateAction("attack", agent, target);
-            agent.readyForAttack = false;
+            agent.lastAttackActionDate = new Date();
             return;
         }
-        // attacker isn't ready
-        // pack the queuedAction
-        let queuedAction = new QueuedAction("attack", "attack", agent._id, agent.agentType, agent.name, target._id, target.agentType, target.name);
-        if (target.agentType === "mob") {
-            const targetAsMob = target;
-            queuedAction.targetName = targetAsMob.keywords[0];
-        }
-        agent.queueAction(queuedAction);
     }
     catch (error) {
         if (agent.agentType === "user") {
