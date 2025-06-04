@@ -335,7 +335,7 @@ userSchema.methods.updateHUD = function () {
         const fullCooldown = Math.max(0, TICK_COOLDOWN - (now - this.lastFullActionDate.getTime()));
         const hudUpdatePackage = {
             currentHp: this.currentHp,
-            maxHp: this.MaxHp,
+            maxHp: this.maxHp,
             currentMp: this.currentMp,
             maxMp: this.maxMp,
             currentMv: this.currentMv,

@@ -555,14 +555,14 @@ ul {
 }
 
 #messagesContainer {
-  margin-bottom: 3rem;
-  padding: 40px, 8px;
+  padding: .5rem 0.5rem;
   overflow-y: auto;
+  margin-bottom: 4rem; /* Space for HUD */
 }
 
 #messages {
   list-style-type: none;
-  margin: 10px;
+  margin: 0.625rem;
   padding: 0.1rem;
   overflow-wrap: break-word;
   max-width: 80ch;
@@ -582,10 +582,10 @@ ul {
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 10px;
+  padding: 0.625rem;
   box-sizing: border-box;
   background-color: var(--grey_dark);
-  box-shadow: 0 -0.5px 2px var(--black);
+  box-shadow: 0 -0.0625rem 0.125rem var(--black);
   z-index: 1000;
 }
 
@@ -710,4 +710,39 @@ ul {
 
 .registration-form input.is-invalid ~ .invalid-feedback {
   display: block;
+}
+
+/* Add these styles at the end of the file */
+#hud {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--grey_dark);
+  position: fixed;
+  bottom: 3.25rem; /* Height of command form (2.5rem) + its padding (0.625rem*2) */
+  width: 100%;
+  z-index: 999;
+}
+
+#hudHp {
+  color: var(--red_light);
+}
+
+#hudMp {
+  color: var(--blue_light);
+}
+
+#hudMv {
+  color: var(--green_light);
+}
+
+#hudAtackCooldown,
+#hudBonusCooldown,
+#hudFullCooldown {
+  color: var(--yellow);
+}
+
+#hudCombatTarget {
+  color: var(--red);
 }

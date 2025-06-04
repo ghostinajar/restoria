@@ -37,12 +37,15 @@
       'edit_item_blueprint_form', 'edit_map_form', 'edit_mob_blueprint_form',
       'edit_room_form', 'edit_user_form', 'edit_zone_form',
       'erase_item_blueprint_form', 'erase_mob_blueprint_form',
-      'erase_room_form', 'erase_zone_form', 'goto_form', 'hud', 'map', 'suggest_form',
+      'erase_room_form', 'erase_zone_form', 'goto_form', 'map', 'suggest_form',
       'suggestions_form' ]; %>
 
       <!-- Include each ejs module from array -->
       <% partials.forEach(partial => { %> <%- include(partial); %> <% }); %>
     </div>
+
+    <!-- User input command form -->
+    <%- include('hud'); %>
 
     <!-- User input command form -->
     <%- include('command_form'); %>
