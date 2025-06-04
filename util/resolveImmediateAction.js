@@ -3,7 +3,6 @@
 // this is usually called from a queued action when the tick rolls over, but can also be called between ticks
 // when an agent enters a command and ready for action right away
 import catchErrorHandlerForFunction from "./catchErrorHandlerForFunction.js";
-import messageToUsername from "./messageToUsername.js";
 import resolveAttackHandler from "./resolveActionHandlers/resolveAttackHandler.js";
 async function resolveImmediateAction(actionName, agent, target, room) {
     try {
@@ -25,7 +24,6 @@ function setCombatTargetForAgent(agent, target) {
     agent.combatTargetName = target.name;
     if (agent.agentType === "user") {
         let user = agent;
-        messageToUsername(user.username, `You are now targeting ${target.name}.`);
         user.updateHUD();
     }
 }

@@ -35,7 +35,6 @@ function setCombatTargetForAgent(agent: IAgent, target: IAgent) {
   agent.combatTargetName = target.name;
   if (agent.agentType === "user") {
     let user = agent as IUser;
-    messageToUsername(user.username, `You are now targeting ${target.name}.`);
     user.updateHUD();
   }
 }
