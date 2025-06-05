@@ -2,9 +2,18 @@
   <div id="hudHp"></div>
   <div id="hudMp"></div>
   <div id="hudMv"></div>
-  <div id="hudAtackCooldown"></div>
-  <div id="hudBonusCooldown"></div>
-  <div id="hudFullCooldown"></div>
+  <div class="cooldown-container">
+    <div id="hudAtackCooldown" class="cooldown-bar">Attack</div>
+    <div class="cooldown-progress"></div>
+  </div>
+  <div class="cooldown-container">
+    <div id="hudBonusCooldown" class="cooldown-bar">Bonus Action</div>
+    <div class="cooldown-progress"></div>
+  </div>
+  <div class="cooldown-container">
+    <div id="hudFullCooldown" class="cooldown-bar">Full Action</div>
+    <div class="cooldown-progress"></div>
+  </div>
   <div id="hudCombatTarget"></div>
 </div>
 
@@ -19,22 +28,52 @@
   let hudFullCooldown = document.getElementById("hudFullCooldown");
   let hudCombatTarget = document.getElementById("hudCombatTarget");
 
+  const cooldownAnimations = {
+    hudAtackCooldown: null,
+    hudBonusCooldown: null,
+    hudFullCooldown: null,
+  };
+
   socket.on("hudUpdate", async function (hudUpdatePackage) {
-    const combatTarget = hudUpdatePackage.combatTarget ? `Combat Target: ${hudUpdatePackage.combatTarget}` : '';
+    const combatTarget = hudUpdatePackage.combatTarget
+      ? `Combat Target: ${hudUpdatePackage.combatTarget}`
+      : "";
     hudHp.innerHTML = `${hudUpdatePackage.currentHp}/${hudUpdatePackage.maxHp}hp`;
     hudMp.innerHTML = `${hudUpdatePackage.currentMp}/${hudUpdatePackage.maxMp}mp`;
     hudMv.innerHTML = `${hudUpdatePackage.currentMv}/${hudUpdatePackage.maxMv}mv`;
-    hudAtackCooldown.innerHTML = `${hudUpdatePackage.attackCooldown}`;
-    hudBonusCooldown.innerHTML = `${hudUpdatePackage.bonusCooldown}`;
-    hudFullCooldown.innerHTML = `${hudUpdatePackage.fullCooldown}`;
+
+    startCooldownAnimation("hudAtackCooldown", hudUpdatePackage.attackCooldown);
+    startCooldownAnimation("hudBonusCooldown", hudUpdatePackage.bonusCooldown);
+    startCooldownAnimation("hudFullCooldown", hudUpdatePackage.fullCooldown);
+
     hudCombatTarget.innerHTML = combatTarget;
   });
 
-  function showHUD() {
-    hud.style.display = "block";
-  }
+  function startCooldownAnimation(elementId, cooldownValue) {
+    // Cancel any existing animation
+    if (cooldownAnimations[elementId]) {
+      cancelAnimationFrame(cooldownAnimations[elementId]);
+    }
 
-  function hideHUD() {
-    hud.style.display = "none";
+    const startTime = performance.now();
+    const container = document.getElementById(elementId).parentElement;
+    const progressBar = container.querySelector(".cooldown-progress");
+
+    function animate(currentTime) {
+      const elapsed = currentTime - startTime;
+      const remaining = Math.max(0, cooldownValue - elapsed);
+      const percentage = (remaining / 6000) * 100;
+
+      if (remaining > 0) {
+        progressBar.style.transform = `scaleX(${(100 - percentage) / 100})`;
+        cooldownAnimations[elementId] = requestAnimationFrame(animate);
+      } else {
+        progressBar.style.transform = "scaleX(1)";
+        cooldownAnimations[elementId] = null;
+      }
+    }
+
+    // Start the animation
+    cooldownAnimations[elementId] = requestAnimationFrame(animate);
   }
 </script>
