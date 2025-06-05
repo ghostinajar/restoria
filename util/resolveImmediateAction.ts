@@ -7,7 +7,6 @@ import { IAgent } from "../model/classes/Agent.js";
 import { IRoom } from "../model/classes/Room.js";
 import { IUser } from "../model/classes/User.js";
 import catchErrorHandlerForFunction from "./catchErrorHandlerForFunction.js";
-import messageToUsername from "./messageToUsername.js";
 import resolveAttackHandler from "./resolveActionHandlers/resolveAttackHandler.js";
 
 async function resolveImmediateAction(
@@ -33,6 +32,7 @@ async function resolveImmediateAction(
 function setCombatTargetForAgent(agent: IAgent, target: IAgent) {
   agent.combatTargetId = target._id;
   agent.combatTargetName = target.name;
+
   if (agent.agentType === "user") {
     let user = agent as IUser;
     user.updateHUD();

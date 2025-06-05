@@ -35,8 +35,8 @@
   };
 
   socket.on("hudUpdate", async function (hudUpdatePackage) {
-    const combatTarget = hudUpdatePackage.combatTarget
-      ? `Combat Target: ${hudUpdatePackage.combatTarget}`
+    const combatTarget = hudUpdatePackage.combatTargetName
+      ? `Combat Target: ${hudUpdatePackage.combatTargetName}`
       : "";
     hudHp.innerHTML = `${hudUpdatePackage.currentHp}/${hudUpdatePackage.maxHp}hp`;
     hudMp.innerHTML = `${hudUpdatePackage.currentMp}/${hudUpdatePackage.maxMp}mp`;
