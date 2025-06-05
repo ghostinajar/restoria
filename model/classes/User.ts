@@ -41,8 +41,6 @@ import rollDice from "../../util/rollDice.js";
 import worldEmitter from "./WorldEmitter.js";
 import IHudUpdatePackage from "../../types/HudUpdatePackage.js";
 import { TICK_COOLDOWN } from "../../constants/COOLDOWNS.js";
-import getMobById from "../../util/getMobById.js";
-import resolveImmediateAction from "../../util/resolveImmediateAction.js";
 import autoAttack from "../../util/autoAttack.js";
 
 const { Schema, Types, model } = mongoose;
@@ -213,9 +211,25 @@ userSchema
     this._affixBonuses = value;
   });
 
-userSchema.virtual("currentHp").get(function () {
-  return this._currentHp ?? calculateMaxHp(this);
-});
+userSchema
+  .virtual("currentHp")
+  .get(function () {
+    if (!this._currentHp) {
+      this._currentHp = calculateMaxHp(this);
+    }
+    return this._currentHp;
+  })
+  .set(function (value: number) {
+    let maxPossible = calculateMaxHp(this);
+    if (!maxPossible) {
+      throw new Error(`calculateMaxHp failed for ${this.name}`);
+    }
+    this._currentHp = Math.min(value, maxPossible);
+    if (this._currentHp < 0) {
+      this._currentHp = 0;
+      // TODO handle consequences of zero currentHp (e.g. die)
+    }
+  });
 
 userSchema.virtual("maxHp").get(function () {
   return calculateMaxHp(this);
@@ -225,9 +239,25 @@ userSchema.virtual("healthRegen").get(function () {
   return calculateHealthRegen(this);
 });
 
-userSchema.virtual("currentMp").get(function () {
-  return this._currentMp ?? calculateMaxMp(this);
-});
+userSchema
+  .virtual("currentMp")
+  .get(function () {
+    if (!this._currentMp) {
+      this._currentMp = calculateMaxMp(this);
+    }
+    return this._currentMp;
+  })
+  .set(function (value: number) {
+    let maxPossible = calculateMaxMp(this);
+    if (!maxPossible) {
+      throw new Error(`calculateMaxMp failed for ${this.name}`);
+    }
+    this._currentMp = Math.min(value, maxPossible);
+    if (this._currentMp < 0) {
+      this._currentMp = 0;
+      // TODO handle consequences of zero currentMp
+    }
+  });
 
 userSchema.virtual("maxMp").get(function () {
   return calculateMaxMp(this);
@@ -237,9 +267,25 @@ userSchema.virtual("manaRegen").get(function () {
   return calculateManaRegen(this);
 });
 
-userSchema.virtual("currentMv").get(function () {
-  return this._currentMv ?? calculateMaxMv(this);
-});
+userSchema
+  .virtual("currentMv")
+  .get(function () {
+    if (!this._currentMv) {
+      this._currentMv = calculateMaxMv(this);
+    }
+    return this._currentMv;
+  })
+  .set(function (value: number) {
+    let maxPossible = calculateMaxMv(this);
+    if (!maxPossible) {
+      throw new Error(`calculateMaxMv failed for ${this.name}`);
+    }
+    this._currentMv = Math.min(value, maxPossible);
+    if (this._currentMv < 0) {
+      this._currentMv = 0;
+      // TODO handle consequences of zero currentMv
+    }
+  });
 
 userSchema.virtual("maxMv").get(function () {
   return calculateMaxMv(this);
@@ -382,18 +428,22 @@ userSchema.virtual("grudges").get(function () {
 });
 
 userSchema.methods.modifyHp = function (amount: number) {
-  const newHp = Math.min(this._currentHp + amount, this.maxHp);
+  console.log(`${this.name}'s currentHp are ${this.currentHp}`);
+  const newHp = Math.min(Math.round(this.currentHp + amount), this.maxHp);
   this._currentHp = Math.max(0, newHp);
+  this.updateHUD();
 };
 
 userSchema.methods.modifyMp = function (amount: number) {
-  const newMp = Math.min(this._currentMp + amount, this.maxMp);
+  const newMp = Math.min(Math.round(this._currentMp + amount), this.maxMp);
   this._currentMp = Math.max(0, newMp);
+  this.updateHUD();
 };
 
 userSchema.methods.modifyMv = function (amount: number) {
-  const newMv = Math.min(this._currentMv + amount, this.maxMv);
+  const newMv = Math.min(Math.round(this._currentMv + amount), this.maxMv);
   this._currentMv = Math.max(0, newMv);
+  this.updateHUD();
 };
 
 userSchema.methods.rollToHit = function (): number {

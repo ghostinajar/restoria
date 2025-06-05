@@ -5,6 +5,7 @@ import rollDice from "../../util/rollDice.js";
 import calculateAffixBonuses from "../../util/calculateAffixBonuses.js";
 import { TICK_COOLDOWN } from "../../constants/COOLDOWNS.js";
 import autoAttack from "../../util/autoAttack.js";
+import getRoomByLocation from "../../util/getRoomByLocation.js";
 class Mob {
     constructor(blueprint, location) {
         this._id = new mongoose.Types.ObjectId();
@@ -155,9 +156,27 @@ class Mob {
         if (this.currentMv < this.maxMv) {
             this.modifyMv(Math.max(0, this.maxMv / this.moveRegen));
         }
+        console.log(`${this.name}'s combatTargetId is ${this.combatTargetId}`);
         // autoAttack combat target
         if (this.readyForAttackAction && this.combatTargetId) {
+            console.log(`attempting autoattack on ${this.combatTargetName} ${this.combatTargetId}`);
             autoAttack(this);
+        }
+        else if (this.readyForAttackAction &&
+            this.isAggressive &&
+            !this.combatTargetId) {
+            // if no combat target and mob is aggro, set combat target to random user in room
+            console.log(`${this.name} is aggro and looking for a target!`);
+            const room = await getRoomByLocation(this.location);
+            if (!room) {
+                throw new Error(`mob.handleTick had trouble getting room for mob id ${this._id}`);
+            }
+            if (room.users.length > 0) {
+                const randomUser = room.users[Math.floor(Math.random() * room.users.length)];
+                console.log(`selected target ${randomUser.name} `);
+                this.combatTargetId = randomUser._id;
+                this.combatTargetName = randomUser.name;
+            }
         }
     }
     modifyHp(amount) {

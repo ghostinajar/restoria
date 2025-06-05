@@ -5,12 +5,16 @@ import { IAgent } from "../model/classes/Agent.js";
 import { IUser } from "../model/classes/User.js";
 import catchErrorHandlerForFunction from "./catchErrorHandlerForFunction.js";
 import getMobById from "./getMobById.js";
+import getOnlineUserById from "./getOnlineUserById.js";
 import resolveImmediateAction from "./resolveImmediateAction.js";
 
 async function autoAttack(agent: IAgent) {
   try {
     if (agent.readyForAttackAction && agent.combatTargetId) {
-      let target = await getMobById(agent.combatTargetId);
+      let target: IAgent | undefined = await getMobById(agent.combatTargetId);
+      if (!target) {
+        target = await getOnlineUserById(agent.combatTargetId);
+      }
       if (!target) {
         agent.disengageCombat();
         return;
