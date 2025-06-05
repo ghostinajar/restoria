@@ -216,9 +216,13 @@ class Mob {
         const damageResult = Math.max(0, diceResult + this.damageBonus);
         return damageResult;
     }
-    disengageCombat() {
+    combatDisengage() {
         this.combatTargetId = undefined;
         this.combatTargetName = undefined;
+    }
+    combatEngage(target) {
+        this.combatTargetId = target._id;
+        this.combatTargetName = target.name;
     }
 }
 export default Mob;

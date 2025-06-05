@@ -5,6 +5,8 @@ import sendMessagePack from "../sendMessagePack.js";
 import startWithCapitalLetter from "../startWithCapitalLetter.js";
 async function resolveAttackHandler(attacker, defender, providedRoom) {
     try {
+        // set target's combatTarget to attacker
+        defender.combatEngage(attacker);
         // prepare messagePack
         const messagePack = {};
         // pack any usernames present in the room into messagePack
@@ -43,11 +45,8 @@ async function resolveAttackHandler(attacker, defender, providedRoom) {
         // console.log(
         //   `resolveAttackHandler: attackRoll ${attackRoll} vs defender.armorClass ${defender.armorClass}`
         // );
-        if (hitSucceeds) {
-            //console.log(`hitSucceeds = ${hitSucceeds} so far!`);
-            // TODO after implementing skills: if successful dodge or parry roll, override hitSucceeds to false
-        }
-        // if !hitSucceeds, message users in room, return
+        // TODO after implementing skills: if successful dodge or parry roll, override hitSucceeds to false
+        // if hit doesn't succeed, message users in room, return
         if (!hitSucceeds) {
             if (attackerUser.username) {
                 // attacker is a user

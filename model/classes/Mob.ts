@@ -219,7 +219,9 @@ class Mob implements IMob {
 
     // autoAttack combat target
     if (this.readyForAttackAction && this.combatTargetId) {
-      console.log(`attempting autoattack on ${this.combatTargetName} ${this.combatTargetId}`);
+      console.log(
+        `attempting autoattack on ${this.combatTargetName} ${this.combatTargetId}`
+      );
       autoAttack(this);
     } else if (
       this.readyForAttackAction &&
@@ -285,9 +287,14 @@ class Mob implements IMob {
     return damageResult;
   }
 
-  disengageCombat(): void {
+  combatDisengage(): void {
     this.combatTargetId = undefined;
     this.combatTargetName = undefined;
+  }
+
+  combatEngage(target: IAgent): void {
+    this.combatTargetId = target._id;
+    this.combatTargetName = target.name;
   }
 }
 

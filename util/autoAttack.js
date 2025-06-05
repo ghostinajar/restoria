@@ -12,7 +12,7 @@ async function autoAttack(agent) {
                 target = await getOnlineUserById(agent.combatTargetId);
             }
             if (!target) {
-                agent.disengageCombat();
+                agent.combatDisengage();
                 return;
             }
             const areInSameRoom = agent.location.inRoom.toString() === target.location.inRoom.toString();
@@ -24,7 +24,7 @@ async function autoAttack(agent) {
                 }
             }
             else {
-                agent.disengageCombat();
+                agent.combatDisengage();
                 return;
             }
         }

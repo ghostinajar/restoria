@@ -15,6 +15,9 @@ async function resolveAttackHandler(
   providedRoom?: IRoom
 ) {
   try {
+    // set target's combatTarget to attacker
+    defender.combatEngage(attacker);
+
     // prepare messagePack
     const messagePack: IMessagePack = {};
 
@@ -64,12 +67,10 @@ async function resolveAttackHandler(
     // console.log(
     //   `resolveAttackHandler: attackRoll ${attackRoll} vs defender.armorClass ${defender.armorClass}`
     // );
-    if (hitSucceeds) {
-      //console.log(`hitSucceeds = ${hitSucceeds} so far!`);
-      // TODO after implementing skills: if successful dodge or parry roll, override hitSucceeds to false
-    }
 
-    // if !hitSucceeds, message users in room, return
+    // TODO after implementing skills: if successful dodge or parry roll, override hitSucceeds to false
+
+    // if hit doesn't succeed, message users in room, return
     if (!hitSucceeds) {
       if (attackerUser.username) {
         // attacker is a user

@@ -16,7 +16,7 @@ async function autoAttack(agent: IAgent) {
         target = await getOnlineUserById(agent.combatTargetId);
       }
       if (!target) {
-        agent.disengageCombat();
+        agent.combatDisengage();
         return;
       }
       const areInSameRoom =
@@ -28,7 +28,7 @@ async function autoAttack(agent: IAgent) {
           user.updateHUD();
         }
       } else {
-        agent.disengageCombat();
+        agent.combatDisengage();
         return;
       }
     }

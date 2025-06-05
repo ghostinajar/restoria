@@ -518,9 +518,14 @@ userSchema.methods.handleTick = async function () {
   await this.save();
 };
 
-userSchema.methods.disengageCombat = function () {
+userSchema.methods.combatDisengage = function () {
   this.combatTargetId = undefined;
   this.combatTargetName = undefined;
+};
+
+userSchema.methods.combatEngage = function (target: IAgent) {
+  this.combatTargetId = target._id;
+  this.combatTargetName = target.name;
 };
 
 userSchema.methods.updateHUD = function () {
