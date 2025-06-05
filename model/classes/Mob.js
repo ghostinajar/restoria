@@ -4,6 +4,7 @@ import { AFFIX_BONUSES } from "../../constants/AFFIX_BONUSES.js";
 import rollDice from "../../util/rollDice.js";
 import calculateAffixBonuses from "../../util/calculateAffixBonuses.js";
 import { TICK_COOLDOWN } from "../../constants/COOLDOWNS.js";
+import autoAttack from "../../util/autoAttack.js";
 class Mob {
     constructor(blueprint, location) {
         this._id = new mongoose.Types.ObjectId();
@@ -132,13 +133,14 @@ class Mob {
     combatTargetName;
     grudges;
     get readyForAttackAction() {
-        return (new Date().getTime() - this.lastAttackActionDate.getTime()) >= TICK_COOLDOWN;
+        return (new Date().getTime() - this.lastAttackActionDate.getTime() >=
+            TICK_COOLDOWN);
     }
     get readyForFullAction() {
-        return (new Date().getTime() - this.lastFullActionDate.getTime()) >= TICK_COOLDOWN;
+        return (new Date().getTime() - this.lastFullActionDate.getTime() >= TICK_COOLDOWN);
     }
     get readyForBonusAction() {
-        return (new Date().getTime() - this.lastBonusActionDate.getTime()) >= TICK_COOLDOWN;
+        return (new Date().getTime() - this.lastBonusActionDate.getTime() >= TICK_COOLDOWN);
     }
     async handleTick() {
         // Health regeneration
@@ -152,6 +154,10 @@ class Mob {
         // Movement regeneration
         if (this.currentMv < this.maxMv) {
             this.modifyMv(Math.max(0, this.maxMv / this.moveRegen));
+        }
+        // autoAttack combat target
+        if (this.readyForAttackAction && this.combatTargetId) {
+            autoAttack(this);
         }
     }
     modifyHp(amount) {
@@ -190,6 +196,10 @@ class Mob {
             return this.damageBonus;
         const damageResult = Math.max(0, diceResult + this.damageBonus);
         return damageResult;
+    }
+    disengageCombat() {
+        this.combatTargetId = undefined;
+        this.combatTargetName = undefined;
     }
 }
 export default Mob;

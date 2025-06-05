@@ -50,7 +50,6 @@ async function attack(parsedCommand, agent) {
         // if ready, resolve
         if (agent.readyForAttackAction) {
             await resolveImmediateAction("attack", agent, target);
-            agent.lastAttackActionDate = new Date();
             return;
         }
     }

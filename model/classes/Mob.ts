@@ -36,6 +36,7 @@ import { ILocation } from "./Location.js";
 import rollDice from "../../util/rollDice.js";
 import calculateAffixBonuses from "../../util/calculateAffixBonuses.js";
 import { TICK_COOLDOWN } from "../../constants/COOLDOWNS.js";
+import autoAttack from "../../util/autoAttack.js";
 
 export interface IMob extends IAgent {
   _id: mongoose.Types.ObjectId;
@@ -178,15 +179,22 @@ class Mob implements IMob {
   grudges: Array<IGrudge>;
 
   get readyForAttackAction(): boolean {
-    return (new Date().getTime() - this.lastAttackActionDate.getTime()) >= TICK_COOLDOWN;
+    return (
+      new Date().getTime() - this.lastAttackActionDate.getTime() >=
+      TICK_COOLDOWN
+    );
   }
 
   get readyForFullAction(): boolean {
-    return (new Date().getTime() - this.lastFullActionDate.getTime()) >= TICK_COOLDOWN;
+    return (
+      new Date().getTime() - this.lastFullActionDate.getTime() >= TICK_COOLDOWN
+    );
   }
 
   get readyForBonusAction(): boolean {
-    return (new Date().getTime() - this.lastBonusActionDate.getTime()) >= TICK_COOLDOWN;
+    return (
+      new Date().getTime() - this.lastBonusActionDate.getTime() >= TICK_COOLDOWN
+    );
   }
 
   async handleTick() {
@@ -205,6 +213,11 @@ class Mob implements IMob {
     // Movement regeneration
     if (this.currentMv < this.maxMv) {
       this.modifyMv(Math.max(0, this.maxMv / this.moveRegen));
+    }
+
+    // autoAttack combat target
+    if (this.readyForAttackAction && this.combatTargetId) {
+      autoAttack(this);
     }
   }
 
@@ -247,6 +260,11 @@ class Mob implements IMob {
     if (!diceResult) return this.damageBonus;
     const damageResult = Math.max(0, diceResult + this.damageBonus);
     return damageResult;
+  }
+
+  disengageCombat(): void {
+    this.combatTargetId = undefined;
+    this.combatTargetName = undefined;
   }
 }
 

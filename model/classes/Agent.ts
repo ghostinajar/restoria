@@ -68,4 +68,5 @@ export interface IAgent {
   rollToHit(): number;
   rollWeaponDamage(): number;
   handleTick(): void;
+  disengageCombat(): void;
 }

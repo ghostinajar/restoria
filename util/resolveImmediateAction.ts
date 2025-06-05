@@ -22,6 +22,7 @@ async function resolveImmediateAction(
         //console.log(`resolveImmediateAction calling resolveAttackHandler`);
         setCombatTargetForAgent(agent, target);
         resolveAttackHandler(agent, target, room);
+        agent.lastAttackActionDate = new Date();
         break;
     }
   } catch (error: unknown) {

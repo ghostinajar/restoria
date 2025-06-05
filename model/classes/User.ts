@@ -1,7 +1,7 @@
 // User
 // Class and schema for User objects and documents
 // Also allows state management for an active user instance
-import mongoose, { now } from "mongoose";
+import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import affixSchema from "./Affix.js";
 import itemSchema, { IItem } from "./Item.js";
@@ -41,6 +41,9 @@ import rollDice from "../../util/rollDice.js";
 import worldEmitter from "./WorldEmitter.js";
 import IHudUpdatePackage from "../../types/HudUpdatePackage.js";
 import { TICK_COOLDOWN } from "../../constants/COOLDOWNS.js";
+import getMobById from "../../util/getMobById.js";
+import resolveImmediateAction from "../../util/resolveImmediateAction.js";
+import autoAttack from "../../util/autoAttack.js";
 
 const { Schema, Types, model } = mongoose;
 
@@ -455,8 +458,19 @@ userSchema.methods.handleTick = async function () {
   if (this.currentMv < this.maxMv) {
     this.modifyMv(Math.max(0, this.maxMv / this.moveRegen));
   }
+
+  // autoAttack combat target
+  if (this.readyForAttackAction && this.combatTargetId) {
+    autoAttack(this as IUser);
+  }
+
   this.updateHUD();
   await this.save();
+};
+
+userSchema.methods.disengageCombat = function () {
+  this.combatTargetId = undefined;
+  this.combatTargetName = undefined;
 };
 
 userSchema.methods.updateHUD = function () {

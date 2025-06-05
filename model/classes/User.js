@@ -16,6 +16,7 @@ import calculateAffixBonuses from "../../util/calculateAffixBonuses.js";
 import rollDice from "../../util/rollDice.js";
 import worldEmitter from "./WorldEmitter.js";
 import { TICK_COOLDOWN } from "../../constants/COOLDOWNS.js";
+import autoAttack from "../../util/autoAttack.js";
 const { Schema, Types, model } = mongoose;
 export const userSchema = new Schema({
     _id: Schema.Types.ObjectId,
@@ -324,8 +325,16 @@ userSchema.methods.handleTick = async function () {
     if (this.currentMv < this.maxMv) {
         this.modifyMv(Math.max(0, this.maxMv / this.moveRegen));
     }
+    // autoAttack combat target
+    if (this.readyForAttackAction && this.combatTargetId) {
+        autoAttack(this);
+    }
     this.updateHUD();
     await this.save();
+};
+userSchema.methods.disengageCombat = function () {
+    this.combatTargetId = undefined;
+    this.combatTargetName = undefined;
 };
 userSchema.methods.updateHUD = function () {
     try {

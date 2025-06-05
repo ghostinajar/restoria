@@ -82,7 +82,6 @@ async function attack(parsedCommand: IParsedCommand, agent: IAgent) {
     // if ready, resolve
     if (agent.readyForAttackAction) {
       await resolveImmediateAction("attack", agent, target);
-      agent.lastAttackActionDate = new Date();
       return;
     }
   } catch (error: unknown) {

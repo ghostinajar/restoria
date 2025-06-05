@@ -12,6 +12,7 @@ async function resolveImmediateAction(actionName, agent, target, room) {
                 //console.log(`resolveImmediateAction calling resolveAttackHandler`);
                 setCombatTargetForAgent(agent, target);
                 resolveAttackHandler(agent, target, room);
+                agent.lastAttackActionDate = new Date();
                 break;
         }
     }
@@ -21,9 +22,7 @@ async function resolveImmediateAction(actionName, agent, target, room) {
 }
 function setCombatTargetForAgent(agent, target) {
     agent.combatTargetId = target._id;
-    console.log(`${agent.name}'s combatTargetId ${agent.combatTargetId}`);
     agent.combatTargetName = target.name;
-    console.log(`${agent.name}'s combatTargetName ${agent.combatTargetName}`);
     if (agent.agentType === "user") {
         let user = agent;
         user.updateHUD();
