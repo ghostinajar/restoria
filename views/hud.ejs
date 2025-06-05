@@ -20,15 +20,14 @@
   let hudCombatTarget = document.getElementById("hudCombatTarget");
 
   socket.on("hudUpdate", async function (hudUpdatePackage) {
-    console.log("received hudUpdate with hudUpdatePackage:");
-    console.log(hudUpdatePackage);
-    hudHp.innerHTML = `${hudUpdatePackage.currentHp} / ${hudUpdatePackage.maxHp}`;
-    hudMp.innerHTML = `${hudUpdatePackage.currentMp} / ${hudUpdatePackage.maxMp}`;
-    hudMv.innerHTML = `${hudUpdatePackage.currentMv} / ${hudUpdatePackage.maxMv}`;
+    const combatTarget = hudUpdatePackage.combatTarget ? `Combat Target: ${hudUpdatePackage.combatTarget}` : '';
+    hudHp.innerHTML = `${hudUpdatePackage.currentHp}/${hudUpdatePackage.maxHp}hp`;
+    hudMp.innerHTML = `${hudUpdatePackage.currentMp}/${hudUpdatePackage.maxMp}mp`;
+    hudMv.innerHTML = `${hudUpdatePackage.currentMv}/${hudUpdatePackage.maxMv}mv`;
     hudAtackCooldown.innerHTML = `${hudUpdatePackage.attackCooldown}`;
     hudBonusCooldown.innerHTML = `${hudUpdatePackage.bonusCooldown}`;
     hudFullCooldown.innerHTML = `${hudUpdatePackage.fullCooldown}`;
-    hudCombatTarget.innerHTML = `${hudUpdatePackage.combatTarget}`;
+    hudCombatTarget.innerHTML = combatTarget;
   });
 
   function showHUD() {
