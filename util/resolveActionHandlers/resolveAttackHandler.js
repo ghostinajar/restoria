@@ -1,3 +1,4 @@
+import { Grudge } from "../../model/classes/Grudge.js";
 import catchErrorHandlerForFunction from "../catchErrorHandlerForFunction.js";
 import getRoomOfUser from "../getRoomOfUser.js";
 import messageToUsername from "../messageToUsername.js";
@@ -5,8 +6,16 @@ import sendMessagePack from "../sendMessagePack.js";
 import startWithCapitalLetter from "../startWithCapitalLetter.js";
 async function resolveAttackHandler(attacker, defender, providedRoom) {
     try {
-        // set target's combatTarget to attacker
-        defender.combatEngage(attacker);
+        // set target's combatTarget to attacker, add grudges
+        if (!defender.combatTarget) {
+            defender.combatEngage({
+                id: attacker._id,
+                name: attacker.name,
+                type: attacker.agentType,
+            });
+        }
+        attacker.grudges.push(new Grudge(defender._id, defender.name, defender.agentType));
+        defender.grudges.push(new Grudge(attacker._id, attacker.name, attacker.agentType));
         // prepare messagePack
         const messagePack = {};
         // pack any usernames present in the room into messagePack

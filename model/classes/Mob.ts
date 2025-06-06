@@ -1,3 +1,5 @@
+// Mob
+// Class for mob objects
 import { IAffix } from "./Affix";
 import { IChatter } from "./Chatter";
 import { IDescription } from "./Description";
@@ -39,6 +41,7 @@ import { TICK_COOLDOWN } from "../../constants/COOLDOWNS.js";
 import autoAttack from "../../util/autoAttack.js";
 import getRoomByLocation from "../../util/getRoomByLocation.js";
 import catchErrorHandlerForFunction from "../../util/catchErrorHandlerForFunction.js";
+import ICombatTarget from "../../types/CombatTarget.js";
 
 export interface IMob extends IAgent {
   _id: mongoose.Types.ObjectId;
@@ -176,8 +179,7 @@ class Mob implements IMob {
   lastAttackActionDate: Date;
   lastBonusActionDate: Date;
   lastFullActionDate: Date;
-  combatTargetId?: mongoose.Types.ObjectId;
-  combatTargetName?: string;
+  combatTarget?: ICombatTarget;
   grudges: Array<IGrudge>;
 
   get readyForAttackAction(): boolean {
@@ -203,9 +205,7 @@ class Mob implements IMob {
     try {
       // Health regeneration
       if (this.currentHp < this.maxHp) {
-        this.modifyHp(
-          Math.ceil(Math.max(0, this.maxHp * this.healthRegen * 0.01))
-        );
+        this.modifyHp(Math.max(0, this.maxHp * this.healthRegen * 0.01));
       }
 
       // Mana regeneration
@@ -217,20 +217,31 @@ class Mob implements IMob {
       if (this.currentMv < this.maxMv) {
         this.modifyMv(Math.max(0, this.maxMv / this.moveRegen));
       }
-      console.log(`${this.name}'s combatTargetId is ${this.combatTargetId}`);
 
-      // autoAttack combat target
-      if (this.readyForAttackAction && this.combatTargetId) {
-        console.log(
-          `attempting autoattack on ${this.combatTargetName} ${this.combatTargetId}`
-        );
-        autoAttack(this);
-      } else if (
-        this.readyForAttackAction &&
-        this.isAggressive &&
-        !this.combatTargetId
-      ) {
-        // if no combat target and mob is aggro, set combat target to random user in room
+      // clear out grudges older than 60 seconds
+      const now = Date.now();
+      this.grudges = this.grudges.filter((grudge) => {
+        return grudge.date && now - new Date(grudge.date).getTime() <= 60000;
+      });
+
+      console.log(`${this.name}'s combatTarget:`);
+      console.log(this.combatTarget);
+
+      // target the next grudge if appropriate (no current target, grudge available)
+      if (this.grudges.length > 0 && !this.combatTarget) {
+        const newTarget = this.grudges.shift();
+        if (newTarget) {
+          this.grudges.push(newTarget);
+          this.combatEngage({
+            id: newTarget.targetId,
+            name: newTarget.targetName,
+            type: newTarget.targetType,
+          });
+        }
+      }
+
+      // if no combat target and mob is aggro, set combat target to random user in room
+      if (this.isAggressive && !this.combatTarget) {
         console.log(`${this.name} is aggro and looking for a target!`);
         const room = await getRoomByLocation(this.location);
         if (!room) {
@@ -242,9 +253,20 @@ class Mob implements IMob {
           const randomUser =
             room.users[Math.floor(Math.random() * room.users.length)];
           console.log(`selected target ${randomUser.name} `);
-          this.combatTargetId = randomUser._id;
-          this.combatTargetName = randomUser.name;
+          this.combatTarget = {
+            id: randomUser._id,
+            name: randomUser.name,
+            type: "user",
+          };
         }
+      }
+
+      // autoAttack combat target
+      if (this.readyForAttackAction && this.combatTarget) {
+        console.log(
+          `attempting autoattack on ${this.combatTarget.name} ${this.combatTarget.id}`
+        );
+        autoAttack(this);
       }
     } catch (error: unknown) {
       catchErrorHandlerForFunction(`mob.handleTick`, error, this.name);
@@ -253,7 +275,7 @@ class Mob implements IMob {
 
   modifyHp(amount: number) {
     try {
-      const newHp = Math.min(this.currentHp + amount, this.maxHp);
+      const newHp = Math.min(Math.round(this.currentHp + amount), this.maxHp);
       this.currentHp = Math.max(0, newHp);
     } catch (error: unknown) {
       catchErrorHandlerForFunction(`mob.modifyHp`, error, this.name);
@@ -262,7 +284,7 @@ class Mob implements IMob {
   }
   modifyMp(amount: number) {
     try {
-      const newMp = Math.min(this.currentMp + amount, this.maxMp);
+      const newMp = Math.min(Math.round(this.currentMp + amount), this.maxMp);
       this.currentMp = Math.max(0, newMp);
     } catch (error: unknown) {
       catchErrorHandlerForFunction(`mob.modifyMp`, error, this.name);
@@ -271,7 +293,7 @@ class Mob implements IMob {
   }
   modifyMv(amount: number) {
     try {
-      const newMv = Math.min(this.currentMv + amount, this.maxMv);
+      const newMv = Math.min(Math.round(this.currentMv + amount), this.maxMv);
       this.currentMv = Math.max(0, newMv);
     } catch (error: unknown) {
       catchErrorHandlerForFunction(`mob.modifyMv`, error, this.name);
@@ -318,17 +340,19 @@ class Mob implements IMob {
   }
 
   combatDisengage(): void {
-    this.combatTargetId = undefined;
-    this.combatTargetName = undefined;
+    this.combatTarget = undefined;
   }
 
-  combatEngage(target: IAgent): void {
-    this.combatTargetId = target._id;
-    this.combatTargetName = target.name;
+  combatEngage(target: ICombatTarget): void {
+    this.combatTarget = target;
   }
 
   faint(): void {
     try {
+      this.combatDisengage();
+      // messagePack the room
+      // for every user in the room who is also in this mob's grudge list, create a loot bag in their lootInv
+      // destroy this mob object
     } catch (error: unknown) {
       catchErrorHandlerForFunction(`mob.faint`, error, this.name);
     }

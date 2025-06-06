@@ -35,9 +35,6 @@
   };
 
   socket.on("hudUpdate", async function (hudUpdatePackage) {
-    const combatTarget = hudUpdatePackage.combatTargetName
-      ? `Combat Target: ${hudUpdatePackage.combatTargetName}`
-      : "";
     hudHp.innerHTML = `${hudUpdatePackage.currentHp}/${hudUpdatePackage.maxHp}hp`;
     hudMp.innerHTML = `${hudUpdatePackage.currentMp}/${hudUpdatePackage.maxMp}mp`;
     hudMv.innerHTML = `${hudUpdatePackage.currentMv}/${hudUpdatePackage.maxMv}mv`;
@@ -46,7 +43,9 @@
     startCooldownAnimation("hudBonusCooldown", hudUpdatePackage.bonusCooldown);
     startCooldownAnimation("hudFullCooldown", hudUpdatePackage.fullCooldown);
 
-    hudCombatTarget.innerHTML = combatTarget;
+    hudCombatTarget.innerHTML = hudUpdatePackage.combatTargetName
+      ? `Combat Target: ${hudUpdatePackage.combatTargetName}`
+      : "";
   });
 
   function startCooldownAnimation(elementId, cooldownValue) {

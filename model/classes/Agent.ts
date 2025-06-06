@@ -10,6 +10,7 @@ import IEquipped from "../../types/Equipped.js";
 import { IAffixBonuses } from "../../constants/AFFIX_BONUSES.js";
 import IGrudge from "./Grudge.js";
 import { ILocation } from "./Location.js";
+import ICombatTarget from "../../types/CombatTarget.js";
 
 export type AgentType = "user" | "mob";
 
@@ -58,8 +59,7 @@ export interface IAgent {
   readyForAttackAction: boolean;
   readyForFullAction: boolean;
   readyForBonusAction: boolean;
-  combatTargetId?: mongoose.Types.ObjectId;
-  combatTargetName?: string;
+  combatTarget?: ICombatTarget;
   grudges: Array<IGrudge>;
 
   modifyHp(amount: number): void;
@@ -69,6 +69,6 @@ export interface IAgent {
   rollWeaponDamage(): number;
   handleTick(): void;
   combatDisengage(): void;
-  combatEngage(target: IAgent): void;
+  combatEngage(target: ICombatTarget): void;
   faint(): void;
 }

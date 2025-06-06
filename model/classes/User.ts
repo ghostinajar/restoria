@@ -42,6 +42,7 @@ import worldEmitter from "./WorldEmitter.js";
 import IHudUpdatePackage from "../../types/HudUpdatePackage.js";
 import { TICK_COOLDOWN } from "../../constants/COOLDOWNS.js";
 import autoAttack from "../../util/autoAttack.js";
+import ICombatTarget from "../../types/CombatTarget.js";
 
 const { Schema, Types, model } = mongoose;
 
@@ -78,16 +79,15 @@ export interface IUser extends mongoose.Document, IAgent {
     mapRadius: number;
     autoMap: boolean;
   };
-  _affixBonuses: IAffixBonuses; // this is necessary for the setter, since this is a stored virtual (not derived on every get)
-  _currentHp?: number; // this is necessary for the setter, since this is a stored virtual (not derived on every get)
-  _currentMp?: number; // this is necessary for the setter, since this is a stored virtual (not derived on every get)
-  _currentMv?: number; // this is necessary for the setter, since this is a stored virtual (not derived on every get)
-  _combatTargetId?: mongoose.Types.ObjectId;
-  _combatTargetName?: string;
-  _grudges: Array<IGrudge>;
-  _lastAttackActionDate: Date;
-  _lastBonusActionDate: Date;
-  _lastFullActionDate: Date;
+  _affixBonuses: IAffixBonuses; // necessary to store virtual info from the setter (not derived on every get)
+  _currentHp?: number; // necessary to store info from the setter (not derived on every get) TODO explain why we need this since it's in the db schema as well
+  _currentMp?: number; // necessary to store info from the setter (not derived on every get) TODO explain why we need this since it's in the db schema as well
+  _currentMv?: number; // necessary to store info from the setter (not derived on every get) TODO explain why we need this since it's in the db schema as well
+  _combatTarget: ICombatTarget; // necessary to store virtual info from the setter (not derived on every get)
+  _grudges: Array<IGrudge>; // necessary to store virtual info from the setter (not derived on every get)
+  _lastAttackActionDate: Date; // necessary to store virtual info from the setter (not derived on every get)
+  _lastBonusActionDate: Date; // necessary to store virtual info from the setter (not derived on every get)
+  _lastFullActionDate: Date; // necessary to store virtual info from the setter (not derived on every get)
   comparePassword(candidatePassword: string): Promise<boolean>;
   updateHUD(): void;
 }
@@ -406,21 +406,12 @@ userSchema.virtual("readyForBonusAction").get(function () {
 });
 
 userSchema
-  .virtual("combatTargetId")
+  .virtual("combatTarget")
   .get(function () {
-    return this._combatTargetId || undefined;
+    return this._combatTarget || undefined;
   })
-  .set(function (value: mongoose.Types.ObjectId) {
-    this._combatTargetId = value;
-  });
-
-userSchema
-  .virtual("combatTargetName")
-  .get(function () {
-    return this._combatTargetName || undefined;
-  })
-  .set(function (value: string) {
-    this._combatTargetName = value;
+  .set(function (value: ICombatTarget) {
+    this._combatTarget = value;
   });
 
 userSchema.virtual("grudges").get(function () {
@@ -552,8 +543,14 @@ userSchema.methods.handleTick = async function () {
       this.modifyMv(Math.max(0, this.maxMv / this.moveRegen));
     }
 
+    // clear out grudges older than 60 seconds
+    const now = Date.now();
+    this.grudges = this.grudges.filter((grudge: IGrudge) => {
+      return grudge.date && now - new Date(grudge.date).getTime() <= 60000;
+    });
+
     // autoAttack combat target
-    if (this.readyForAttackAction && this.combatTargetId) {
+    if (this.readyForAttackAction && this.combatTarget) {
       autoAttack(this as IUser);
     }
 
@@ -569,13 +566,11 @@ userSchema.methods.handleTick = async function () {
 };
 
 userSchema.methods.combatDisengage = function () {
-  this.combatTargetId = undefined;
-  this.combatTargetName = undefined;
+  this.combatTarget = undefined;
 };
 
-userSchema.methods.combatEngage = function (target: IAgent) {
-  this.combatTargetId = target._id;
-  this.combatTargetName = target.name;
+userSchema.methods.combatEngage = function (target: ICombatTarget) {
+  this.combatTarget = target;
 };
 
 userSchema.methods.updateHUD = function () {
@@ -603,7 +598,7 @@ userSchema.methods.updateHUD = function () {
       attackCooldown: attackCooldown,
       bonusCooldown: bonusCooldown,
       fullCooldown: fullCooldown,
-      combatTargetName: this.combatTargetName,
+      combatTargetName: this.combatTarget?.name,
     };
     worldEmitter.emit(`hudUpdateFor${this.username}`, hudUpdatePackage);
     return;
@@ -614,6 +609,10 @@ userSchema.methods.updateHUD = function () {
 
 userSchema.methods.faint = function () {
   try {
+    this.combatDisengage();
+    // messagePack the room
+    // relocate this User to last shrine visited
+    // set their 2min cooldown period (maybe by setting _lastAttackActionDate, _lastBonusActionDate, _lastFullActionDate to two minutes in the future?
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`userSchema.methods.faint`, error, this.name);
   }

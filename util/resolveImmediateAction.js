@@ -21,11 +21,19 @@ async function resolveImmediateAction(actionName, agent, target, room) {
     }
 }
 function setCombatTargetForAgent(agent, target) {
-    agent.combatTargetId = target._id;
-    agent.combatTargetName = target.name;
-    if (agent.agentType === "user") {
-        let user = agent;
-        user.updateHUD();
+    try {
+        agent.combatTarget = {
+            id: target._id,
+            name: target.name,
+            type: target.agentType,
+        };
+        if (agent.agentType === "user") {
+            let user = agent;
+            user.updateHUD();
+        }
+    }
+    catch (error) {
+        catchErrorHandlerForFunction(`setCombatTargetForAgent`, error);
     }
 }
 export default resolveImmediateAction;

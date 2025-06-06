@@ -31,12 +31,19 @@ async function resolveImmediateAction(
 }
 
 function setCombatTargetForAgent(agent: IAgent, target: IAgent) {
-  agent.combatTargetId = target._id;
-  agent.combatTargetName = target.name;
+  try {
+    agent.combatTarget = {
+      id: target._id,
+      name: target.name,
+      type: target.agentType,
+    };
 
-  if (agent.agentType === "user") {
-    let user = agent as IUser;
-    user.updateHUD();
+    if (agent.agentType === "user") {
+      let user = agent as IUser;
+      user.updateHUD();
+    }
+  } catch (error: unknown) {
+    catchErrorHandlerForFunction(`setCombatTargetForAgent`, error);
   }
 }
 

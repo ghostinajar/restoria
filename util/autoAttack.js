@@ -6,26 +6,27 @@ import getOnlineUserById from "./getOnlineUserById.js";
 import resolveImmediateAction from "./resolveImmediateAction.js";
 async function autoAttack(agent) {
     try {
-        if (agent.readyForAttackAction && agent.combatTargetId) {
-            let target = await getMobById(agent.combatTargetId);
-            if (!target) {
-                target = await getOnlineUserById(agent.combatTargetId);
+        if (agent.readyForAttackAction && agent.combatTarget) {
+            let target = undefined;
+            if (agent.combatTarget.type === "mob") {
+                target = await getMobById(agent.combatTarget.id);
+            }
+            if (agent.combatTarget.type === "user") {
+                target = await getOnlineUserById(agent.combatTarget.id);
             }
             if (!target) {
                 agent.combatDisengage();
                 return;
             }
             const areInSameRoom = agent.location.inRoom.toString() === target.location.inRoom.toString();
-            if (areInSameRoom) {
-                await resolveImmediateAction("attack", agent, target);
-                if (agent.agentType === "user") {
-                    const user = agent;
-                    user.updateHUD();
-                }
-            }
-            else {
+            if (!areInSameRoom) {
                 agent.combatDisengage();
                 return;
+            }
+            await resolveImmediateAction("attack", agent, target);
+            if (agent.agentType === "user") {
+                const user = agent;
+                user.updateHUD();
             }
         }
     }

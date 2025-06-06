@@ -131,8 +131,7 @@ class Mob {
     lastAttackActionDate;
     lastBonusActionDate;
     lastFullActionDate;
-    combatTargetId;
-    combatTargetName;
+    combatTarget;
     grudges;
     get readyForAttackAction() {
         return (new Date().getTime() - this.lastAttackActionDate.getTime() >=
@@ -148,7 +147,7 @@ class Mob {
         try {
             // Health regeneration
             if (this.currentHp < this.maxHp) {
-                this.modifyHp(Math.ceil(Math.max(0, this.maxHp * this.healthRegen * 0.01)));
+                this.modifyHp(Math.max(0, this.maxHp * this.healthRegen * 0.01));
             }
             // Mana regeneration
             if (this.currentMp < this.maxMp) {
@@ -158,16 +157,27 @@ class Mob {
             if (this.currentMv < this.maxMv) {
                 this.modifyMv(Math.max(0, this.maxMv / this.moveRegen));
             }
-            console.log(`${this.name}'s combatTargetId is ${this.combatTargetId}`);
-            // autoAttack combat target
-            if (this.readyForAttackAction && this.combatTargetId) {
-                console.log(`attempting autoattack on ${this.combatTargetName} ${this.combatTargetId}`);
-                autoAttack(this);
+            // clear out grudges older than 60 seconds
+            const now = Date.now();
+            this.grudges = this.grudges.filter((grudge) => {
+                return grudge.date && now - new Date(grudge.date).getTime() <= 60000;
+            });
+            console.log(`${this.name}'s combatTarget:`);
+            console.log(this.combatTarget);
+            // target the next grudge if appropriate (no current target, grudge available)
+            if (this.grudges.length > 0 && !this.combatTarget) {
+                const newTarget = this.grudges.shift();
+                if (newTarget) {
+                    this.grudges.push(newTarget);
+                    this.combatEngage({
+                        id: newTarget.targetId,
+                        name: newTarget.targetName,
+                        type: newTarget.targetType,
+                    });
+                }
             }
-            else if (this.readyForAttackAction &&
-                this.isAggressive &&
-                !this.combatTargetId) {
-                // if no combat target and mob is aggro, set combat target to random user in room
+            // if no combat target and mob is aggro, set combat target to random user in room
+            if (this.isAggressive && !this.combatTarget) {
                 console.log(`${this.name} is aggro and looking for a target!`);
                 const room = await getRoomByLocation(this.location);
                 if (!room) {
@@ -176,9 +186,17 @@ class Mob {
                 if (room.users.length > 0) {
                     const randomUser = room.users[Math.floor(Math.random() * room.users.length)];
                     console.log(`selected target ${randomUser.name} `);
-                    this.combatTargetId = randomUser._id;
-                    this.combatTargetName = randomUser.name;
+                    this.combatTarget = {
+                        id: randomUser._id,
+                        name: randomUser.name,
+                        type: "user",
+                    };
                 }
+            }
+            // autoAttack combat target
+            if (this.readyForAttackAction && this.combatTarget) {
+                console.log(`attempting autoattack on ${this.combatTarget.name} ${this.combatTarget.id}`);
+                autoAttack(this);
             }
         }
         catch (error) {
@@ -187,7 +205,7 @@ class Mob {
     }
     modifyHp(amount) {
         try {
-            const newHp = Math.min(this.currentHp + amount, this.maxHp);
+            const newHp = Math.min(Math.round(this.currentHp + amount), this.maxHp);
             this.currentHp = Math.max(0, newHp);
         }
         catch (error) {
@@ -197,7 +215,7 @@ class Mob {
     }
     modifyMp(amount) {
         try {
-            const newMp = Math.min(this.currentMp + amount, this.maxMp);
+            const newMp = Math.min(Math.round(this.currentMp + amount), this.maxMp);
             this.currentMp = Math.max(0, newMp);
         }
         catch (error) {
@@ -207,7 +225,7 @@ class Mob {
     }
     modifyMv(amount) {
         try {
-            const newMv = Math.min(this.currentMv + amount, this.maxMv);
+            const newMv = Math.min(Math.round(this.currentMv + amount), this.maxMv);
             this.currentMv = Math.max(0, newMv);
         }
         catch (error) {
@@ -253,15 +271,17 @@ class Mob {
         }
     }
     combatDisengage() {
-        this.combatTargetId = undefined;
-        this.combatTargetName = undefined;
+        this.combatTarget = undefined;
     }
     combatEngage(target) {
-        this.combatTargetId = target._id;
-        this.combatTargetName = target.name;
+        this.combatTarget = target;
     }
     faint() {
         try {
+            this.combatDisengage();
+            // messagePack the room
+            // for every user in the room who is also in this mob's grudge list, create a loot bag in their lootInv
+            // destroy this mob object
         }
         catch (error) {
             catchErrorHandlerForFunction(`mob.faint`, error, this.name);

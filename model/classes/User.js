@@ -292,20 +292,12 @@ userSchema.virtual("readyForBonusAction").get(function () {
     return (new Date().getTime() - this.lastBonusActionDate.getTime() >= TICK_COOLDOWN);
 });
 userSchema
-    .virtual("combatTargetId")
+    .virtual("combatTarget")
     .get(function () {
-    return this._combatTargetId || undefined;
+    return this._combatTarget || undefined;
 })
     .set(function (value) {
-    this._combatTargetId = value;
-});
-userSchema
-    .virtual("combatTargetName")
-    .get(function () {
-    return this._combatTargetName || undefined;
-})
-    .set(function (value) {
-    this._combatTargetName = value;
+    this._combatTarget = value;
 });
 userSchema.virtual("grudges").get(function () {
     return this._grudges || [];
@@ -405,8 +397,13 @@ userSchema.methods.handleTick = async function () {
         if (this.currentMv < this.maxMv) {
             this.modifyMv(Math.max(0, this.maxMv / this.moveRegen));
         }
+        // clear out grudges older than 60 seconds
+        const now = Date.now();
+        this.grudges = this.grudges.filter((grudge) => {
+            return grudge.date && now - new Date(grudge.date).getTime() <= 60000;
+        });
         // autoAttack combat target
-        if (this.readyForAttackAction && this.combatTargetId) {
+        if (this.readyForAttackAction && this.combatTarget) {
             autoAttack(this);
         }
         this.updateHUD();
@@ -417,12 +414,10 @@ userSchema.methods.handleTick = async function () {
     }
 };
 userSchema.methods.combatDisengage = function () {
-    this.combatTargetId = undefined;
-    this.combatTargetName = undefined;
+    this.combatTarget = undefined;
 };
 userSchema.methods.combatEngage = function (target) {
-    this.combatTargetId = target._id;
-    this.combatTargetName = target.name;
+    this.combatTarget = target;
 };
 userSchema.methods.updateHUD = function () {
     try {
@@ -440,7 +435,7 @@ userSchema.methods.updateHUD = function () {
             attackCooldown: attackCooldown,
             bonusCooldown: bonusCooldown,
             fullCooldown: fullCooldown,
-            combatTargetName: this.combatTargetName,
+            combatTargetName: this.combatTarget?.name,
         };
         worldEmitter.emit(`hudUpdateFor${this.username}`, hudUpdatePackage);
         return;
@@ -451,6 +446,10 @@ userSchema.methods.updateHUD = function () {
 };
 userSchema.methods.faint = function () {
     try {
+        this.combatDisengage();
+        // messagePack the room
+        // relocate this User to last shrine visited
+        // set their 2min cooldown period (maybe by setting _lastAttackActionDate, _lastBonusActionDate, _lastFullActionDate to two minutes in the future?
     }
     catch (error) {
         catchErrorHandlerForFunction(`userSchema.methods.faint`, error, this.name);

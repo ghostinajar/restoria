@@ -1,5 +1,6 @@
 // resolveAttackHandler
 import { IAgent } from "../../model/classes/Agent.js";
+import { Grudge } from "../../model/classes/Grudge.js";
 import { IRoom } from "../../model/classes/Room.js";
 import { IUser } from "../../model/classes/User.js";
 import { IMessagePack } from "../../types/Message.js";
@@ -15,8 +16,20 @@ async function resolveAttackHandler(
   providedRoom?: IRoom
 ) {
   try {
-    // set target's combatTarget to attacker
-    defender.combatEngage(attacker);
+    // set target's combatTarget to attacker, add grudges
+    if (!defender.combatTarget) {
+      defender.combatEngage({
+        id: attacker._id,
+        name: attacker.name,
+        type: attacker.agentType,
+      });
+    }
+    attacker.grudges.push(
+      new Grudge(defender._id, defender.name, defender.agentType)
+    );
+    defender.grudges.push(
+      new Grudge(attacker._id, attacker.name, attacker.agentType)
+    );
 
     // prepare messagePack
     const messagePack: IMessagePack = {};
