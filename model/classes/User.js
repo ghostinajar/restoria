@@ -311,50 +311,77 @@ userSchema.virtual("grudges").get(function () {
     return this._grudges || [];
 });
 userSchema.methods.modifyHp = function (amount) {
-    console.log(`${this.name}'s currentHp are ${this.currentHp}`);
-    const newHp = Math.min(Math.round(this.currentHp + amount), this.maxHp);
-    this._currentHp = Math.max(0, newHp);
-    this.updateHUD();
+    try {
+        console.log(`${this.name}'s currentHp are ${this.currentHp}`);
+        const newHp = Math.min(Math.round(this.currentHp + amount), this.maxHp);
+        this._currentHp = Math.max(0, newHp);
+        this.updateHUD();
+    }
+    catch (error) {
+        catchErrorHandlerForFunction(`userSchema.methods.modifyHp`, error, this.name);
+    }
 };
 userSchema.methods.modifyMp = function (amount) {
-    const newMp = Math.min(Math.round(this._currentMp + amount), this.maxMp);
-    this._currentMp = Math.max(0, newMp);
-    this.updateHUD();
+    try {
+        const newMp = Math.min(Math.round(this._currentMp + amount), this.maxMp);
+        this._currentMp = Math.max(0, newMp);
+        this.updateHUD();
+    }
+    catch (error) {
+        catchErrorHandlerForFunction(`userSchema.methods.modifyMp`, error, this.name);
+    }
 };
 userSchema.methods.modifyMv = function (amount) {
-    const newMv = Math.min(Math.round(this._currentMv + amount), this.maxMv);
-    this._currentMv = Math.max(0, newMv);
-    this.updateHUD();
+    try {
+        const newMv = Math.min(Math.round(this._currentMv + amount), this.maxMv);
+        this._currentMv = Math.max(0, newMv);
+        this.updateHUD();
+    }
+    catch (error) {
+        catchErrorHandlerForFunction(`userSchema.methods.modifyMv`, error, this.name);
+    }
 };
 userSchema.methods.rollToHit = function () {
-    const d20result = rollDice("1d20");
-    //console.log(`user.rollToHit returning ${d20result + this.hitBonus}`);
-    return d20result + this.hitBonus;
+    try {
+        const d20result = rollDice("1d20");
+        //console.log(`user.rollToHit returning ${d20result + this.hitBonus}`);
+        return d20result + this.hitBonus;
+    }
+    catch (error) {
+        catchErrorHandlerForFunction(`userSchema.methods.rollToHit`, error, this.name);
+        return 0;
+    }
 };
 userSchema.methods.rollWeaponDamage = function () {
-    // handle unarmed
-    if (!this.equipped.weapon1 || !this.equipped.weapon1.weaponStats) {
-        //console.log(`${this.name} is rolling unarmed damage`);
-        let unarmedRoll = rollDice("1d4");
-        if (!unarmedRoll) {
-            unarmedRoll = 1;
+    try {
+        // handle unarmed
+        if (!this.equipped.weapon1 || !this.equipped.weapon1.weaponStats) {
+            //console.log(`${this.name} is rolling unarmed damage`);
+            let unarmedRoll = rollDice("1d4");
+            if (!unarmedRoll) {
+                unarmedRoll = 1;
+            }
+            const damageResult = Math.max(0, unarmedRoll + this.damageBonus);
+            //console.log(`${this.name} rolled ${damageResult}`);
+            return damageResult;
         }
-        const damageResult = Math.max(0, unarmedRoll + this.damageBonus);
+        // handle weapon
+        const diceString = this.equipped.weapon1.weaponStats.damageDieQuantity &&
+            this.equipped.weapon1.weaponStats.damageDieSides
+            ? `${this.equipped.weapon1.weaponStats.damageDieQuantity}d${this.equipped.weapon1.weaponStats.damageDieSides}`
+            : `1d4`;
+        const diceResult = rollDice(diceString);
+        if (!diceResult)
+            return this.damageBonus;
+        //console.log(`${this.name} is rolling damage with a weapon`);
+        const damageResult = Math.max(0, diceResult + this.damageBonus);
         //console.log(`${this.name} rolled ${damageResult}`);
         return damageResult;
     }
-    // handle weapon
-    const diceString = this.equipped.weapon1.weaponStats.damageDieQuantity &&
-        this.equipped.weapon1.weaponStats.damageDieSides
-        ? `${this.equipped.weapon1.weaponStats.damageDieQuantity}d${this.equipped.weapon1.weaponStats.damageDieSides}`
-        : `1d4`;
-    const diceResult = rollDice(diceString);
-    if (!diceResult)
-        return this.damageBonus;
-    //console.log(`${this.name} is rolling damage with a weapon`);
-    const damageResult = Math.max(0, diceResult + this.damageBonus);
-    //console.log(`${this.name} rolled ${damageResult}`);
-    return damageResult;
+    catch (error) {
+        catchErrorHandlerForFunction(`userSchema.methods.rollWeaponDamage`, error, this.name);
+        return 0;
+    }
 };
 userSchema.methods.comparePassword = async function (candidatePassword) {
     try {
@@ -365,24 +392,29 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
     }
 };
 userSchema.methods.handleTick = async function () {
-    // Health regeneration
-    if (this.currentHp < this.maxHp) {
-        this.modifyHp(Math.max(0, this.maxHp / this.healthRegen));
+    try {
+        // Health regeneration
+        if (this.currentHp < this.maxHp) {
+            this.modifyHp(Math.max(0, this.maxHp / this.healthRegen));
+        }
+        // Mana regeneration
+        if (this.currentMp < this.maxMp) {
+            this.modifyMp(Math.max(0, this.maxMp / this.manaRegen));
+        }
+        // Movement regeneration
+        if (this.currentMv < this.maxMv) {
+            this.modifyMv(Math.max(0, this.maxMv / this.moveRegen));
+        }
+        // autoAttack combat target
+        if (this.readyForAttackAction && this.combatTargetId) {
+            autoAttack(this);
+        }
+        this.updateHUD();
+        await this.save();
     }
-    // Mana regeneration
-    if (this.currentMp < this.maxMp) {
-        this.modifyMp(Math.max(0, this.maxMp / this.manaRegen));
+    catch (error) {
+        catchErrorHandlerForFunction(`userSchema.methods.handleTick`, error, this.name);
     }
-    // Movement regeneration
-    if (this.currentMv < this.maxMv) {
-        this.modifyMv(Math.max(0, this.maxMv / this.moveRegen));
-    }
-    // autoAttack combat target
-    if (this.readyForAttackAction && this.combatTargetId) {
-        autoAttack(this);
-    }
-    this.updateHUD();
-    await this.save();
 };
 userSchema.methods.combatDisengage = function () {
     this.combatTargetId = undefined;
@@ -414,7 +446,14 @@ userSchema.methods.updateHUD = function () {
         return;
     }
     catch (error) {
-        catchErrorHandlerForFunction(`sendHudUpdateToUser`, error);
+        catchErrorHandlerForFunction(`userSchema.methods.updateHud`, error);
+    }
+};
+userSchema.methods.faint = function () {
+    try {
+    }
+    catch (error) {
+        catchErrorHandlerForFunction(`userSchema.methods.faint`, error, this.name);
     }
 };
 const User = model("User", userSchema);

@@ -70,4 +70,5 @@ export interface IAgent {
   handleTick(): void;
   combatDisengage(): void;
   combatEngage(target: IAgent): void;
+  faint(): void;
 }

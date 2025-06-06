@@ -38,6 +38,7 @@ import calculateAffixBonuses from "../../util/calculateAffixBonuses.js";
 import { TICK_COOLDOWN } from "../../constants/COOLDOWNS.js";
 import autoAttack from "../../util/autoAttack.js";
 import getRoomByLocation from "../../util/getRoomByLocation.js";
+import catchErrorHandlerForFunction from "../../util/catchErrorHandlerForFunction.js";
 
 export interface IMob extends IAgent {
   _id: mongoose.Types.ObjectId;
@@ -199,92 +200,121 @@ class Mob implements IMob {
   }
 
   async handleTick() {
-    // Health regeneration
-    if (this.currentHp < this.maxHp) {
-      this.modifyHp(
-        Math.ceil(Math.max(0, this.maxHp * this.healthRegen * 0.01))
-      );
-    }
-
-    // Mana regeneration
-    if (this.currentMp < this.maxMp) {
-      this.modifyMp(Math.max(0, this.maxMp / this.manaRegen));
-    }
-
-    // Movement regeneration
-    if (this.currentMv < this.maxMv) {
-      this.modifyMv(Math.max(0, this.maxMv / this.moveRegen));
-    }
-    console.log(`${this.name}'s combatTargetId is ${this.combatTargetId}`);
-
-    // autoAttack combat target
-    if (this.readyForAttackAction && this.combatTargetId) {
-      console.log(
-        `attempting autoattack on ${this.combatTargetName} ${this.combatTargetId}`
-      );
-      autoAttack(this);
-    } else if (
-      this.readyForAttackAction &&
-      this.isAggressive &&
-      !this.combatTargetId
-    ) {
-      // if no combat target and mob is aggro, set combat target to random user in room
-      console.log(`${this.name} is aggro and looking for a target!`);
-      const room = await getRoomByLocation(this.location);
-      if (!room) {
-        throw new Error(
-          `mob.handleTick had trouble getting room for mob id ${this._id}`
+    try {
+      // Health regeneration
+      if (this.currentHp < this.maxHp) {
+        this.modifyHp(
+          Math.ceil(Math.max(0, this.maxHp * this.healthRegen * 0.01))
         );
       }
-      if (room.users.length > 0) {
-        const randomUser =
-          room.users[Math.floor(Math.random() * room.users.length)];
-        console.log(`selected target ${randomUser.name} `);
-        this.combatTargetId = randomUser._id;
-        this.combatTargetName = randomUser.name;
+
+      // Mana regeneration
+      if (this.currentMp < this.maxMp) {
+        this.modifyMp(Math.max(0, this.maxMp / this.manaRegen));
       }
+
+      // Movement regeneration
+      if (this.currentMv < this.maxMv) {
+        this.modifyMv(Math.max(0, this.maxMv / this.moveRegen));
+      }
+      console.log(`${this.name}'s combatTargetId is ${this.combatTargetId}`);
+
+      // autoAttack combat target
+      if (this.readyForAttackAction && this.combatTargetId) {
+        console.log(
+          `attempting autoattack on ${this.combatTargetName} ${this.combatTargetId}`
+        );
+        autoAttack(this);
+      } else if (
+        this.readyForAttackAction &&
+        this.isAggressive &&
+        !this.combatTargetId
+      ) {
+        // if no combat target and mob is aggro, set combat target to random user in room
+        console.log(`${this.name} is aggro and looking for a target!`);
+        const room = await getRoomByLocation(this.location);
+        if (!room) {
+          throw new Error(
+            `mob.handleTick had trouble getting room for mob id ${this._id}`
+          );
+        }
+        if (room.users.length > 0) {
+          const randomUser =
+            room.users[Math.floor(Math.random() * room.users.length)];
+          console.log(`selected target ${randomUser.name} `);
+          this.combatTargetId = randomUser._id;
+          this.combatTargetName = randomUser.name;
+        }
+      }
+    } catch (error: unknown) {
+      catchErrorHandlerForFunction(`mob.handleTick`, error, this.name);
     }
   }
 
   modifyHp(amount: number) {
-    const newHp = Math.min(this.currentHp + amount, this.maxHp);
-    this.currentHp = Math.max(0, newHp);
+    try {
+      const newHp = Math.min(this.currentHp + amount, this.maxHp);
+      this.currentHp = Math.max(0, newHp);
+    } catch (error: unknown) {
+      catchErrorHandlerForFunction(`mob.modifyHp`, error, this.name);
+      return 0;
+    }
   }
   modifyMp(amount: number) {
-    const newMp = Math.min(this.currentMp + amount, this.maxMp);
-    this.currentMp = Math.max(0, newMp);
+    try {
+      const newMp = Math.min(this.currentMp + amount, this.maxMp);
+      this.currentMp = Math.max(0, newMp);
+    } catch (error: unknown) {
+      catchErrorHandlerForFunction(`mob.modifyMp`, error, this.name);
+      return 0;
+    }
   }
   modifyMv(amount: number) {
-    const newMv = Math.min(this.currentMv + amount, this.maxMv);
-    this.currentMv = Math.max(0, newMv);
+    try {
+      const newMv = Math.min(this.currentMv + amount, this.maxMv);
+      this.currentMv = Math.max(0, newMv);
+    } catch (error: unknown) {
+      catchErrorHandlerForFunction(`mob.modifyMv`, error, this.name);
+      return 0;
+    }
   }
   rollToHit(): number {
-    const d20result = rollDice("1d20");
-    return d20result ? d20result + this.hitBonus : 0;
+    try {
+      const d20result = rollDice("1d20");
+      return d20result ? d20result + this.hitBonus : 0;
+    } catch (error: unknown) {
+      catchErrorHandlerForFunction(`mob.rollToHit`, error, this.name);
+      return 0;
+    }
   }
 
   rollWeaponDamage(): number {
-    // handle unarmed
-    if (!this.equipped.weapon1 || !this.equipped.weapon1.weaponStats) {
-      let unarmedRoll = rollDice("1d4");
-      if (!unarmedRoll) {
-        unarmedRoll = 1;
+    try {
+      // handle unarmed
+      if (!this.equipped.weapon1 || !this.equipped.weapon1.weaponStats) {
+        let unarmedRoll = rollDice("1d4");
+        if (!unarmedRoll) {
+          unarmedRoll = 1;
+        }
+        const damageResult = Math.max(0, unarmedRoll + this.damageBonus);
+        return damageResult;
       }
-      const damageResult = Math.max(0, unarmedRoll + this.damageBonus);
+
+      // handle weapon
+      const diceString =
+        this.equipped.weapon1.weaponStats.damageDieQuantity &&
+        this.equipped.weapon1.weaponStats.damageDieSides
+          ? `${this.equipped.weapon1.weaponStats.damageDieQuantity}d${this.equipped.weapon1.weaponStats.damageDieSides}`
+          : `1d4`;
+
+      const diceResult = rollDice(diceString);
+      if (!diceResult) return this.damageBonus;
+      const damageResult = Math.max(0, diceResult + this.damageBonus);
       return damageResult;
+    } catch (error: unknown) {
+      catchErrorHandlerForFunction(`mob.rollWeaponDamage`, error, this.name);
+      return 0;
     }
-
-    // handle weapon
-    const diceString =
-      this.equipped.weapon1.weaponStats.damageDieQuantity &&
-      this.equipped.weapon1.weaponStats.damageDieSides
-        ? `${this.equipped.weapon1.weaponStats.damageDieQuantity}d${this.equipped.weapon1.weaponStats.damageDieSides}`
-        : `1d4`;
-
-    const diceResult = rollDice(diceString);
-    if (!diceResult) return this.damageBonus;
-    const damageResult = Math.max(0, diceResult + this.damageBonus);
-    return damageResult;
   }
 
   combatDisengage(): void {
@@ -295,6 +325,13 @@ class Mob implements IMob {
   combatEngage(target: IAgent): void {
     this.combatTargetId = target._id;
     this.combatTargetName = target.name;
+  }
+
+  faint(): void {
+    try {
+    } catch (error: unknown) {
+      catchErrorHandlerForFunction(`mob.faint`, error, this.name);
+    }
   }
 }
 

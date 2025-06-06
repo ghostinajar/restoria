@@ -63,6 +63,7 @@ export function calculateMaxHp(agent) {
     }
     catch (error) {
         catchErrorHandlerForFunction(`calculateMaxHp`, error);
+        return 0;
     }
 }
 export function calculateMaxMp(agent) {
@@ -87,6 +88,7 @@ export function calculateMaxMp(agent) {
     }
     catch (error) {
         catchErrorHandlerForFunction(`calculateMaxMp`, error);
+        return 0;
     }
 }
 export function calculateMaxMv(agent) {
@@ -99,6 +101,7 @@ export function calculateMaxMv(agent) {
     }
     catch (error) {
         catchErrorHandlerForFunction(`calculateMaxMv`, error);
+        return 0;
     }
 }
 export function calculateStrength(agent) {
@@ -111,6 +114,7 @@ export function calculateStrength(agent) {
     }
     catch (error) {
         catchErrorHandlerForFunction(`calculateStrength`, error);
+        return 0;
     }
 }
 export function calculateDexterity(agent) {
@@ -123,6 +127,7 @@ export function calculateDexterity(agent) {
     }
     catch (error) {
         catchErrorHandlerForFunction(`calculateDexterity`, error);
+        return 0;
     }
 }
 export function calculateConstitution(agent) {
@@ -135,6 +140,7 @@ export function calculateConstitution(agent) {
     }
     catch (error) {
         catchErrorHandlerForFunction(`calculateConstitution`, error);
+        return 0;
     }
 }
 export function calculateIntelligence(agent) {
@@ -147,6 +153,7 @@ export function calculateIntelligence(agent) {
     }
     catch (error) {
         catchErrorHandlerForFunction(`calculateIntelligence`, error);
+        return 0;
     }
 }
 export function calculateWisdom(agent) {
@@ -159,6 +166,7 @@ export function calculateWisdom(agent) {
     }
     catch (error) {
         catchErrorHandlerForFunction(`calculateWisdom`, error);
+        return 0;
     }
 }
 export function calculateCharisma(agent) {
@@ -171,6 +179,7 @@ export function calculateCharisma(agent) {
     }
     catch (error) {
         catchErrorHandlerForFunction(`calculateCharisma`, error);
+        return 0;
     }
 }
 export function calculateDamageBonus(agent) {
@@ -188,6 +197,7 @@ export function calculateDamageBonus(agent) {
     }
     catch (error) {
         catchErrorHandlerForFunction(`calculateDamageBonus`, error);
+        return 0;
     }
 }
 export function calculateHitBonus(agent) {
@@ -205,6 +215,7 @@ export function calculateHitBonus(agent) {
     }
     catch (error) {
         catchErrorHandlerForFunction(`calculateHitBonus`, error);
+        return 0;
     }
 }
 export function calculateArmorClass(agent) {
@@ -219,6 +230,7 @@ export function calculateArmorClass(agent) {
     }
     catch (error) {
         catchErrorHandlerForFunction(`calculateArmorClass`, error);
+        return 0;
     }
 }
 export function calculateSpellSave(agent) {
@@ -236,6 +248,7 @@ export function calculateSpellSave(agent) {
     }
     catch (error) {
         catchErrorHandlerForFunction(`calculateSpellSave`, error);
+        return 0;
     }
 }
 export function calculateSpeed(agent) {
@@ -247,6 +260,7 @@ export function calculateSpeed(agent) {
     }
     catch (error) {
         catchErrorHandlerForFunction(`calculateSpeed`, error);
+        return 0;
     }
 }
 export function calculateResistCold(agent) {
@@ -257,6 +271,7 @@ export function calculateResistCold(agent) {
     }
     catch (error) {
         catchErrorHandlerForFunction(`calculateResistCold`, error);
+        return 0;
     }
 }
 export function calculateResistFire(agent) {
@@ -267,6 +282,7 @@ export function calculateResistFire(agent) {
     }
     catch (error) {
         catchErrorHandlerForFunction(`calculateResistFire`, error);
+        return 0;
     }
 }
 export function calculateResistElec(agent) {
@@ -277,6 +293,7 @@ export function calculateResistElec(agent) {
     }
     catch (error) {
         catchErrorHandlerForFunction(`calculateResistElec`, error);
+        return 0;
     }
 }
 export function calculateHealthRegen(agent) {
@@ -288,6 +305,7 @@ export function calculateHealthRegen(agent) {
     }
     catch (error) {
         catchErrorHandlerForFunction(`calculateHealthRegen`, error);
+        return 0;
     }
 }
 export function calculateManaRegen(agent) {
@@ -299,6 +317,7 @@ export function calculateManaRegen(agent) {
     }
     catch (error) {
         catchErrorHandlerForFunction(`calculateManaRegen`, error);
+        return 0;
     }
 }
 export function calculateMoveRegen(agent) {
@@ -310,5 +329,6 @@ export function calculateMoveRegen(agent) {
     }
     catch (error) {
         catchErrorHandlerForFunction(`calculateMoveRegen`, error);
+        return 0;
     }
 }

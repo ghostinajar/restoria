@@ -2,7 +2,6 @@
 import { IMob } from "../model/classes/Mob.js";
 import { IUser } from "../model/classes/User.js";
 import catchErrorHandlerForFunction from "../util/catchErrorHandlerForFunction.js";
-import { spells } from "./SPELL.js";
 
 const BASE_STRENGTH = 2;
 const BASE_DEXTERITY = 2;
@@ -72,6 +71,7 @@ export function calculateMaxHp(agent: IUser | IMob) {
     return Math.max(BASE_HP, maxHp);
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`calculateMaxHp`, error);
+    return 0;
   }
 }
 
@@ -97,6 +97,7 @@ export function calculateMaxMp(agent: IUser | IMob) {
     return Math.max(BASE_MP, maxMp);
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`calculateMaxMp`, error);
+    return 0;
   }
 }
 
@@ -109,6 +110,7 @@ export function calculateMaxMv(agent: IUser | IMob) {
     return Math.max(BASE_MV, maxMv);
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`calculateMaxMv`, error);
+    return 0;
   }
 }
 
@@ -121,6 +123,7 @@ export function calculateStrength(agent: IUser | IMob) {
     return strength;
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`calculateStrength`, error);
+    return 0;
   }
 }
 
@@ -133,6 +136,7 @@ export function calculateDexterity(agent: IUser | IMob) {
     return dexterity;
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`calculateDexterity`, error);
+    return 0;
   }
 }
 
@@ -145,6 +149,7 @@ export function calculateConstitution(agent: IUser | IMob) {
     return constitution;
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`calculateConstitution`, error);
+    return 0;
   }
 }
 
@@ -157,6 +162,7 @@ export function calculateIntelligence(agent: IUser | IMob) {
     return intelligence;
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`calculateIntelligence`, error);
+    return 0;
   }
 }
 
@@ -169,6 +175,7 @@ export function calculateWisdom(agent: IUser | IMob) {
     return wisdom;
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`calculateWisdom`, error);
+    return 0;
   }
 }
 
@@ -181,6 +188,7 @@ export function calculateCharisma(agent: IUser | IMob) {
     return charisma;
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`calculateCharisma`, error);
+    return 0;
   }
 }
 
@@ -198,6 +206,7 @@ export function calculateDamageBonus(agent: IUser | IMob) {
     return Math.max(BASE_DAMAGEBONUS, damageBonus);
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`calculateDamageBonus`, error);
+    return 0;
   }
 }
 
@@ -215,6 +224,7 @@ export function calculateHitBonus(agent: IUser | IMob) {
     return Math.max(BASE_HITBONUS, hitBonus);
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`calculateHitBonus`, error);
+    return 0;
   }
 }
 
@@ -229,6 +239,7 @@ export function calculateArmorClass(agent: IUser | IMob) {
     return Math.max(BASE_ARMOR_CLASS, armorClass);
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`calculateArmorClass`, error);
+    return 0;
   }
 }
 
@@ -247,6 +258,7 @@ export function calculateSpellSave(agent: IUser | IMob) {
     return Math.max(BASE_SPELL_SAVE, spellSave);
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`calculateSpellSave`, error);
+    return 0;
   }
 }
 
@@ -258,6 +270,7 @@ export function calculateSpeed(agent: IUser | IMob) {
     return Math.max(BASE_SPEED, speed);
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`calculateSpeed`, error);
+    return 0;
   }
 }
 
@@ -268,6 +281,7 @@ export function calculateResistCold(agent: IUser | IMob) {
     return Math.max(BASE_RESIST_COLD, resistCold);
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`calculateResistCold`, error);
+    return 0;
   }
 }
 
@@ -278,6 +292,7 @@ export function calculateResistFire(agent: IUser | IMob) {
     return Math.max(BASE_RESIST_FIRE, resistFire);
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`calculateResistFire`, error);
+    return 0;
   }
 }
 
@@ -288,6 +303,7 @@ export function calculateResistElec(agent: IUser | IMob) {
     return Math.max(BASE_RESIST_ELECTRIC, resistElec);
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`calculateResistElec`, error);
+    return 0;
   }
 }
 
@@ -299,6 +315,7 @@ export function calculateHealthRegen(agent: IUser | IMob) {
     return Math.max(BASE_HEALTH_REGEN, healthRegen);
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`calculateHealthRegen`, error);
+    return 0;
   }
 }
 
@@ -312,6 +329,7 @@ export function calculateManaRegen(agent: IUser | IMob) {
     return Math.max(BASE_MANA_REGEN, manaRegen);
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`calculateManaRegen`, error);
+    return 0;
   }
 }
 
@@ -323,5 +341,6 @@ export function calculateMoveRegen(agent: IUser | IMob) {
     return Math.max(BASE_MOVE_REGEN, moveRegen);
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`calculateMoveRegen`, error);
+    return 0;
   }
 }
