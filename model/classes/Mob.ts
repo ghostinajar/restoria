@@ -227,16 +227,21 @@ class Mob implements IMob {
       console.log(`${this.name}'s combatTarget:`);
       console.log(this.combatTarget);
 
-      // target the next grudge if appropriate (no current target, grudge available)
+      // target the next grudge if appropriate (no current target, grudge available, grudge target in room)
       if (this.grudges.length > 0 && !this.combatTarget) {
         const newTarget = this.grudges.shift();
         if (newTarget) {
+          const room = getRoomByLocation(this.location);
+          if (!room) {
+            throw new Error(`Couldn't find room for user ${this._id} ${this.name}`)
+          }
           this.grudges.push(newTarget);
-          this.combatEngage({
-            id: newTarget.targetId,
-            name: newTarget.targetName,
-            type: newTarget.targetType,
-          });
+          // TODO before engaging grudge, confirm it's in the room
+          // this.combatEngage({
+          //   id: newTarget.targetId,
+          //   name: newTarget.targetName,
+          //   type: newTarget.targetType,
+          // });
         }
       }
 
