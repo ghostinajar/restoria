@@ -42,6 +42,7 @@ import autoAttack from "../../util/autoAttack.js";
 import getRoomByLocation from "../../util/getRoomByLocation.js";
 import catchErrorHandlerForFunction from "../../util/catchErrorHandlerForFunction.js";
 import ICombatTarget from "../../types/CombatTarget.js";
+import combatTargetIsInRoom from "../../util/combatTargetIsInRoom.js";
 
 export interface IMob extends IAgent {
   _id: mongoose.Types.ObjectId;
@@ -227,21 +228,25 @@ class Mob implements IMob {
       console.log(`${this.name}'s combatTarget:`);
       console.log(this.combatTarget);
 
-      // target the next grudge if appropriate (no current target, grudge available, grudge target in room)
+      // target the next grudge if appropriate (ie grudge exists, no current target, new target in room)
       if (this.grudges.length > 0 && !this.combatTarget) {
-        const newTarget = this.grudges.shift();
-        if (newTarget) {
-          const room = getRoomByLocation(this.location);
+        const nextGrudge = this.grudges.shift();
+        if (nextGrudge) {
+          const newTarget = {
+            name: nextGrudge.targetName,
+            id: nextGrudge.targetId,
+            type: nextGrudge.targetType,
+          };
+          const room = await getRoomByLocation(this.location);
           if (!room) {
-            throw new Error(`Couldn't find room for user ${this._id} ${this.name}`)
+            throw new Error(
+              `Couldn't find room for user ${this._id} ${this.name}`
+            );
           }
-          this.grudges.push(newTarget);
-          // TODO before engaging grudge, confirm it's in the room
-          // this.combatEngage({
-          //   id: newTarget.targetId,
-          //   name: newTarget.targetName,
-          //   type: newTarget.targetType,
-          // });
+          this.grudges.push(nextGrudge);
+          if (combatTargetIsInRoom(room, newTarget)) {
+            this.combatEngage(newTarget);
+          }
         }
       }
 
