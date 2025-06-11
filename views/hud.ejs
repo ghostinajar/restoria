@@ -6,14 +6,14 @@
     <div id="hudAtackCooldown" class="cooldown-bar">Attack</div>
     <div class="cooldown-progress"></div>
   </div>
-  <div class="cooldown-container">
+  <!-- <div class="cooldown-container">
     <div id="hudBonusCooldown" class="cooldown-bar">Bonus Action</div>
     <div class="cooldown-progress"></div>
   </div>
   <div class="cooldown-container">
     <div id="hudFullCooldown" class="cooldown-bar">Full Action</div>
     <div class="cooldown-progress"></div>
-  </div>
+  </div> -->
   <div id="hudCombatTarget"></div>
 </div>
 
@@ -24,14 +24,14 @@
   let hudMp = document.getElementById("hudMp");
   let hudMv = document.getElementById("hudMv");
   let hudAtackCooldown = document.getElementById("hudAtackCooldown");
-  let hudBonusCooldown = document.getElementById("hudBonusCooldown");
-  let hudFullCooldown = document.getElementById("hudFullCooldown");
+  // let hudBonusCooldown = document.getElementById("hudBonusCooldown");
+  // let hudFullCooldown = document.getElementById("hudFullCooldown");
   let hudCombatTarget = document.getElementById("hudCombatTarget");
 
   const cooldownAnimations = {
     hudAtackCooldown: null,
-    hudBonusCooldown: null,
-    hudFullCooldown: null,
+    // hudBonusCooldown: null,
+    // hudFullCooldown: null,
   };
 
   socket.on("hudUpdate", async function (hudUpdatePackage) {
@@ -40,8 +40,8 @@
     hudMv.innerHTML = `${hudUpdatePackage.currentMv}/${hudUpdatePackage.maxMv}mv`;
 
     startCooldownAnimation("hudAtackCooldown", hudUpdatePackage.attackCooldown);
-    startCooldownAnimation("hudBonusCooldown", hudUpdatePackage.bonusCooldown);
-    startCooldownAnimation("hudFullCooldown", hudUpdatePackage.fullCooldown);
+    // startCooldownAnimation("hudBonusCooldown", hudUpdatePackage.bonusCooldown);
+    // startCooldownAnimation("hudFullCooldown", hudUpdatePackage.fullCooldown);
 
     hudCombatTarget.innerHTML = hudUpdatePackage.combatTargetName
       ? `Combat Target: ${hudUpdatePackage.combatTargetName}`
