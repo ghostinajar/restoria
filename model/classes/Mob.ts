@@ -429,11 +429,25 @@ class Mob implements IMob {
     return lb;
   }
 
-  // addGrudge(g: IGrudge): void {
-  //   // get a matching grudge from this.grudges
-  //   // if no match found, create one
-  //   // shift the grudge to top of this.grudges
-  // }
+  addGrudge(g: IGrudge): void {
+    // remove duplicate if it exists
+    this.grudges = this.grudges.filter(
+      (grudge) =>
+        !(
+          grudge.targetId === g.targetId &&
+          grudge.targetName === g.targetName &&
+          grudge.targetType === g.targetType
+        )
+    );
+
+    // put the grudge at the top
+    this.grudges.unshift(g);
+
+    // if there are more than 10 grudges, remove anything after
+    if (this.grudges.length > 10) {
+      this.grudges = this.grudges.slice(0, 10);
+    }
+  }
 }
 
 export default Mob;

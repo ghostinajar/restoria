@@ -335,5 +335,17 @@ class Mob {
         // TODO add items to items array, tweak gold amount
         return lb;
     }
+    addGrudge(g) {
+        // remove duplicate if it exists
+        this.grudges = this.grudges.filter((grudge) => !(grudge.targetId === g.targetId &&
+            grudge.targetName === g.targetName &&
+            grudge.targetType === g.targetType));
+        // put the grudge at the top
+        this.grudges.unshift(g);
+        // if there are more than 10 grudges, remove anything after
+        if (this.grudges.length > 10) {
+            this.grudges = this.grudges.slice(0, 10);
+        }
+    }
 }
 export default Mob;

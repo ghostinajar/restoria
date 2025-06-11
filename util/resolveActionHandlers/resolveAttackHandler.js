@@ -15,8 +15,8 @@ async function resolveAttackHandler(attacker, defender, providedRoom) {
             });
         }
         // TODO replace these pushes with an addGrudge method on the agent which also checks to prevent duplicate grudges
-        attacker.grudges.push(new Grudge(defender._id, defender.name, defender.agentType));
-        defender.grudges.push(new Grudge(attacker._id, attacker.name, attacker.agentType));
+        attacker.addGrudge(new Grudge(defender._id, defender.name, defender.agentType));
+        defender.addGrudge(new Grudge(attacker._id, attacker.name, attacker.agentType));
         // prepare messagePack
         const messagePack = {};
         // pack any usernames present in the room into messagePack

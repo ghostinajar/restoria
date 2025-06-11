@@ -25,10 +25,10 @@ async function resolveAttackHandler(
       });
     }
     // TODO replace these pushes with an addGrudge method on the agent which also checks to prevent duplicate grudges
-    attacker.grudges.push(
+    attacker.addGrudge(
       new Grudge(defender._id, defender.name, defender.agentType)
     );
-    defender.grudges.push(
+    defender.addGrudge(
       new Grudge(attacker._id, attacker.name, attacker.agentType)
     );
 
