@@ -135,6 +135,9 @@ class Mob {
     lastFullActionDate;
     combatTarget;
     grudges;
+    get nameCapitalized() {
+        return `${this.name.charAt(0).toUpperCase() + this.name.slice(1)}`;
+    }
     get readyForAttackAction() {
         return (new Date().getTime() - this.lastAttackActionDate.getTime() >=
             TICK_COOLDOWN);
@@ -181,7 +184,7 @@ class Mob {
                     if (combatTargetIsInRoom(room, potentialTarget)) {
                         this.combatEngage(potentialTarget);
                         if (potentialTarget.type === "user") {
-                            messageToUsername(potentialTarget.name.toLowerCase(), `${this.name.charAt(0).toUpperCase() + this.name.slice(1)} remembers a grudge and targets you!`, `red`);
+                            messageToUsername(potentialTarget.name.toLowerCase(), `${this.nameCapitalized} remembers a grudge and targets you!`, `red`);
                         }
                         break;
                     }
@@ -287,12 +290,34 @@ class Mob {
     combatEngage(target) {
         this.combatTarget = target;
     }
-    faint() {
+    async faint() {
         try {
             this.combatDisengage();
-            // messagePack the room
+            const room = await getRoomByLocation(this.location);
+            if (!room) {
+                throw new Error(`Failed to find room for mob ${this._id} ${this.name}`);
+            }
+            room.users.forEach((u) => {
+                // disengage users targeting this mob
+                if (u.combatTarget?.id === this._id) {
+                    u.combatDisengage();
+                }
+                // notify users in the room
+                messageToUsername(u.username, `${this.nameCapitalized} fainted!`, `red`);
+                // reward users in the room also on mob's grudge list
+                if (this.grudges.some((grudge) => grudge.targetName === u.name)) {
+                    // TODO user gains exp
+                    // TODO put a lootbag in user's lootBags
+                }
+            });
+            room.mobs.forEach((m) => {
+                // disengage mobs targeting this mob
+                if (m.combatTarget?.id === this._id) {
+                    m.combatDisengage();
+                }
+            });
             // for every user in the room who is also in this mob's grudge list, create a loot bag in their lootInv
-            // destroy this mob object
+            // destroy this mob object (emit for MobManager)
         }
         catch (error) {
             catchErrorHandlerForFunction(`mob.faint`, error, this.name);
