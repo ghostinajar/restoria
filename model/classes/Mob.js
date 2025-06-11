@@ -165,22 +165,21 @@ class Mob {
             });
             console.log(`${this.name}'s combatTarget:`);
             console.log(this.combatTarget);
-            // target the next grudge if appropriate (ie grudge exists, no current target, new target in room)
+            // target a grudge if they're present in the room
             if (this.grudges.length > 0 && !this.combatTarget) {
-                const nextGrudge = this.grudges.shift();
-                if (nextGrudge) {
-                    const newTarget = {
-                        name: nextGrudge.targetName,
-                        id: nextGrudge.targetId,
-                        type: nextGrudge.targetType,
+                const room = await getRoomByLocation(this.location);
+                if (!room) {
+                    throw new Error(`Couldn't find room for user ${this._id} ${this.name}`);
+                }
+                for (const grudge of this.grudges) {
+                    const potentialTarget = {
+                        name: grudge.targetName,
+                        id: grudge.targetId,
+                        type: grudge.targetType,
                     };
-                    const room = await getRoomByLocation(this.location);
-                    if (!room) {
-                        throw new Error(`Couldn't find room for user ${this._id} ${this.name}`);
-                    }
-                    this.grudges.push(nextGrudge);
-                    if (combatTargetIsInRoom(room, newTarget)) {
-                        this.combatEngage(newTarget);
+                    if (combatTargetIsInRoom(room, potentialTarget)) {
+                        this.combatEngage(potentialTarget);
+                        break; // Stop checking once we find a valid target
                     }
                 }
             }
@@ -294,6 +293,11 @@ class Mob {
         catch (error) {
             catchErrorHandlerForFunction(`mob.faint`, error, this.name);
         }
+    }
+    addGrudge(g) {
+        // get a matching grudge from this.grudges
+        // if no match found, create one
+        // shift the grudge to top of this.grudges
     }
 }
 export default Mob;

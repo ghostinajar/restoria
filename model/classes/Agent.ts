@@ -71,4 +71,5 @@ export interface IAgent {
   combatDisengage(): void;
   combatEngage(target: ICombatTarget): void;
   faint(): void;
+  // addGrudge(g: IGrudge): void;
 }
