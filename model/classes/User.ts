@@ -43,6 +43,8 @@ import IHudUpdatePackage from "../../types/HudUpdatePackage.js";
 import { TICK_COOLDOWN } from "../../constants/COOLDOWNS.js";
 import autoAttack from "../../util/autoAttack.js";
 import ICombatTarget from "../../types/CombatTarget.js";
+import ILootBag from "../../types/LootBag.js";
+import messageToUsername from "../../util/messageToUsername.js";
 
 const { Schema, Types, model } = mongoose;
 
@@ -66,6 +68,7 @@ export interface IUser extends mongoose.Document, IAgent {
   isAdmin: boolean;
   history: IHistory;
   hoursPlayed: number;
+  experience: number;
   goldHeld: number;
   goldBanked: number;
   trainingPoints: number;
@@ -88,8 +91,11 @@ export interface IUser extends mongoose.Document, IAgent {
   _lastAttackActionDate: Date; // necessary to store virtual info from the setter (not derived on every get)
   _lastBonusActionDate: Date; // necessary to store virtual info from the setter (not derived on every get)
   _lastFullActionDate: Date; // necessary to store virtual info from the setter (not derived on every get)
+  _lootBags: Array<ILootBag>; // necessary to store virtual info from the setter (not derived on every get)
   comparePassword(candidatePassword: string): Promise<boolean>;
   updateHUD(): void;
+  gainXp(): void;
+  gainLootBag(): void;
 }
 
 export const userSchema = new Schema<IUser>(
@@ -113,6 +119,7 @@ export const userSchema = new Schema<IUser>(
     pronouns: { type: Number, required: true, default: 3 },
     history: { type: historySchema, required: true },
     hoursPlayed: { type: Number, required: true, default: 0 },
+    experience: { type: Number, required: true, default: 0 },
     job: { type: String, required: true, default: "cleric" },
     level: { type: Number, required: true, default: 1 },
     statBlock: { type: statBlockSchema, required: true, default: () => ({}) },
@@ -197,6 +204,10 @@ export const userSchema = new Schema<IUser>(
     },
   }
 );
+
+//****************************************************************************/
+//                             Virtual Properties                             /
+//****************************************************************************/
 
 userSchema
   .virtual("affixBonuses")
@@ -415,8 +426,22 @@ userSchema
   });
 
 userSchema.virtual("grudges").get(function () {
-  return this._grudges || [];
+  if (!this._grudges) {
+    this._grudges = [];
+  }
+  return this._grudges;
 });
+
+userSchema.virtual("lootBags").get(function () {
+  if (!this._lootBags) {
+    this._lootBags = [];
+  }
+  return this._lootBags;
+});
+
+//****************************************************************************/
+//                             Methods                                        /
+//****************************************************************************/
 
 userSchema.methods.modifyHp = function (amount: number) {
   try {
@@ -616,6 +641,24 @@ userSchema.methods.faint = function () {
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`userSchema.methods.faint`, error, this.name);
   }
+};
+
+userSchema.methods.gainXp = function (xp: number) {
+  this.experience += xp;
+  if (this.experience < 0) {
+    this.experience = 0;
+  }
+  // TODO check for level up
+};
+
+userSchema.methods.gainLootBag = function (lb: ILootBag) {
+  this.lootBags.push(lb);
+  const user = this as IUser;
+  messageToUsername(
+    user.username,
+    `You got a loot bag from ${lb.fromName}!`,
+    `success`
+  );
 };
 
 const User = model<IUser>("User", userSchema);

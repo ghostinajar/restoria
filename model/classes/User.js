@@ -17,6 +17,7 @@ import rollDice from "../../util/rollDice.js";
 import worldEmitter from "./WorldEmitter.js";
 import { TICK_COOLDOWN } from "../../constants/COOLDOWNS.js";
 import autoAttack from "../../util/autoAttack.js";
+import messageToUsername from "../../util/messageToUsername.js";
 const { Schema, Types, model } = mongoose;
 export const userSchema = new Schema({
     _id: Schema.Types.ObjectId,
@@ -38,6 +39,7 @@ export const userSchema = new Schema({
     pronouns: { type: Number, required: true, default: 3 },
     history: { type: historySchema, required: true },
     hoursPlayed: { type: Number, required: true, default: 0 },
+    experience: { type: Number, required: true, default: 0 },
     job: { type: String, required: true, default: "cleric" },
     level: { type: Number, required: true, default: 1 },
     statBlock: { type: statBlockSchema, required: true, default: () => ({}) },
@@ -120,6 +122,9 @@ export const userSchema = new Schema({
         virtuals: true,
     },
 });
+//****************************************************************************/
+//                             Virtual Properties                             /
+//****************************************************************************/
 userSchema
     .virtual("affixBonuses")
     .get(function () {
@@ -300,8 +305,20 @@ userSchema
     this._combatTarget = value;
 });
 userSchema.virtual("grudges").get(function () {
-    return this._grudges || [];
+    if (!this._grudges) {
+        this._grudges = [];
+    }
+    return this._grudges;
 });
+userSchema.virtual("lootBags").get(function () {
+    if (!this._lootBags) {
+        this._lootBags = [];
+    }
+    return this._lootBags;
+});
+//****************************************************************************/
+//                             Methods                                        /
+//****************************************************************************/
 userSchema.methods.modifyHp = function (amount) {
     try {
         console.log(`${this.name}'s currentHp are ${this.currentHp}`);
@@ -454,6 +471,18 @@ userSchema.methods.faint = function () {
     catch (error) {
         catchErrorHandlerForFunction(`userSchema.methods.faint`, error, this.name);
     }
+};
+userSchema.methods.gainXp = function (xp) {
+    this.experience += xp;
+    if (this.experience < 0) {
+        this.experience = 0;
+    }
+    // TODO check for level up
+};
+userSchema.methods.gainLootBag = function (lb) {
+    this.lootBags.push(lb);
+    const user = this;
+    messageToUsername(user.username, `You got a loot bag from ${lb.fromName}!`, `success`);
 };
 const User = model("User", userSchema);
 export default User;

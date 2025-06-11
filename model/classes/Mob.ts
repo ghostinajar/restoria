@@ -44,6 +44,7 @@ import catchErrorHandlerForFunction from "../../util/catchErrorHandlerForFunctio
 import ICombatTarget from "../../types/CombatTarget.js";
 import combatTargetIsInRoom from "../../util/combatTargetIsInRoom.js";
 import messageToUsername from "../../util/messageToUsername.js";
+import ILootBag from "../../types/LootBag.js";
 
 export interface IMob extends IAgent {
   _id: mongoose.Types.ObjectId;
@@ -55,6 +56,7 @@ export interface IMob extends IAgent {
   keywords: Array<string>;
   chatters: Array<IChatter>;
   emotes: Array<IEmote>;
+  generateLootBag(): ILootBag;
 }
 
 class Mob implements IMob {
@@ -206,6 +208,10 @@ class Mob implements IMob {
       new Date().getTime() - this.lastBonusActionDate.getTime() >= TICK_COOLDOWN
     );
   }
+
+  //****************************************************************************/
+  //                             Methods                                        /
+  //****************************************************************************/
 
   async handleTick() {
     try {
@@ -411,6 +417,16 @@ class Mob implements IMob {
     } catch (error: unknown) {
       catchErrorHandlerForFunction(`mob.faint`, error, this.name);
     }
+  }
+
+  generateLootBag(): ILootBag {
+    const lb: ILootBag = {
+      fromName: this.name,
+      items: [],
+      gold: 0,
+    };
+    // TODO add items to items array, tweak gold amount
+    return lb;
   }
 
   // addGrudge(g: IGrudge): void {

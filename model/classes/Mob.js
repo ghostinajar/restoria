@@ -148,6 +148,9 @@ class Mob {
     get readyForBonusAction() {
         return (new Date().getTime() - this.lastBonusActionDate.getTime() >= TICK_COOLDOWN);
     }
+    //****************************************************************************/
+    //                             Methods                                        /
+    //****************************************************************************/
     async handleTick() {
         try {
             // Health regeneration
@@ -322,6 +325,15 @@ class Mob {
         catch (error) {
             catchErrorHandlerForFunction(`mob.faint`, error, this.name);
         }
+    }
+    generateLootBag() {
+        const lb = {
+            fromName: this.name,
+            items: [],
+            gold: 0,
+        };
+        // TODO add items to items array, tweak gold amount
+        return lb;
     }
 }
 export default Mob;
