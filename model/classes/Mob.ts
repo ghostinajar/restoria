@@ -43,6 +43,7 @@ import getRoomByLocation from "../../util/getRoomByLocation.js";
 import catchErrorHandlerForFunction from "../../util/catchErrorHandlerForFunction.js";
 import ICombatTarget from "../../types/CombatTarget.js";
 import combatTargetIsInRoom from "../../util/combatTargetIsInRoom.js";
+import messageToUsername from "../../util/messageToUsername.js";
 
 export interface IMob extends IAgent {
   _id: mongoose.Types.ObjectId;
@@ -238,7 +239,7 @@ class Mob implements IMob {
         }
 
         for (const grudge of this.grudges) {
-          const potentialTarget = {
+          const potentialTarget: ICombatTarget = {
             name: grudge.targetName,
             id: grudge.targetId,
             type: grudge.targetType,
@@ -246,7 +247,16 @@ class Mob implements IMob {
 
           if (combatTargetIsInRoom(room, potentialTarget)) {
             this.combatEngage(potentialTarget);
-            break; // Stop checking once we find a valid target
+            if (potentialTarget.type === "user") {
+              messageToUsername(
+                potentialTarget.name.toLowerCase(),
+                `${
+                  this.name.charAt(0).toUpperCase() + this.name.slice(1)
+                } remembers a grudge and targets you!`,
+                `red`
+              );
+            }
+            break;
           }
         }
       }

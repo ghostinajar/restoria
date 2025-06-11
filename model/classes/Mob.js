@@ -8,6 +8,7 @@ import autoAttack from "../../util/autoAttack.js";
 import getRoomByLocation from "../../util/getRoomByLocation.js";
 import catchErrorHandlerForFunction from "../../util/catchErrorHandlerForFunction.js";
 import combatTargetIsInRoom from "../../util/combatTargetIsInRoom.js";
+import messageToUsername from "../../util/messageToUsername.js";
 class Mob {
     constructor(blueprint, location) {
         this._id = new mongoose.Types.ObjectId();
@@ -179,7 +180,10 @@ class Mob {
                     };
                     if (combatTargetIsInRoom(room, potentialTarget)) {
                         this.combatEngage(potentialTarget);
-                        break; // Stop checking once we find a valid target
+                        if (potentialTarget.type === "user") {
+                            messageToUsername(potentialTarget.name.toLowerCase(), `${this.name.charAt(0).toUpperCase() + this.name.slice(1)} remembers a grudge and targets you!`, `red`);
+                        }
+                        break;
                     }
                 }
             }
@@ -293,11 +297,6 @@ class Mob {
         catch (error) {
             catchErrorHandlerForFunction(`mob.faint`, error, this.name);
         }
-    }
-    addGrudge(g) {
-        // get a matching grudge from this.grudges
-        // if no match found, create one
-        // shift the grudge to top of this.grudges
     }
 }
 export default Mob;
