@@ -94,8 +94,8 @@ export interface IUser extends mongoose.Document, IAgent {
   _lootBags: Array<ILootBag>; // necessary to store virtual info from the setter (not derived on every get)
   comparePassword(candidatePassword: string): Promise<boolean>;
   updateHUD(): void;
-  gainXp(): void;
-  gainLootBag(): void;
+  gainXp(xp: number): void;
+  gainLootBag(lootBag: ILootBag): void;
 }
 
 export const userSchema = new Schema<IUser>(
@@ -644,11 +644,12 @@ userSchema.methods.faint = function () {
 };
 
 userSchema.methods.gainXp = function (xp: number) {
+  console.log(`${this.name} receiving ${xp}xp.`);
   this.experience += xp;
   if (this.experience < 0) {
     this.experience = 0;
   }
-  // TODO check for level up
+  console.log(`${this.name} total xp is now ${this.experience}`); // TODO check for level up
 };
 
 userSchema.methods.gainLootBag = function (lb: ILootBag) {

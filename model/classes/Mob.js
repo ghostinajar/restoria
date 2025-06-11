@@ -9,6 +9,7 @@ import getRoomByLocation from "../../util/getRoomByLocation.js";
 import catchErrorHandlerForFunction from "../../util/catchErrorHandlerForFunction.js";
 import combatTargetIsInRoom from "../../util/combatTargetIsInRoom.js";
 import messageToUsername from "../../util/messageToUsername.js";
+import { XP_REWARD_FOR_MONSTER_LEVEL } from "../../constants/XP.js";
 class Mob {
     constructor(blueprint, location) {
         this._id = new mongoose.Types.ObjectId();
@@ -309,7 +310,9 @@ class Mob {
                 messageToUsername(u.username, `${this.nameCapitalized} fainted!`, `red`);
                 // reward users in the room also on mob's grudge list
                 if (this.grudges.some((grudge) => grudge.targetName === u.name)) {
-                    // TODO user gains exp
+                    const xpReward = XP_REWARD_FOR_MONSTER_LEVEL[this.level];
+                    console.log(`${this.name} awarding ${u.name} ${xpReward}xp...`);
+                    u.gainXp(xpReward);
                     // TODO put a lootbag in user's lootBags
                 }
             });

@@ -45,6 +45,7 @@ import ICombatTarget from "../../types/CombatTarget.js";
 import combatTargetIsInRoom from "../../util/combatTargetIsInRoom.js";
 import messageToUsername from "../../util/messageToUsername.js";
 import ILootBag from "../../types/LootBag.js";
+import { XP_REWARD_FOR_MONSTER_LEVEL } from "../../constants/XP.js";
 
 export interface IMob extends IAgent {
   _id: mongoose.Types.ObjectId;
@@ -400,7 +401,9 @@ class Mob implements IMob {
 
         // reward users in the room also on mob's grudge list
         if (this.grudges.some((grudge) => grudge.targetName === u.name)) {
-          // TODO user gains exp
+          const xpReward: number = XP_REWARD_FOR_MONSTER_LEVEL[this.level];
+          console.log(`${this.name} awarding ${u.name} ${xpReward}xp...`)
+          u.gainXp(xpReward);
           // TODO put a lootbag in user's lootBags
         }
       });

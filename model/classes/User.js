@@ -473,11 +473,12 @@ userSchema.methods.faint = function () {
     }
 };
 userSchema.methods.gainXp = function (xp) {
+    console.log(`${this.name} receiving ${xp}xp.`);
     this.experience += xp;
     if (this.experience < 0) {
         this.experience = 0;
     }
-    // TODO check for level up
+    console.log(`${this.name} total xp is now ${this.experience}`); // TODO check for level up
 };
 userSchema.methods.gainLootBag = function (lb) {
     this.lootBags.push(lb);
