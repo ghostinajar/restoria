@@ -9,8 +9,11 @@ async function resolveImmediateAction(actionName, agent, target, room) {
         // switch on action.actionName to run handler
         switch (actionName) {
             case "attack":
-                //console.log(`resolveImmediateAction calling resolveAttackHandler`);
-                setCombatTargetForAgent(agent, target);
+                agent.combatEngage({
+                    id: target._id,
+                    name: target.name,
+                    type: target.agentType,
+                });
                 resolveAttackHandler(agent, target, room);
                 agent.lastAttackActionDate = new Date();
                 break;
@@ -18,22 +21,6 @@ async function resolveImmediateAction(actionName, agent, target, room) {
     }
     catch (error) {
         catchErrorHandlerForFunction(`resolveAction`, error);
-    }
-}
-function setCombatTargetForAgent(agent, target) {
-    try {
-        agent.combatTarget = {
-            id: target._id,
-            name: target.name,
-            type: target.agentType,
-        };
-        if (agent.agentType === "user") {
-            let user = agent;
-            user.updateHUD();
-        }
-    }
-    catch (error) {
-        catchErrorHandlerForFunction(`setCombatTargetForAgent`, error);
     }
 }
 export default resolveImmediateAction;

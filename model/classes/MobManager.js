@@ -8,7 +8,7 @@ class MobManager {
     constructor() {
         this.mobs = new Map(); // Stores all mobs with their _id.toString() as key
         worldEmitter.on("mobRequestedById", this.mobRequestedByIdHandler);
-        worldEmitter.on("roomDestroyingMob", this.roomDestroyingMobHandler);
+        worldEmitter.on("destroyingMob", this.destroyingMobHandler);
         worldEmitter.on("roomRequestingNewMob", this.roomRequestingNewMobHandler);
         worldEmitter.on("tick", this.tickHandler);
     }
@@ -48,17 +48,13 @@ class MobManager {
             catchErrorHandlerForFunction("roomRequestingNewMobHandler", error);
         }
     };
-    roomDestroyingMobHandler = async (mobId) => {
+    destroyingMobHandler = async (mobId) => {
         try {
-            if (!mobId) {
-                logger.warn("roomDestroyingMobHandler called with invalid mobId.");
-                return;
-            }
             await this.removeMobById(mobId);
             worldEmitter.emit(`mobManagerRemovedMob${mobId}`);
         }
         catch (error) {
-            catchErrorHandlerForFunction("roomDestroyingMobHandler", error);
+            catchErrorHandlerForFunction("destroyingMobHandler", error);
         }
     };
     async getMobById(id) {
@@ -77,7 +73,7 @@ class MobManager {
             }
         }
         catch (error) {
-            catchErrorHandlerForFunction("roomDestroyingMobHandler", error);
+            catchErrorHandlerForFunction("destroyingMobHandler", error);
         }
     }
     async removeMobById(id) {
@@ -103,7 +99,7 @@ class MobManager {
         logger.info("MobManager clearing all mobs and event listeners.");
         this.mobs = null;
         worldEmitter.off("mobRequestedById", this.mobRequestedByIdHandler);
-        worldEmitter.off("roomDestroyingMob", this.roomDestroyingMobHandler);
+        worldEmitter.off("destroyingMob", this.destroyingMobHandler);
         worldEmitter.off("roomRequestingNewMob", this.roomRequestingNewMobHandler);
         worldEmitter.off("tick", this.tickHandler);
     }

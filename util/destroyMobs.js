@@ -6,10 +6,9 @@ async function destroyMobs(mobArray) {
         for (const mob of mobArray) {
             try {
                 mob.inventory = [];
-                //logger.debug(`Destroying mob "${mob.name}"`)
                 await new Promise((resolve) => {
                     worldEmitter.once(`mobManagerRemovedMob${mob._id.toString}`, resolve);
-                    worldEmitter.emit(`roomDestroyingMob`, mob._id.toString());
+                    worldEmitter.emit(`destroyingMob`, mob._id.toString());
                 });
             }
             catch (err) {

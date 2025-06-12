@@ -26,7 +26,6 @@ async function autoAttack(agent) {
             await resolveImmediateAction("attack", agent, target);
             if (agent.agentType === "user") {
                 const user = agent;
-                user.updateHUD();
             }
         }
     }

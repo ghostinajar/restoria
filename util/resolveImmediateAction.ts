@@ -5,7 +5,6 @@
 
 import { IAgent } from "../model/classes/Agent.js";
 import { IRoom } from "../model/classes/Room.js";
-import { IUser } from "../model/classes/User.js";
 import catchErrorHandlerForFunction from "./catchErrorHandlerForFunction.js";
 import resolveAttackHandler from "./resolveActionHandlers/resolveAttackHandler.js";
 
@@ -19,31 +18,17 @@ async function resolveImmediateAction(
     // switch on action.actionName to run handler
     switch (actionName) {
       case "attack":
-        //console.log(`resolveImmediateAction calling resolveAttackHandler`);
-        setCombatTargetForAgent(agent, target);
+        agent.combatEngage({
+          id: target._id,
+          name: target.name,
+          type: target.agentType,
+        });
         resolveAttackHandler(agent, target, room);
         agent.lastAttackActionDate = new Date();
         break;
     }
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`resolveAction`, error);
-  }
-}
-
-function setCombatTargetForAgent(agent: IAgent, target: IAgent) {
-  try {
-    agent.combatTarget = {
-      id: target._id,
-      name: target.name,
-      type: target.agentType,
-    };
-
-    if (agent.agentType === "user") {
-      let user = agent as IUser;
-      user.updateHUD();
-    }
-  } catch (error: unknown) {
-    catchErrorHandlerForFunction(`setCombatTargetForAgent`, error);
   }
 }
 

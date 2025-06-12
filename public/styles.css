@@ -625,7 +625,8 @@ ul {
 
 .equippedItemName,
 .itemName,
-.itemIsHere {
+.itemIsHere,
+.item {
   color: var(--blue_light);
 }
 

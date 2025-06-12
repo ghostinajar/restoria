@@ -62,6 +62,7 @@ async function createRoom(direction, user, roomName) {
             users: [],
             addEntityTo: roomSchema.methods.addEntityTo,
             removeEntityFrom: roomSchema.methods.removeEntityFrom,
+            destroyMob: roomSchema.methods.destroyMob
         };
         switch (direction) {
             case "north": {

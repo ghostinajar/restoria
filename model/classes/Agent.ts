@@ -61,6 +61,7 @@ export interface IAgent {
   readyForBonusAction: boolean;
   combatTarget?: ICombatTarget;
   grudges: Array<IGrudge>;
+  resting: boolean;
 
   modifyHp(amount: number): void;
   modifyMp(amount: number): void;

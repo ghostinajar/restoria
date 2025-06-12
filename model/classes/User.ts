@@ -92,6 +92,7 @@ export interface IUser extends mongoose.Document, IAgent {
   _lastBonusActionDate: Date; // necessary to store virtual info from the setter (not derived on every get)
   _lastFullActionDate: Date; // necessary to store virtual info from the setter (not derived on every get)
   _lootBags: Array<ILootBag>; // necessary to store virtual info from the setter (not derived on every get)
+  _resting: boolean;
   comparePassword(candidatePassword: string): Promise<boolean>;
   updateHUD(): void;
   gainXp(xp: number): void;
@@ -439,13 +440,21 @@ userSchema.virtual("lootBags").get(function () {
   return this._lootBags;
 });
 
+userSchema
+  .virtual("resting")
+  .get(function () {
+    return this._resting;
+  })
+  .set(function (value: boolean) {
+    this._resting = value;
+  });
+
 //****************************************************************************/
 //                             Methods                                        /
 //****************************************************************************/
 
 userSchema.methods.modifyHp = function (amount: number) {
   try {
-    console.log(`${this.name}'s currentHp are ${this.currentHp}`);
     const newHp = Math.min(Math.round(this.currentHp + amount), this.maxHp);
     this._currentHp = Math.max(0, newHp);
     this.updateHUD();
@@ -554,32 +563,25 @@ userSchema.methods.comparePassword = async function (
 userSchema.methods.handleTick = async function () {
   try {
     // Health regeneration
-    if (this.currentHp < this.maxHp) {
+    if (this.currentHp < this.maxHp && this.resting) {
       this.modifyHp(Math.max(0, this.maxHp / this.healthRegen));
     }
 
     // Mana regeneration
-    if (this.currentMp < this.maxMp) {
+    if (this.currentMp < this.maxMp && this.resting) {
       this.modifyMp(Math.max(0, this.maxMp / this.manaRegen));
     }
 
     // Movement regeneration
-    if (this.currentMv < this.maxMv) {
+    if (this.currentMv < this.maxMv && this.resting) {
       this.modifyMv(Math.max(0, this.maxMv / this.moveRegen));
     }
-
-    // clear out grudges older than 60 seconds
-    const now = Date.now();
-    this.grudges = this.grudges.filter((grudge: IGrudge) => {
-      return grudge.date && now - new Date(grudge.date).getTime() <= 60000;
-    });
 
     // autoAttack combat target
     if (this.readyForAttackAction && this.combatTarget) {
       autoAttack(this as IUser);
     }
 
-    this.updateHUD();
     await this.save();
   } catch (error: unknown) {
     catchErrorHandlerForFunction(
@@ -592,10 +594,12 @@ userSchema.methods.handleTick = async function () {
 
 userSchema.methods.combatDisengage = function () {
   this.combatTarget = undefined;
+  this.updateHUD();
 };
 
 userSchema.methods.combatEngage = function (target: ICombatTarget) {
   this.combatTarget = target;
+  this.updateHUD();
 };
 
 userSchema.methods.updateHUD = function () {
@@ -644,15 +648,28 @@ userSchema.methods.faint = function () {
 };
 
 userSchema.methods.gainXp = function (xp: number) {
-  console.log(`${this.name} receiving ${xp}xp.`);
   this.experience += xp;
   if (this.experience < 0) {
     this.experience = 0;
   }
-  console.log(`${this.name} total xp is now ${this.experience}`); // TODO check for level up
+  messageToUsername(this.username, `You gained ${xp}xp!`, `success`);
 };
 
 userSchema.methods.gainLootBag = function (lb: ILootBag) {
+  if (this.lootBags.length > 100) {
+    const oldLoot = this.lootBags.pop();
+    messageToUsername(
+      this.username,
+      `You have too many loot bags! Read HELP LOOT. The oldest one will have to go...`,
+      `red_light`
+    );
+    messageToUsername(
+      this.username,
+      `Your loot from ${oldLoot.fromName} scatters in a cloud of spectral letters and words.`,
+      `item`
+    );
+  }
+
   this.lootBags.push(lb);
   const user = this as IUser;
   messageToUsername(
@@ -660,6 +677,26 @@ userSchema.methods.gainLootBag = function (lb: ILootBag) {
     `You got a loot bag from ${lb.fromName}!`,
     `success`
   );
+};
+
+userSchema.methods.addGrudge = function (g: IGrudge) {
+  // remove duplicate if it exists
+  this.grudges = this.grudges.filter(
+    (grudge: IGrudge) =>
+      !(
+        grudge.targetId === g.targetId &&
+        grudge.targetName === g.targetName &&
+        grudge.targetType === g.targetType
+      )
+  );
+
+  // put the grudge at the top
+  this.grudges.unshift(g);
+
+  // if there are more than 10 grudges, remove anything after
+  if (this.grudges.length > 10) {
+    this.grudges = this.grudges.slice(0, 10);
+  }
 };
 
 const User = model<IUser>("User", userSchema);

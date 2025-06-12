@@ -14,6 +14,7 @@ import destroyMobs from "../../util/destroyMobs.js";
 import ROOM_TYPE from "../../constants/ROOM_TYPE.js";
 import catchErrorHandlerForFunction from "../../util/catchErrorHandlerForFunction.js";
 import recall from "../../commands/recall.js";
+import worldEmitter from "./WorldEmitter.js";
 const { Schema } = mongoose;
 const roomSchema = new Schema({
     _id: Schema.Types.ObjectId,
@@ -251,6 +252,19 @@ roomSchema.methods.clearContents = async function () {
     }
     catch (error) {
         catchErrorHandlerForFunction(`Room.clearContents for room id ${this._id}`, error);
+    }
+};
+roomSchema.methods.destroyMob = async function (mob) {
+    try {
+        mob.inventory = [];
+        await new Promise((resolve) => {
+            worldEmitter.once(`mobManagerRemovedMob${mob._id.toString()}`, resolve);
+            worldEmitter.emit(`destroyingMob`, mob._id.toString());
+        });
+        this.mobs = this.mobs.filter((m) => m._id.toString() !== mob._id.toString());
+    }
+    catch (error) {
+        catchErrorHandlerForFunction(`Room.destroyMob for room id ${this._id}`, error);
     }
 };
 export default roomSchema;

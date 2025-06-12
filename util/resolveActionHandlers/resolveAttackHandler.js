@@ -14,7 +14,6 @@ async function resolveAttackHandler(attacker, defender, providedRoom) {
                 type: attacker.agentType,
             });
         }
-        // TODO replace these pushes with an addGrudge method on the agent which also checks to prevent duplicate grudges
         attacker.addGrudge(new Grudge(defender._id, defender.name, defender.agentType));
         defender.addGrudge(new Grudge(attacker._id, attacker.name, attacker.agentType));
         // prepare messagePack
@@ -159,7 +158,7 @@ async function resolveAttackHandler(attacker, defender, providedRoom) {
         // TODO when spells implemented: if thorns, reduce attacker's currentHealth by netDamage / 2
     }
     catch (error) {
-        catchErrorHandlerForFunction(`attackHandler`, error);
+        catchErrorHandlerForFunction(`resolveAttackHandler`, error);
     }
 }
 export default resolveAttackHandler;

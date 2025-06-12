@@ -83,6 +83,7 @@ class Mob {
         this.lastBonusActionDate = new Date();
         this.lastFullActionDate = new Date();
         this.grudges = [];
+        this.resting = false;
     }
     _id;
     author;
@@ -136,6 +137,7 @@ class Mob {
     lastFullActionDate;
     combatTarget;
     grudges;
+    resting;
     get nameCapitalized() {
         return `${this.name.charAt(0).toUpperCase() + this.name.slice(1)}`;
     }
@@ -155,24 +157,17 @@ class Mob {
     async handleTick() {
         try {
             // Health regeneration
-            if (this.currentHp < this.maxHp) {
+            if (this.currentHp < this.maxHp && this.resting) {
                 this.modifyHp(Math.max(0, this.maxHp * this.healthRegen * 0.01));
             }
             // Mana regeneration
-            if (this.currentMp < this.maxMp) {
+            if (this.currentMp < this.maxMp && this.resting) {
                 this.modifyMp(Math.max(0, this.maxMp / this.manaRegen));
             }
             // Movement regeneration
-            if (this.currentMv < this.maxMv) {
+            if (this.currentMv < this.maxMv && this.resting) {
                 this.modifyMv(Math.max(0, this.maxMv / this.moveRegen));
             }
-            // clear out grudges older than 60 seconds
-            const now = Date.now();
-            this.grudges = this.grudges.filter((grudge) => {
-                return grudge.date && now - new Date(grudge.date).getTime() <= 60000;
-            });
-            console.log(`${this.name}'s combatTarget:`);
-            console.log(this.combatTarget);
             // target a grudge if they're present in the room
             if (this.grudges.length > 0 && !this.combatTarget) {
                 const room = await getRoomByLocation(this.location);
@@ -196,14 +191,12 @@ class Mob {
             }
             // if no combat target and mob is aggro, set combat target to random user in room
             if (this.isAggressive && !this.combatTarget) {
-                console.log(`${this.name} is aggro and looking for a target!`);
                 const room = await getRoomByLocation(this.location);
                 if (!room) {
                     throw new Error(`mob.handleTick had trouble getting room for mob id ${this._id}`);
                 }
                 if (room.users.length > 0) {
                     const randomUser = room.users[Math.floor(Math.random() * room.users.length)];
-                    console.log(`selected target ${randomUser.name} `);
                     this.combatTarget = {
                         id: randomUser._id,
                         name: randomUser.name,
@@ -213,7 +206,6 @@ class Mob {
             }
             // autoAttack combat target
             if (this.readyForAttackAction && this.combatTarget) {
-                console.log(`attempting autoattack on ${this.combatTarget.name} ${this.combatTarget.id}`);
                 autoAttack(this);
             }
         }
@@ -225,6 +217,10 @@ class Mob {
         try {
             const newHp = Math.min(Math.round(this.currentHp + amount), this.maxHp);
             this.currentHp = Math.max(0, newHp);
+            // faint if reduced below 1
+            if (this.currentHp < 1) {
+                this.faint();
+            }
         }
         catch (error) {
             catchErrorHandlerForFunction(`mob.modifyHp`, error, this.name);
@@ -311,9 +307,9 @@ class Mob {
                 // reward users in the room also on mob's grudge list
                 if (this.grudges.some((grudge) => grudge.targetName === u.name)) {
                     const xpReward = XP_REWARD_FOR_MONSTER_LEVEL[this.level];
-                    console.log(`${this.name} awarding ${u.name} ${xpReward}xp...`);
                     u.gainXp(xpReward);
-                    // TODO put a lootbag in user's lootBags
+                    const lootBag = this.generateLootBag();
+                    u.gainLootBag(lootBag);
                 }
             });
             room.mobs.forEach((m) => {
@@ -322,8 +318,7 @@ class Mob {
                     m.combatDisengage();
                 }
             });
-            // for every user in the room who is also in this mob's grudge list, create a loot bag in their lootInv
-            // destroy this mob object (emit for MobManager)
+            room.destroyMob(this);
         }
         catch (error) {
             catchErrorHandlerForFunction(`mob.faint`, error, this.name);
@@ -335,7 +330,14 @@ class Mob {
             items: [],
             gold: 0,
         };
-        // TODO add items to items array, tweak gold amount
+        // add items to items array
+        this.inventory.forEach((i) => {
+            if (Math.random() < 0.5) {
+                lb.items.push(i);
+            }
+        });
+        // tweak gold amount
+        lb.gold = XP_REWARD_FOR_MONSTER_LEVEL[this.level];
         return lb;
     }
     addGrudge(g) {
