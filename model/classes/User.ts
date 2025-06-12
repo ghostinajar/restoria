@@ -6,7 +6,7 @@ import bcrypt from "bcrypt";
 import affixSchema from "./Affix.js";
 import itemSchema, { IItem } from "./Item.js";
 import descriptionSchema from "./Description.js";
-import locationSchema from "./Location.js";
+import locationSchema, { ILocation } from "./Location.js";
 import statBlockSchema from "./StatBlock.js";
 import historySchema, { IHistory } from "./History.js";
 import catchErrorHandlerForFunction from "../../util/catchErrorHandlerForFunction.js";
@@ -45,6 +45,8 @@ import autoAttack from "../../util/autoAttack.js";
 import ICombatTarget from "../../types/CombatTarget.js";
 import ILootBag from "../../types/LootBag.js";
 import messageToUsername from "../../util/messageToUsername.js";
+import getRoomByLocation from "../../util/getRoomByLocation.js";
+import relocateUser from "../../util/relocateUser.js";
 
 const { Schema, Types, model } = mongoose;
 
@@ -93,10 +95,14 @@ export interface IUser extends mongoose.Document, IAgent {
   _lastFullActionDate: Date; // necessary to store virtual info from the setter (not derived on every get)
   _lootBags: Array<ILootBag>; // necessary to store virtual info from the setter (not derived on every get)
   _resting: boolean;
+  _fainted: boolean;
+  _deathSaveTries: boolean;
+  _deathSaveSuccesses: boolean;
   comparePassword(candidatePassword: string): Promise<boolean>;
   updateHUD(): void;
   gainXp(xp: number): void;
   gainLootBag(lootBag: ILootBag): void;
+  deathSave(): boolean;
 }
 
 export const userSchema = new Schema<IUser>(
@@ -449,6 +455,15 @@ userSchema
     this._resting = value;
   });
 
+userSchema
+  .virtual("fainted")
+  .get(function () {
+    return this._fainted;
+  })
+  .set(function (value: boolean) {
+    this._fainted = value;
+  });
+
 //****************************************************************************/
 //                             Methods                                        /
 //****************************************************************************/
@@ -562,6 +577,8 @@ userSchema.methods.comparePassword = async function (
 
 userSchema.methods.handleTick = async function () {
   try {
+    //TODO if unconscious, handle death saves
+
     // Health regeneration
     if (this.currentHp < this.maxHp && this.resting) {
       this.modifyHp(Math.max(0, this.maxHp / this.healthRegen));
@@ -636,15 +653,37 @@ userSchema.methods.updateHUD = function () {
   }
 };
 
-userSchema.methods.faint = function () {
+userSchema.methods.faint = async function () {
   try {
     this.combatDisengage();
-    // messagePack the room
-    // relocate this User to last shrine visited
-    // set their 2min cooldown period (maybe by setting _lastAttackActionDate, _lastBonusActionDate, _lastFullActionDate to two minutes in the future?
+    this.fainted = true;
+    const room = await getRoomByLocation(this.location);
+    if (!room) {
+      throw new Error(`Failed to find room for user ${this.name}!`);
+    }
+    room.users.forEach((u) => {
+      messageToUsername(u.username, `${this.name} fainted!`);
+    });
+    // TODO remove from grudges in the room
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`userSchema.methods.faint`, error, this.name);
   }
+};
+
+userSchema.methods.revive = function () {
+  const user = this as IUser;
+  messageToUsername(
+    user.username,
+    `Your author's spirit revives you. How lucky!`,
+    `success`
+  );
+  this.fainted = false;
+  this.deathSaveTries = 0;
+  this.deathSaveSuccesses = 0;
+  this.currentHp = 1;
+  this.currentMp = 1;
+  this.currentMv = 1;
+  this.updateHUD();
 };
 
 userSchema.methods.gainXp = function (xp: number) {
@@ -697,6 +736,36 @@ userSchema.methods.addGrudge = function (g: IGrudge) {
   if (this.grudges.length > 10) {
     this.grudges = this.grudges.slice(0, 10);
   }
+};
+
+userSchema.methods.deathSave = function () {
+  this.deathSaveTries++;
+  // TODO modify random chance using constitution
+  if (Math.random() < 0.5) {
+    this.deathSaveSuccesses++;
+  }
+
+  // if this.deathSaveSuccesses >2, revive & return
+  if (this.deathSaveSuccesses > 2) {
+    this.revive();
+    return;
+  }
+
+  // if this.deathSaveTries >2 relocate this User to last shrine visited, revive
+  if (this.deathSaveTries > 2) {
+    // TODO use latestShrineLocation instead of hardcoding ogopogo
+    const lastShrine: ILocation = {
+      inZone: new Types.ObjectId("664f8ca70cc5ae9b173969a8"),
+      inRoom: new Types.ObjectId("673cd8a5820ea8bb4657916c"),
+    };
+    this.location = location;
+    const user = this as IUser;
+    relocateUser(user, lastShrine);
+    this.revive();
+    return;
+  }
+
+  return true;
 };
 
 const User = model<IUser>("User", userSchema);
