@@ -79,6 +79,8 @@ export interface IUser extends mongoose.Document, IAgent {
   trained: Array<ITrained>;
   storage: Array<IItem>;
   editor: mongoose.Types.ObjectId | null;
+  shrine: ILocation;
+  fainted: boolean;
   preferences: {
     autoExamine: boolean;
     mapRadius: number;
@@ -102,7 +104,7 @@ export interface IUser extends mongoose.Document, IAgent {
   updateHUD(): void;
   gainXp(xp: number): void;
   gainLootBag(lootBag: ILootBag): void;
-  deathSave(): boolean;
+  deathSave(): void;
 }
 
 export const userSchema = new Schema<IUser>(
@@ -119,6 +121,11 @@ export const userSchema = new Schema<IUser>(
     },
     agentType: { type: String, required: true, default: "user" },
     location: {
+      type: locationSchema,
+      required: true,
+      default: WORLD_RECALL,
+    },
+    shrine: {
       type: locationSchema,
       required: true,
       default: WORLD_RECALL,
@@ -245,7 +252,6 @@ userSchema
     this._currentHp = Math.min(value, maxPossible);
     if (this._currentHp < 0) {
       this._currentHp = 0;
-      // TODO handle consequences of zero currentHp (e.g. die)
     }
   });
 
@@ -471,7 +477,10 @@ userSchema
 userSchema.methods.modifyHp = function (amount: number) {
   try {
     const newHp = Math.min(Math.round(this.currentHp + amount), this.maxHp);
-    this._currentHp = Math.max(0, newHp);
+    this.currentHp = Math.max(0, newHp);
+    if (this.currentHp < 1) {
+      this.faint();
+    }
     this.updateHUD();
   } catch (error: unknown) {
     catchErrorHandlerForFunction(
@@ -577,7 +586,10 @@ userSchema.methods.comparePassword = async function (
 
 userSchema.methods.handleTick = async function () {
   try {
-    //TODO if unconscious, handle death saves
+    if (this.fainted) {
+      this.deathSave();
+      return;
+    }
 
     // Health regeneration
     if (this.currentHp < this.maxHp && this.resting) {
@@ -655,16 +667,43 @@ userSchema.methods.updateHUD = function () {
 
 userSchema.methods.faint = async function () {
   try {
+    // disengage, faint
     this.combatDisengage();
     this.fainted = true;
+
+    // message user
+    const user = this as IUser;
+    messageToUsername(user.username, `You fainted!`, `red`);
+
+    // handle users in room (message/disengage/degrudge)
     const room = await getRoomByLocation(this.location);
     if (!room) {
       throw new Error(`Failed to find room for user ${this.name}!`);
     }
     room.users.forEach((u) => {
-      messageToUsername(u.username, `${this.name} fainted!`);
+      // message
+      messageToUsername(u.username, `${this.name} fainted!`, `red`);
+      // disengage
+      if (u.combatTarget?.id === this._id) {
+        u.combatDisengage();
+      }
+      // degrudge
+      u.grudges = u.grudges.filter((grudge) => {
+        return grudge.targetId !== this._id;
+      });
     });
-    // TODO remove from grudges in the room
+
+    // handle mobs in room (disengage/degrudge)
+    room.mobs.forEach((m) => {
+      // disengage
+      if (m.combatTarget?.id === this._id) {
+        m.combatDisengage();
+      }
+      // degrudge
+      m.grudges = m.grudges.filter((grudge) => {
+        return grudge.targetId !== this._id;
+      });
+    });
   } catch (error: unknown) {
     catchErrorHandlerForFunction(`userSchema.methods.faint`, error, this.name);
   }
@@ -739,33 +778,35 @@ userSchema.methods.addGrudge = function (g: IGrudge) {
 };
 
 userSchema.methods.deathSave = function () {
+  console.log(`${this.name} is doing a death save...`);
   this.deathSaveTries++;
-  // TODO modify random chance using constitution
-  if (Math.random() < 0.5) {
-    this.deathSaveSuccesses++;
-  }
-
-  // if this.deathSaveSuccesses >2, revive & return
-  if (this.deathSaveSuccesses > 2) {
-    this.revive();
-    return;
-  }
-
-  // if this.deathSaveTries >2 relocate this User to last shrine visited, revive
-  if (this.deathSaveTries > 2) {
-    // TODO use latestShrineLocation instead of hardcoding ogopogo
-    const lastShrine: ILocation = {
-      inZone: new Types.ObjectId("664f8ca70cc5ae9b173969a8"),
-      inRoom: new Types.ObjectId("673cd8a5820ea8bb4657916c"),
-    };
-    this.location = location;
+  console.log(`This is try ${this.deathSaveTries}`);
+  // If this is more than 3 tries, relocate and revive
+  if (this.deathSaveTries >= 3) {
+    console.log(`More than 3 tries! relocating and reviving...`);
     const user = this as IUser;
-    relocateUser(user, lastShrine);
+    relocateUser(user, this.shrine);
     this.revive();
     return;
   }
 
-  return true;
+  // Make the save roll
+  const constitution = this.statBlock.constitution || 10;
+  let chance = 0.5 + (constitution - 10) * 0.02;
+  console.log(`Base chance: ${chance}`);
+  chance = Math.max(0.5, Math.min(0.7, chance)); // Clamp between 50% and 70%
+  console.log(`Chance after rando: ${chance}`);
+  if (Math.random() < chance) {
+    this.deathSaveSuccesses++;
+    console.log(`That's ${this.deathSaveSuccesses} successes!`);
+  }
+
+  // Check if we've succeeded three times
+  if (this.deathSaveSuccesses >= 3) {
+    console.log(`3 successes! Reviving...`);
+    this.revive();
+    return;
+  }
 };
 
 const User = model<IUser>("User", userSchema);

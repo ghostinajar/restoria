@@ -6,7 +6,7 @@ function combatTargetIsInRoom(room, combatTarget) {
         // For user targets
         if (combatTarget.type === "user") {
             const userInRoom = room.users.find((u) => u._id.toString() === combatTarget.id.toString());
-            if (userInRoom) {
+            if (userInRoom && !userInRoom.fainted) {
                 return true;
             }
         }

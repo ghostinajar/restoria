@@ -2,7 +2,6 @@
 // returns true if mob or user is present in a given room
 
 import { IRoom } from "../model/classes/Room.js";
-import { IUser } from "../model/classes/User.js";
 import ICombatTarget from "../types/CombatTarget.js";
 import catchErrorHandlerForFunction from "./catchErrorHandlerForFunction.js";
 
@@ -13,7 +12,7 @@ function combatTargetIsInRoom(room: IRoom, combatTarget: ICombatTarget) {
       const userInRoom = room.users.find(
         (u) => u._id.toString() === combatTarget.id.toString()
       );
-      if (userInRoom) {
+      if (userInRoom && !userInRoom.fainted) {
         return true;
       }
     }

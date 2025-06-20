@@ -18,6 +18,8 @@ import worldEmitter from "./WorldEmitter.js";
 import { TICK_COOLDOWN } from "../../constants/COOLDOWNS.js";
 import autoAttack from "../../util/autoAttack.js";
 import messageToUsername from "../../util/messageToUsername.js";
+import getRoomByLocation from "../../util/getRoomByLocation.js";
+import relocateUser from "../../util/relocateUser.js";
 const { Schema, Types, model } = mongoose;
 export const userSchema = new Schema({
     _id: Schema.Types.ObjectId,
@@ -32,6 +34,11 @@ export const userSchema = new Schema({
     },
     agentType: { type: String, required: true, default: "user" },
     location: {
+        type: locationSchema,
+        required: true,
+        default: WORLD_RECALL,
+    },
+    shrine: {
         type: locationSchema,
         required: true,
         default: WORLD_RECALL,
@@ -153,7 +160,6 @@ userSchema
     this._currentHp = Math.min(value, maxPossible);
     if (this._currentHp < 0) {
         this._currentHp = 0;
-        // TODO handle consequences of zero currentHp (e.g. die)
     }
 });
 userSchema.virtual("maxHp").get(function () {
@@ -324,13 +330,24 @@ userSchema
     .set(function (value) {
     this._resting = value;
 });
+userSchema
+    .virtual("fainted")
+    .get(function () {
+    return this._fainted;
+})
+    .set(function (value) {
+    this._fainted = value;
+});
 //****************************************************************************/
 //                             Methods                                        /
 //****************************************************************************/
 userSchema.methods.modifyHp = function (amount) {
     try {
         const newHp = Math.min(Math.round(this.currentHp + amount), this.maxHp);
-        this._currentHp = Math.max(0, newHp);
+        this.currentHp = Math.max(0, newHp);
+        if (this.currentHp < 1) {
+            this.faint();
+        }
         this.updateHUD();
     }
     catch (error) {
@@ -409,6 +426,10 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 };
 userSchema.methods.handleTick = async function () {
     try {
+        if (this.fainted) {
+            this.deathSave();
+            return;
+        }
         // Health regeneration
         if (this.currentHp < this.maxHp && this.resting) {
             this.modifyHp(Math.max(0, this.maxHp / this.healthRegen));
@@ -464,16 +485,57 @@ userSchema.methods.updateHUD = function () {
         catchErrorHandlerForFunction(`userSchema.methods.updateHud`, error);
     }
 };
-userSchema.methods.faint = function () {
+userSchema.methods.faint = async function () {
     try {
+        // disengage, faint
         this.combatDisengage();
-        // messagePack the room
-        // relocate this User to last shrine visited
-        // set their 2min cooldown period (maybe by setting _lastAttackActionDate, _lastBonusActionDate, _lastFullActionDate to two minutes in the future?
+        this.fainted = true;
+        // message user
+        const user = this;
+        messageToUsername(user.username, `You fainted!`, `red`);
+        // handle users in room (message/disengage/degrudge)
+        const room = await getRoomByLocation(this.location);
+        if (!room) {
+            throw new Error(`Failed to find room for user ${this.name}!`);
+        }
+        room.users.forEach((u) => {
+            // message
+            messageToUsername(u.username, `${this.name} fainted!`, `red`);
+            // disengage
+            if (u.combatTarget?.id === this._id) {
+                u.combatDisengage();
+            }
+            // degrudge
+            u.grudges = u.grudges.filter((grudge) => {
+                return grudge.targetId !== this._id;
+            });
+        });
+        // handle mobs in room (disengage/degrudge)
+        room.mobs.forEach((m) => {
+            // disengage
+            if (m.combatTarget?.id === this._id) {
+                m.combatDisengage();
+            }
+            // degrudge
+            m.grudges = m.grudges.filter((grudge) => {
+                return grudge.targetId !== this._id;
+            });
+        });
     }
     catch (error) {
         catchErrorHandlerForFunction(`userSchema.methods.faint`, error, this.name);
     }
+};
+userSchema.methods.revive = function () {
+    const user = this;
+    messageToUsername(user.username, `Your author's spirit revives you. How lucky!`, `success`);
+    this.fainted = false;
+    this.deathSaveTries = 0;
+    this.deathSaveSuccesses = 0;
+    this.currentHp = 1;
+    this.currentMp = 1;
+    this.currentMv = 1;
+    this.updateHUD();
 };
 userSchema.methods.gainXp = function (xp) {
     this.experience += xp;
@@ -502,6 +564,35 @@ userSchema.methods.addGrudge = function (g) {
     // if there are more than 10 grudges, remove anything after
     if (this.grudges.length > 10) {
         this.grudges = this.grudges.slice(0, 10);
+    }
+};
+userSchema.methods.deathSave = function () {
+    console.log(`${this.name} is doing a death save...`);
+    this.deathSaveTries++;
+    console.log(`This is try ${this.deathSaveTries}`);
+    // If this is more than 3 tries, relocate and revive
+    if (this.deathSaveTries >= 3) {
+        console.log(`More than 3 tries! relocating and reviving...`);
+        const user = this;
+        relocateUser(user, this.shrine);
+        this.revive();
+        return;
+    }
+    // Make the save roll
+    const constitution = this.statBlock.constitution || 10;
+    let chance = 0.5 + (constitution - 10) * 0.02;
+    console.log(`Base chance: ${chance}`);
+    chance = Math.max(0.5, Math.min(0.7, chance)); // Clamp between 50% and 70%
+    console.log(`Chance after rando: ${chance}`);
+    if (Math.random() < chance) {
+        this.deathSaveSuccesses++;
+        console.log(`That's ${this.deathSaveSuccesses} successes!`);
+    }
+    // Check if we've succeeded three times
+    if (this.deathSaveSuccesses >= 3) {
+        console.log(`3 successes! Reviving...`);
+        this.revive();
+        return;
     }
 };
 const User = model("User", userSchema);

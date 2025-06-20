@@ -271,7 +271,11 @@ class Mob implements IMob {
             `mob.handleTick had trouble getting room for mob id ${this._id}`
           );
         }
-        if (room.users.length > 0) {
+
+        const consciousUsers = room.users.filter((u) => {
+          return !u.fainted;
+        });
+        if (consciousUsers.length > 0) {
           const randomUser =
             room.users[Math.floor(Math.random() * room.users.length)];
           this.combatTarget = {
@@ -284,7 +288,6 @@ class Mob implements IMob {
 
       // autoAttack combat target
       if (this.readyForAttackAction && this.combatTarget) {
-
         autoAttack(this);
       }
     } catch (error: unknown) {
